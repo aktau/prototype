@@ -54,7 +54,9 @@ else
 	endif
 endif
 
-INCS = -I$(SDL_PATH)/include -I/usr/include/malloc -I/usr/X11R6/include
+INCS = -I$(SDL_PATH)/include \
+	-I/usr/include/malloc \
+	-I/usr/X11R6/include
 
 LIBS = ./build/libSDL2.a ./build/libSDL2main.a \
 	-lm -liconv \

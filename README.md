@@ -10,3 +10,5 @@ SDL2, but it's included in-tree.
 
 building
 ========
+
+For now, just run `make`
