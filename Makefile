@@ -7,7 +7,27 @@
 
 SDL_PATH=./deps/sdl2
 
-CCFLAGS = -D_THREAD_SAFE -std=c11
+CCFLAGS = -D_THREAD_SAFE \
+	-D_FORTIFY_SOURCE=2 \
+	-Wextra \
+	-Wcast-align \
+	-Wcast-qual \
+	-Wpointer-arith \
+	-Waggregate-return \
+	-Wunreachable-code \
+	-Wfloat-equal \
+	-Wformat=2 \
+	-Wredundant-decls \
+	-Wundef \
+	-Wdisabled-optimization \
+	-Wshadow \
+	-Wmissing-braces \
+	-Wstrict-aliasing=2 \
+	-Wstrict-overflow=5 \
+	-Wconversion \
+	-Wno-unused-parameter \
+	-pedantic \
+	-std=c11
 DEV_CFLAGS = $(CCFLAGS) -g -Wall
 REL_CFLAGS = $(CCFLAGS) -Wall -O2
 

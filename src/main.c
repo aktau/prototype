@@ -28,14 +28,14 @@
  * TODO: switch to basic shaders
  */
 
-static void perspective(GLdouble fovy, GLdouble aspect, GLdouble near, GLdouble far) {
-    // GLdouble half_height = near * tan( fovy * 0.5 * TWOPI_OVER_360 );
-    // GLdouble half_width = half_height * aspect;
+// static void perspective(GLdouble fovy, GLdouble aspect, GLdouble near, GLdouble far) {
+//     GLdouble half_height = near * tan( fovy * 0.5 * TWOPI_OVER_360 );
+//     GLdouble half_width = half_height * aspect;
 
-    // glFrustum(-half_width, half_width, -half_height, half_height, near, far);
-}
+//     glFrustum(-half_width, half_width, -half_height, half_height, near, far);
+// }
 
-static void setupTransform(Uint32 width, Uint32 height) {
+static void setupTransform(int width, int height) {
     // int ortho = 1;
 
     // GLfloat ratio = (GLfloat) width / (GLfloat) (height ? height : 1);
@@ -81,7 +81,7 @@ static void init() {
 
 static void render() {
     // ... can be used alongside SDL2.
-    static float x = 0.0, y = 30.0;
+    // static float x = 0.0, y = 30.0;
 
     /* clear screen */
     // glClearColor(0,0,0,1);
@@ -105,7 +105,7 @@ static void render() {
 }
 
 static void printGlInfo() {
-    const unsigned char *str[] = {
+    const char *str[] = {
         "version",
         "renderer",
         "vendor",
@@ -119,7 +119,7 @@ static void printGlInfo() {
         GL_SHADING_LANGUAGE_VERSION
     };
 
-    for (int i = 0; i < ARRAY_SIZE(constant); ++i) {
+    for (int i = 0; i < (int) ARRAY_SIZE(constant); ++i) {
         const unsigned char *info = glGetString(constant[i]);
 
         if (info == NULL) {
@@ -154,8 +154,8 @@ int main(int argc, char* argv[]) {
 
     int vsync = 1;
 
-    Uint32 width = 800;
-    Uint32 height = 600;
+    int width = 800;
+    int height = 600;
 
     SDL_Window *window = SDL_CreateWindow(
         "SDL2/OpenGL prototype",
