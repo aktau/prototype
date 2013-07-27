@@ -11,8 +11,8 @@ CCFLAGS = -D_THREAD_SAFE -std=c11
 DEV_CFLAGS = $(CCFLAGS) -g -Wall
 REL_CFLAGS = $(CCFLAGS) -Wall -O2
 
-CC = /usr/local/bin/gcc-4.8
-#CC = /usr/local/bin/clang
+# CC = /usr/local/bin/gcc-4.8
+CC = /usr/local/bin/clang
 CC_VERSION := $(shell $(CC) --version | head -1 | cut -f1 -d' ')
 
 ifeq ($(OS),Windows_NT)

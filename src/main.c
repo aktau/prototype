@@ -12,8 +12,14 @@
 #include <string.h>
 #include <math.h>
 
+#define GL3_PROTOTYPES
+#include <OpenGL/gl3.h>
+
 #include "SDL.h"
-#include "SDL_opengl.h"
+
+// #include "SDL_opengl.h"
+
+#define ARRAY_SIZE(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
 
 #define TWOPI_OVER_360 0.0174533
 
@@ -23,39 +29,39 @@
  */
 
 static void perspective(GLdouble fovy, GLdouble aspect, GLdouble near, GLdouble far) {
-    GLdouble half_height = near * tan( fovy * 0.5 * TWOPI_OVER_360 );
-    GLdouble half_width = half_height * aspect;
+    // GLdouble half_height = near * tan( fovy * 0.5 * TWOPI_OVER_360 );
+    // GLdouble half_width = half_height * aspect;
 
-    glFrustum(-half_width, half_width, -half_height, half_height, near, far);
+    // glFrustum(-half_width, half_width, -half_height, half_height, near, far);
 }
 
 static void setupTransform(Uint32 width, Uint32 height) {
-    int ortho = 1;
+    // int ortho = 1;
 
-    GLfloat ratio = (GLfloat) width / (GLfloat) (height ? height : 1);
+    // GLfloat ratio = (GLfloat) width / (GLfloat) (height ? height : 1);
 
     /* setup viewport */
     glViewport(0, 0, (GLsizei) width, (GLsizei) height);
 
     /* Now, regular OpenGL functions ... */
-    if (ortho) {
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        glOrtho(-320, 320, 240, -240, 0, 1);
-    }
-    else {
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        perspective(45.0f, ratio, 0.1f, 100.0f);
-    }
+    // if (ortho) {
+    //     glMatrixMode(GL_PROJECTION);
+    //     glLoadIdentity();
+    //     glOrtho(-320, 320, 240, -240, 0, 1);
+    // }
+    // else {
+    //     glMatrixMode(GL_PROJECTION);
+    //     glLoadIdentity();
+    //     perspective(45.0f, ratio, 0.1f, 100.0f);
+    // }
 
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+    // glMatrixMode(GL_MODELVIEW);
+    // glLoadIdentity();
 }
 
 static void init() {
     /* Enable smooth shading */
-    glShadeModel( GL_SMOOTH );
+    // glShadeModel( GL_SMOOTH );
 
     /* Set the background black */
     glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
@@ -70,7 +76,7 @@ static void init() {
     glDepthFunc(GL_LEQUAL);
 
     /* Really Nice Perspective Calculations */
-    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+    // glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 }
 
 static void render() {
@@ -81,21 +87,57 @@ static void render() {
     // glClearColor(0,0,0,1);
     glClear(GL_COLOR_BUFFER_BIT); /* | GL_DEPTH_BUFFER_BIT */
 
-    glRotatef(10.0,0.0,0.0,1.0);
+    // glRotatef(10.0,0.0,0.0,1.0);
 
     // Note that the glBegin() ... glEnd() OpenGL style used below is actually
     // obsolete, but it will do for example purposes. For more information, see
     // SDL_GL_GetProcAddress() or find an OpenGL extension loading library.
-    glBegin(GL_TRIANGLES); // drawing a multicolored triangle
-        glColor3f(1.0,0.0,0.0);
-        glVertex2f(x, y + 90.0);
+    // glBegin(GL_TRIANGLES);
+    //     glColor3f(1.0,0.0,0.0);
+    //     glVertex2f(x, y + 90.0);
 
-        glColor3f(0.0,1.0,0.0);
-        glVertex2f(x + 90.0, y - 90.0);
+    //     glColor3f(0.0,1.0,0.0);
+    //     glVertex2f(x + 90.0, y - 90.0);
 
-        glColor3f(0.0,0.0,1.0);
-        glVertex2f(x - 90.0, y - 90.0);
-    glEnd();
+    //     glColor3f(0.0,0.0,1.0);
+    //     glVertex2f(x - 90.0, y - 90.0);
+    // glEnd();
+}
+
+static void printGlInfo() {
+    const unsigned char *str[] = {
+        "version",
+        "renderer",
+        "vendor",
+        "shading_language_version"
+    };
+
+    const unsigned int constant[] = {
+        GL_VERSION,
+        GL_RENDERER,
+        GL_VENDOR,
+        GL_SHADING_LANGUAGE_VERSION
+    };
+
+    for (int i = 0; i < ARRAY_SIZE(constant); ++i) {
+        const unsigned char *info = glGetString(constant[i]);
+
+        if (info == NULL) {
+            printf("could not retrieve %s information, aborting\n", str[i]);
+            exit(-1);
+        }
+        else {
+            printf("%s: %s\n", str[i], info);
+        }
+    }
+
+    GLint major;
+    GLint minor;
+
+    glGetIntegerv(GL_MAJOR_VERSION, &major);
+    glGetIntegerv(GL_MINOR_VERSION, &minor);
+
+    printf("context version double check: %d.%d\n", major, minor);
 }
 
 int main(int argc, char* argv[]) {
@@ -107,6 +149,8 @@ int main(int argc, char* argv[]) {
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
     int vsync = 1;
 
@@ -122,6 +166,8 @@ int main(int argc, char* argv[]) {
     );
 
     SDL_GLContext glcontext = SDL_GL_CreateContext(window);
+
+    printGlInfo();
 
     init();
     setupTransform(width, height);
