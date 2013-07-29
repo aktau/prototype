@@ -11,6 +11,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <stdint.h>
+#include <limits.h>
 
 #define GL3_PROTOTYPES
 #include <OpenGL/gl3.h>
@@ -19,12 +21,19 @@
 
 // #include "SDL_opengl.h"
 
+#ifndef MAX
+#define MAX(x, y) (((x) > (y)) ? (x) : (y))
+#endif
+
+#ifndef MIN
+#define MIN(x, y) (((x) < (y)) ? (x) : (y))
+#endif
+
 #define ARRAY_SIZE(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
 
 #define TWOPI_OVER_360 0.0174533
 
 /**
- * TODO: switch to core profile, banish immediate mode
  * TODO: switch to basic shaders
  */
 
@@ -84,8 +93,8 @@ static void render() {
     // static float x = 0.0, y = 30.0;
 
     /* clear screen */
-    // glClearColor(0,0,0,1);
-    glClear(GL_COLOR_BUFFER_BIT); /* | GL_DEPTH_BUFFER_BIT */
+    glClearColor(0,0,0,1);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // glRotatef(10.0,0.0,0.0,1.0);
 
@@ -140,22 +149,63 @@ static void printGlInfo() {
     printf("context version double check: %d.%d\n", major, minor);
 }
 
+static int diagFrameDone(SDL_Window *window) {
+    char title[1024];
+
+    /* processing time per frame */
+    static int counter = 0;
+
+    static uint32_t min = 0, max = 0, avg = 0;
+    static uint32_t elapsed = 0, totalElapsed = 0;
+    static uint32_t last = 0;
+
+    uint32_t current = SDL_GetTicks();
+    elapsed = (current - last);
+    totalElapsed += elapsed;
+
+    ++counter;
+
+    min = MIN(min, elapsed);
+    max = MAX(max, elapsed);
+    avg += ((int32_t)(elapsed - avg)) / counter;
+
+    /* let's average over (more or less) one second */
+    if (totalElapsed >= 1000) {
+        uint32_t avgfps = 1000 / (float) avg;
+        uint32_t fps = 1000 * counter / (float) totalElapsed;
+
+        sprintf(title, "avg fps: %u, actual fps: %u, ms per frame (min: %u, avg: %u, max: %u), frames processed: %u\n", avgfps, fps, min, avg, max, counter);
+
+        SDL_SetWindowTitle(window, title);
+
+        counter      = 0;
+        totalElapsed = 0;
+
+        min = UINT32_MAX;
+        max = 0;
+        avg = 0;
+    }
+
+    last = current;
+}
+
 int main(int argc, char* argv[]) {
+    int vsync     = 1;
+    int doublebuf = 1;
+
+    int width  = 1280;
+    int height = 720;
+
     SDL_Init(SDL_INIT_VIDEO);
 
     /* set the opengl context version, this is the latest that OSX can handle, for now... */
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, doublebuf);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-
-    int vsync = 1;
-
-    int width = 800;
-    int height = 600;
 
     SDL_Window *window = SDL_CreateWindow(
         "SDL2/OpenGL prototype",
@@ -174,8 +224,6 @@ int main(int argc, char* argv[]) {
 
     SDL_Event event;
     Uint8 done = 0;
-
-    Uint32 ticks = SDL_GetTicks();
 
     if (SDL_GL_SetSwapInterval(vsync) == -1) {
         printf("could not set desired vsync mode: %d", vsync);
@@ -203,11 +251,7 @@ int main(int argc, char* argv[]) {
         SDL_GL_SwapWindow(window);
         // SDL_Delay(10);
 
-        Uint32 nticks = SDL_GetTicks();
-
-        printf("wow, one whole loop, took %u ms to render!\n", nticks - ticks);
-
-        ticks = nticks;
+        diagFrameDone(window);
     }
 
     SDL_GL_DeleteContext(glcontext);
