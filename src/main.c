@@ -149,17 +149,17 @@ static void printGlInfo() {
     printf("context version double check: %d.%d\n", major, minor);
 }
 
-static int diagFrameDone(SDL_Window *window) {
+static void diagFrameDone(SDL_Window *window) {
     char title[1024];
 
     /* processing time per frame */
     static int counter = 0;
 
-    static uint32_t min = 0, max = 0, avg = 0;
-    static uint32_t elapsed = 0, totalElapsed = 0;
-    static uint32_t last = 0;
+    static int min = 0, max = 0, avg = 0;
+    static int elapsed = 0, totalElapsed = 0;
+    static int last = 0;
 
-    uint32_t current = SDL_GetTicks();
+    int current = (int) SDL_GetTicks();
     elapsed = (current - last);
     totalElapsed += elapsed;
 
@@ -167,21 +167,21 @@ static int diagFrameDone(SDL_Window *window) {
 
     min = MIN(min, elapsed);
     max = MAX(max, elapsed);
-    avg += ((int32_t)(elapsed - avg)) / counter;
+    avg += (elapsed - avg) / counter;
 
     /* let's average over (more or less) one second */
     if (totalElapsed >= 1000) {
-        uint32_t avgfps = 1000 / (float) avg;
-        uint32_t fps = 1000 * counter / (float) totalElapsed;
+        int avgfps = (int) (1000 / (float) avg);
+        int fps = (int) (1000 * counter / (float) totalElapsed);
 
-        sprintf(title, "avg fps: %u, actual fps: %u, ms per frame (min: %u, avg: %u, max: %u), frames processed: %u\n", avgfps, fps, min, avg, max, counter);
+        sprintf(title, "avg fps: %d, actual fps: %d, ms per frame (min: %d, avg: %d, max: %d), frames processed: %d\n", avgfps, fps, min, avg, max, counter);
 
         SDL_SetWindowTitle(window, title);
 
         counter      = 0;
         totalElapsed = 0;
 
-        min = UINT32_MAX;
+        min = INT32_MAX;
         max = 0;
         avg = 0;
     }
