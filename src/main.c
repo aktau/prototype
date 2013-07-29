@@ -98,7 +98,7 @@ static void genTriangle(GLuint *vao, GLuint *vbo, GLuint *cbo) {
     glGenVertexArrays(1, vao);
     glBindVertexArray(*vao);
 
-    GL_ERROR;
+    GL_ERROR("create VAO");
 
     glGenBuffers(1, vbo);
     glBindBuffer(GL_ARRAY_BUFFER, *vbo);
@@ -106,7 +106,7 @@ static void genTriangle(GLuint *vao, GLuint *vbo, GLuint *cbo) {
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
 
-    GL_ERROR;
+    GL_ERROR("create VBO of vertex data");
 
     glGenBuffers(1, cbo);
     glBindBuffer(GL_ARRAY_BUFFER, *cbo);
@@ -114,49 +114,122 @@ static void genTriangle(GLuint *vao, GLuint *vbo, GLuint *cbo) {
     glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(1);
 
-    GL_ERROR;
- }
+    GL_ERROR("create VBO of colors");
+}
 
- void destroyTriangle(GLuint *vao, GLuint *vbo, GLuint *cbo) {
-     GLenum error = glGetError();
+void destroyTriangle(GLuint *vao, GLuint *vbo, GLuint *cbo) {
+    GLenum error = glGetError();
 
-     glDisableVertexAttribArray(1);
-     glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
+    glDisableVertexAttribArray(0);
 
-     glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-     glDeleteBuffers(1, cbo);
-     glDeleteBuffers(1, vbo);
+    glDeleteBuffers(1, cbo);
+    glDeleteBuffers(1, vbo);
 
-     glBindVertexArray(0);
-     glDeleteVertexArrays(1, vao);
+    glBindVertexArray(0);
+    glDeleteVertexArrays(1, vao);
 
-    GL_ERROR;
- }
+    GL_ERROR("delete buffer objects");
+}
 
-// void setupShaders(void) {
-//     GLenum error = glGetError();
+int checkShaderCompile(GLuint shader) {
+    GLint compiled = 0;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
 
-//     VertexShaderId = glCreateShader(GL_VERTEX_SHADER);
-//     glShaderSource(VertexShaderId, 1, &VertexShader, NULL);
-//     glCompileShader(VertexShaderId);
+    if (compiled == GL_FALSE) {
+        GLint length = 0;
+        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
 
-//     GL_ERROR;
+        //The maxLength includes the NULL character
+        char *log = zmalloc((size_t) length);
+        glGetShaderInfoLog(shader, length, &length, log);
 
-//     FragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER);
-//     glShaderSource(FragmentShaderId, 1, &FragmentShader, NULL);
-//     glCompileShader(FragmentShaderId);
+        trace("[ERROR] could not compile shader correctly: %s", log);
 
-//     GL_ERROR;
+        zfree(log);
 
-//     ProgramId = glCreateProgram();
-//         glAttachShader(ProgramId, VertexShaderId);
-//         glAttachShader(ProgramId, FragmentShaderId);
-//     glLinkProgram(ProgramId);
-//     glUseProgram(ProgramId);
+        return 0;
+    }
 
-//     GL_ERROR;
-// }
+    return 1;
+}
+
+int checkShaderProgram(GLuint program) {
+    GLint linked = 0;
+    glGetProgramiv(program, GL_LINK_STATUS, (int *)&linked);
+
+    if (linked == GL_FALSE) {
+        GLint length = 0;
+        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
+
+        /* length includes the NULL character */
+        char *log = zmalloc((size_t) length);
+        glGetProgramInfoLog(program, length, &length, log);
+
+        trace("[ERROR] could not link correctly: %s", log);
+
+        zfree(log);
+
+        return 0;
+    }
+
+    return 1;
+}
+
+void setupShaders(GLuint *vtshader, GLuint *fgshader, GLuint *program) {
+    GLchar *vtShaderSource = (GLchar *) loadfile("./src/shaders/basic.vert");
+    GLchar *fgShaderSource = (GLchar *) loadfile("./src/shaders/basic.frag");
+
+    trace("vertex shader: \n%s\n", vtShaderSource);
+    trace("fragment shader: \n%s\n", fgShaderSource);
+
+    *vtshader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(*vtshader, 1, (const GLchar **) &vtShaderSource, NULL);
+    glCompileShader(*vtshader);
+
+    checkShaderCompile(*vtshader);
+
+    GL_ERROR("create and compile vertex shader");
+
+    *fgshader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(*fgshader, 1, (const GLchar **) &fgShaderSource, NULL);
+    glCompileShader(*fgshader);
+
+    checkShaderCompile(*fgshader);
+
+    GL_ERROR("create and compile fragment shader");
+
+    *program = glCreateProgram();
+
+    glAttachShader(*program, *vtshader);
+    glAttachShader(*program, *fgshader);
+
+    GL_ERROR("attach shaders");
+
+    glLinkProgram(*program);
+
+    GL_ERROR("link shader program");
+
+    if (checkShaderProgram(*program)) {
+        glUseProgram(*program);
+    }
+    else {
+        glDeleteProgram(*program);
+    }
+
+    GL_ERROR("use shader program");
+
+    glDetachShader(*program, *vtshader);
+    glDetachShader(*program, *fgshader);
+
+    glDeleteShader(*vtshader);
+    glDeleteShader(*fgshader);
+
+    zfree(vtShaderSource);
+    zfree(fgShaderSource);
+}
 
 static void render() {
     // ... can be used alongside SDL2.
@@ -202,11 +275,12 @@ static void printGlInfo() {
         const unsigned char *info = glGetString(constant[i]);
 
         if (info == NULL) {
-            printf("could not retrieve %s information, aborting\n", str[i]);
+            trace("could not retrieve %s information, aborting\n", str[i]);
+
             exit(-1);
         }
         else {
-            printf("%s: %s\n", str[i], info);
+            trace("%s: %s\n", str[i], info);
         }
     }
 
@@ -216,7 +290,7 @@ static void printGlInfo() {
     glGetIntegerv(GL_MAJOR_VERSION, &major);
     glGetIntegerv(GL_MINOR_VERSION, &minor);
 
-    printf("context version double check: %d.%d\n", major, minor);
+    trace("context version double check: %d.%d\n", major, minor);
 }
 
 static void diagFrameDone(SDL_Window *window) {
@@ -290,24 +364,22 @@ int main(int argc, char* argv[]) {
     printGlInfo();
 
     init();
-    setupTransform(width, height);
 
     SDL_Event event;
     Uint8 done = 0;
 
     if (SDL_GL_SetSwapInterval(vsync) == -1) {
-        printf("could not set desired vsync mode: %d", vsync);
+        trace("could not set desired vsync mode: %d", vsync);
     }
 
-    printf("starting to render, vsync is %d\n", SDL_GL_GetSwapInterval());
+    trace("starting to render, vsync is %d\n", SDL_GL_GetSwapInterval());
 
-    /* create the VAO */
-    // GLuint VertexArrayID;
-    // glGenVertexArrays(1, &VertexArrayID);
-    // glBindVertexArray(VertexArrayID);
+    setupTransform(width, height);
+
+    GLuint vtShader, fgShader, program;
+    setupShaders(&vtShader, &fgShader, &program);
 
     GLuint vao, vbo, cbo;
-
     genTriangle(&vao, &vbo, &cbo);
 
     while (!done) {

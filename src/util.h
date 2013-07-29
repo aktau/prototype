@@ -13,21 +13,13 @@
 #include <OpenGL/gl3.h>
 
 #include "SDL.h"
+#include "zmalloc.h"
 
 #ifdef DEBUG
 #define DEBUG_TEST 1
 #else
 #define DEBUG_TEST 0
 #endif
-
-#define GL_ERROR \
-    do { \
-        GLenum _tmp_error = glGetError(); \
-        if (_tmp_error != GL_NO_ERROR) { \
-            fprintf(stderr, "error: Could not create the shaders: %s \n", wfGlErrorString(_tmp_error)); \
-            exit(-1); \
-        } \
-    } while(0)
 
 #define trace(...) \
     do {\
@@ -44,6 +36,15 @@
             }\
     } while(0)
 
+#define GL_ERROR(...) \
+    do { \
+        GLenum _tmp_error = glGetError(); \
+        if (_tmp_error != GL_NO_ERROR) { \
+            trace("[ERROR] " __VA_ARGS__); \
+            fprintf(stderr, " [OpenGL] %s \n", wfGlErrorString(_tmp_error)); \
+            exit(-1); \
+        } \
+    } while(0)
 
 #define clean_errno() (errno == 0 ? "None" : strerror(errno))
 
