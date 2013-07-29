@@ -14,24 +14,18 @@
 #include <stdint.h>
 #include <limits.h>
 
+/**
+ * this is mac only, probably gl/gl3.h for linux and something else for win.
+ * For win we will likely also need glew or another extension loader.
+ */
 #define GL3_PROTOTYPES
 #include <OpenGL/gl3.h>
 
 #include "SDL.h"
 
+#include "util.h"
+
 // #include "SDL_opengl.h"
-
-#ifndef MAX
-#define MAX(x, y) (((x) > (y)) ? (x) : (y))
-#endif
-
-#ifndef MIN
-#define MIN(x, y) (((x) < (y)) ? (x) : (y))
-#endif
-
-#define ARRAY_SIZE(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
-
-#define TWOPI_OVER_360 0.0174533
 
 /**
  * TODO: switch to basic shaders
@@ -87,6 +81,82 @@ static void init() {
     /* Really Nice Perspective Calculations */
     // glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 }
+
+static void genTriangle(GLuint *vao, GLuint *vbo, GLuint *cbo) {
+    GLfloat vertices[] = {
+        -0.8f, -0.8f, 0.0f, 1.0f,
+         0.0f,  0.8f, 0.0f, 1.0f,
+         0.8f, -0.8f, 0.0f, 1.0f
+    };
+
+    GLfloat colors[] = {
+        1.0f, 0.0f, 0.0f, 1.0f,
+        0.0f, 1.0f, 0.0f, 1.0f,
+        0.0f, 0.0f, 1.0f, 1.0f
+    };
+
+    glGenVertexArrays(1, vao);
+    glBindVertexArray(*vao);
+
+    GL_ERROR;
+
+    glGenBuffers(1, vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, *vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(0);
+
+    GL_ERROR;
+
+    glGenBuffers(1, cbo);
+    glBindBuffer(GL_ARRAY_BUFFER, *cbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(1);
+
+    GL_ERROR;
+ }
+
+ void destroyTriangle(GLuint *vao, GLuint *vbo, GLuint *cbo) {
+     GLenum error = glGetError();
+
+     glDisableVertexAttribArray(1);
+     glDisableVertexAttribArray(0);
+
+     glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+     glDeleteBuffers(1, cbo);
+     glDeleteBuffers(1, vbo);
+
+     glBindVertexArray(0);
+     glDeleteVertexArrays(1, vao);
+
+    GL_ERROR;
+ }
+
+// void setupShaders(void) {
+//     GLenum error = glGetError();
+
+//     VertexShaderId = glCreateShader(GL_VERTEX_SHADER);
+//     glShaderSource(VertexShaderId, 1, &VertexShader, NULL);
+//     glCompileShader(VertexShaderId);
+
+//     GL_ERROR;
+
+//     FragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER);
+//     glShaderSource(FragmentShaderId, 1, &FragmentShader, NULL);
+//     glCompileShader(FragmentShaderId);
+
+//     GL_ERROR;
+
+//     ProgramId = glCreateProgram();
+//         glAttachShader(ProgramId, VertexShaderId);
+//         glAttachShader(ProgramId, FragmentShaderId);
+//     glLinkProgram(ProgramId);
+//     glUseProgram(ProgramId);
+
+//     GL_ERROR;
+// }
 
 static void render() {
     // ... can be used alongside SDL2.
@@ -231,6 +301,15 @@ int main(int argc, char* argv[]) {
 
     printf("starting to render, vsync is %d\n", SDL_GL_GetSwapInterval());
 
+    /* create the VAO */
+    // GLuint VertexArrayID;
+    // glGenVertexArrays(1, &VertexArrayID);
+    // glBindVertexArray(VertexArrayID);
+
+    GLuint vao, vbo, cbo;
+
+    genTriangle(&vao, &vbo, &cbo);
+
     while (!done) {
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
@@ -253,6 +332,8 @@ int main(int argc, char* argv[]) {
 
         diagFrameDone(window);
     }
+
+    destroyTriangle(&vao, &vbo, &cbo);
 
     SDL_GL_DeleteContext(glcontext);
 

@@ -1,5 +1,8 @@
-All code except for files in the "deps" folder, that code may have another
-license and/or copyright. Please consult the files in question.
+The license below is valid for all files code except for files in the "deps" folder,
+who may be under another license and/or copyright. Please consult the files in question.
+
+When individual files explicitly mention a license or copyright in the file, then
+those take precedence for that particular file.
 
 Copyright (c) 2013, Nicolas Hillegeer and other authors mentioned in the AUTHORS file
 All rights reserved.

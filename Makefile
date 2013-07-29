@@ -109,7 +109,6 @@ else
 	CCFLAGS_RELEASE += -flto
 endif
 
-
 INCS = -I$(SDL_PATH)/include \
 	-I/usr/include/malloc \
 	-I/usr/X11R6/include
@@ -121,10 +120,10 @@ LIBS = ./build/libSDL2.a ./build/libSDL2main.a \
 	-framework ForceFeedback -framework IOKit
 
 EXECUTABLE:=prototype
-SOURCE:=src/main.c
+SOURCE:=src/main.c \
+	src/util.c \
+	src/zmalloc.c
 OBJECTS=$(patsubst src%.c,build%.o, $(SOURCE))
-# DEV_CFLAGS = $(CCFLAGS) -g -Wall
-# REL_CFLAGS = $(CCFLAGS) -Wall -O2
 
 debug: CCFLAGS += $(CCFLAGS_DEBUG)
 debug: $(EXECUTABLE)
@@ -138,16 +137,15 @@ $(EXECUTABLE): $(OBJECTS)
 		install -d build
 		$(CC) -o $@ $^ $(CCFLAGS) $(LIBS)
 
+# zmalloc.c needs -fno-strict-aliasing unfortunately, so we have a special rule for it
+build/zmalloc.o: src/zmalloc.c
+		$(CC) -c $< -o $@ $(CCFLAGS) -fno-strict-aliasing $(INCS)
+
 build/%.o: src/%.c
 		$(CC) -c $< -o $@ $(CCFLAGS) $(INCS)
 
 clean:
 	rm -f build/*.o || true
 	rm -f $(EXECUTABLE) || true
-
-# all:
-# 	$(CC) -c src/main.c $(DEV_CFLAGS) $(INCS)
-# 	$(CC) -o prototype *.o $(DEV_CFLAGS) $(LIBS)
-# 	rm *.o
 
 .PHONY: all debug release
