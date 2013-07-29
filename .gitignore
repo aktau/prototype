@@ -1,6 +1,9 @@
 # the executable
 prototype
 
+# debug files
+*.dSYM
+
 # Object files
 *.o
 

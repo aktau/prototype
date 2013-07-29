@@ -172,7 +172,7 @@ static void diagFrameDone(SDL_Window *window) {
     /* let's average over (more or less) one second */
     if (totalElapsed >= 1000) {
         int avgfps = (int) (1000 / (float) avg);
-        int fps = (int) (1000 * counter / (float) totalElapsed);
+        int fps = (int) (1000 * (float) counter / (float) totalElapsed);
 
         sprintf(title, "avg fps: %d, actual fps: %d, ms per frame (min: %d, avg: %d, max: %d), frames processed: %d\n", avgfps, fps, min, avg, max, counter);
 
