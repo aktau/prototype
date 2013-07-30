@@ -24,11 +24,14 @@
 #include "SDL.h"
 
 #include "util.h"
+#include "vec.h"
 
 // #include "SDL_opengl.h"
 
 /**
  * TODO: switch to basic shaders
+ * TODO: cleanup shaders fully (unuse program + delete)
+ * TODO: print GL errors until no more errors: http://www.lighthouse3d.com/cg-topics/code-samples/opengl-3-3-glsl-1-5-sample/
  */
 
 // static void perspective(GLdouble fovy, GLdouble aspect, GLdouble near, GLdouble far) {
@@ -64,7 +67,7 @@ static void setupTransform(int width, int height) {
 
 static void init() {
     /* Enable smooth shading */
-    // glShadeModel( GL_SMOOTH );
+    // glShadeModel(GL_SMOOTH);
 
     /* Set the background black */
     glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
@@ -179,8 +182,8 @@ int checkShaderProgram(GLuint program) {
 }
 
 void setupShaders(GLuint *vtshader, GLuint *fgshader, GLuint *program) {
-    GLchar *vtShaderSource = (GLchar *) loadfile("./src/shaders/basic.vert");
-    GLchar *fgShaderSource = (GLchar *) loadfile("./src/shaders/basic.frag");
+    GLchar *vtShaderSource = (GLchar *) loadfile("./src/shaders/color.vert");
+    GLchar *fgShaderSource = (GLchar *) loadfile("./src/shaders/color.frag");
 
     trace("vertex shader: \n%s\n", vtShaderSource);
     trace("fragment shader: \n%s\n", fgShaderSource);
@@ -208,11 +211,16 @@ void setupShaders(GLuint *vtshader, GLuint *fgshader, GLuint *program) {
 
     GL_ERROR("attach shaders");
 
+    glBindAttribLocation(*program, 0, "in_position");
+    glBindAttribLocation(*program, 1, "in_color");
+
     glLinkProgram(*program);
 
     GL_ERROR("link shader program");
 
     if (checkShaderProgram(*program)) {
+        trace("shader compiled correctly, using program");
+
         glUseProgram(*program);
     }
     else {
@@ -221,6 +229,7 @@ void setupShaders(GLuint *vtshader, GLuint *fgshader, GLuint *program) {
 
     GL_ERROR("use shader program");
 
+    /* cleanup */
     glDetachShader(*program, *vtshader);
     glDetachShader(*program, *fgshader);
 
@@ -232,28 +241,11 @@ void setupShaders(GLuint *vtshader, GLuint *fgshader, GLuint *program) {
 }
 
 static void render() {
-    // ... can be used alongside SDL2.
-    // static float x = 0.0, y = 30.0;
-
     /* clear screen */
     glClearColor(0,0,0,1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // glRotatef(10.0,0.0,0.0,1.0);
-
-    // Note that the glBegin() ... glEnd() OpenGL style used below is actually
-    // obsolete, but it will do for example purposes. For more information, see
-    // SDL_GL_GetProcAddress() or find an OpenGL extension loading library.
-    // glBegin(GL_TRIANGLES);
-    //     glColor3f(1.0,0.0,0.0);
-    //     glVertex2f(x, y + 90.0);
-
-    //     glColor3f(0.0,1.0,0.0);
-    //     glVertex2f(x + 90.0, y - 90.0);
-
-    //     glColor3f(0.0,0.0,1.0);
-    //     glVertex2f(x - 90.0, y - 90.0);
-    // glEnd();
+    glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
 static void printGlInfo() {

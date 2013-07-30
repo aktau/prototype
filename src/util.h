@@ -1,3 +1,13 @@
+/**
+ * This file is part of prototype.
+ *
+ * (c) 2013 Nicolas Hillegeer <nicolas@hillegeer.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with the source code.
+ */
+
+
 #ifndef __util_h__
 #define __util_h__
 

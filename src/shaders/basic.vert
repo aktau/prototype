@@ -1,4 +1,5 @@
 #version 150
+
 in vec3 in_position;
 
 void main() {
