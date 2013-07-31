@@ -12,12 +12,10 @@
 #define __util_h__
 
 #include <errno.h>
-
-/* for debug printing with timestamping support */
 #include <time.h>
-
-/* for strerror_r */
+#include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 #define GL3_PROTOTYPES
 #include <OpenGL/gl3.h>
@@ -46,29 +44,23 @@
             }\
     } while(0)
 
-#define GetError( )\
-        {\
-            for ( GLenum Error = glGetError( ); ( GL_NO_ERROR != Error ); Error = glGetError( ) )\
-            {\
-                switch ( Error )\
-                {\
-                    case GL_INVALID_ENUM:      printf( "\n%s\n\n", "GL_INVALID_ENUM"      ); assert( 0 ); break;\
-                    case GL_INVALID_VALUE:     printf( "\n%s\n\n", "GL_INVALID_VALUE"     ); assert( 0 ); break;\
-                    case GL_INVALID_OPERATION: printf( "\n%s\n\n", "GL_INVALID_OPERATION" ); assert( 0 ); break;\
-                    case GL_STACK_OVERFLOW:    printf( "\n%s\n\n", "GL_STACK_OVERFLOW"    ); assert( 0 ); break;\
-                    case GL_STACK_UNDERFLOW:   printf( "\n%s\n\n", "GL_STACK_UNDERFLOW"   ); assert( 0 ); break;\
-                    case GL_OUT_OF_MEMORY:     printf( "\n%s\n\n", "GL_OUT_OF_MEMORY"     ); assert( 0 ); break;\
-                    default:                                                                              break;\
-                }\
-            }\
-        }
-
-
 #define GL_ERROR(...) \
-    for (GLenum _tmp_error = glGetError(); GL_NO_ERROR != _tmp_error; _tmp_error = glGetError()) { \
-        trace("[ERROR] " __VA_ARGS__); \
-        fprintf(stderr, " [OpenGL] %s \n", wfGlErrorString(_tmp_error)); \
-        exit(1); \
+    if (DEBUG_TEST) { \
+        for (GLenum _tmp_error = glGetError(); GL_NO_ERROR != _tmp_error; _tmp_error = glGetError()) { \
+            trace("[ERROR] " __VA_ARGS__); \
+            fprintf(stderr, " [OpenGL] %s \n", wfGlErrorString(_tmp_error)); \
+            exit(1); \
+        } \
+    } \
+
+#define GL_SHADER_ERROR(shader) \
+    if (DEBUG_TEST) { \
+        assert(shaderIsCompiled(shader)); \
+    }
+
+#define GL_PROGRAM_ERROR(program) \
+    if (DEBUG_TEST) { \
+        assert(programIsLinked(program)); \
     }
 
 #define clean_errno() (errno == 0 ? "None" : strerror(errno))
@@ -114,5 +106,8 @@ const char* wfGlErrorString(GLenum error);
 
 /* caller frees string when done */
 char* loadfile(char *filename);
+
+int shaderIsCompiled(GLuint shader);
+int programIsLinked(GLuint program);
 
 #endif

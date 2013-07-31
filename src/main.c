@@ -140,50 +140,6 @@ void destroyTriangle(GLuint *vao, GLuint *vbo, GLuint *cbo) {
     GL_ERROR("delete buffer objects");
 }
 
-int checkShaderCompile(GLuint shader) {
-    GLint compiled = 0;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
-
-    if (compiled == GL_FALSE) {
-        GLint length = 0;
-        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
-
-        //The maxLength includes the NULL character
-        char *log = zmalloc((size_t) length);
-        glGetShaderInfoLog(shader, length, &length, log);
-
-        trace("[ERROR] could not compile shader correctly: %s\n", log);
-
-        zfree(log);
-
-        return 0;
-    }
-
-    return 1;
-}
-
-int checkShaderProgram(GLuint program) {
-    GLint linked = 0;
-    glGetProgramiv(program, GL_LINK_STATUS, (int *)&linked);
-
-    if (linked == GL_FALSE) {
-        GLint length = 0;
-        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
-
-        /* length includes the NULL character */
-        char *log = zmalloc((size_t) length);
-        glGetProgramInfoLog(program, length, &length, log);
-
-        trace("[ERROR] could not link correctly: %s\n", log);
-
-        zfree(log);
-
-        return 0;
-    }
-
-    return 1;
-}
-
 void setupShaders(GLuint *vtshader, GLuint *fgshader, GLuint *program) {
     GLchar *vtShaderSource = (GLchar *) loadfile("./src/shaders/color.vert");
     GLchar *fgShaderSource = (GLchar *) loadfile("./src/shaders/color.frag");
@@ -195,16 +151,14 @@ void setupShaders(GLuint *vtshader, GLuint *fgshader, GLuint *program) {
     glShaderSource(*vtshader, 1, (const GLchar **) &vtShaderSource, NULL);
     glCompileShader(*vtshader);
 
-    checkShaderCompile(*vtshader);
-
+    GL_SHADER_ERROR(*vtshader);
     GL_ERROR("create and compile vertex shader");
 
     *fgshader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(*fgshader, 1, (const GLchar **) &fgShaderSource, NULL);
     glCompileShader(*fgshader);
 
-    checkShaderCompile(*fgshader);
-
+    GL_SHADER_ERROR(*fgshader);
     GL_ERROR("create and compile fragment shader");
 
     *program = glCreateProgram();
@@ -219,16 +173,10 @@ void setupShaders(GLuint *vtshader, GLuint *fgshader, GLuint *program) {
 
     glLinkProgram(*program);
 
+    GL_PROGRAM_ERROR(*program);
     GL_ERROR("link shader program");
 
-    if (checkShaderProgram(*program)) {
-        trace("shader compiled correctly, using program\n");
-
-        glUseProgram(*program);
-    }
-    else {
-        glDeleteProgram(*program);
-    }
+    glUseProgram(*program);
 
     GL_ERROR("use shader program");
 
