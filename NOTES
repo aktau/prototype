@@ -2,3 +2,11 @@ Debugging and profiling
 =======================
 How to use the apple OpenGL profiler, very handy:
 https://developer.apple.com/library/mac/#technotes/tn2178/_index.html
+
+Allocators
+==========
+
+Zmalloc features native support for jemalloc and tcmalloc, but even easier would be to try the LD_PRELOAD
+trick later and see if it helps.
+
+Alternatively or additionally, we could consider an arena allocator (i.e.: libarena): http://25thandclement.com/~william/projects/libarena.html
