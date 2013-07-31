@@ -261,7 +261,7 @@ static void diagFrameDone(SDL_Window *window) {
         int avgfps = (int) (1000 / (float) avg);
         int fps = (int) (1000 * (float) counter / (float) totalElapsed);
 
-        sprintf(title, "avg fps: %d, actual fps: %d, ms per frame (min: %d, avg: %d, max: %d), frames processed: %d\n", avgfps, fps, min, avg, max, counter);
+        sprintf(title, "avg fps: %d, actual fps: %d, ms/f (min: %d, avg: %d, max: %d), frames processed: %d, memory: %zu\n", avgfps, fps, min, avg, max, counter, zmalloc_used_memory());
 
         SDL_SetWindowTitle(window, title);
 
