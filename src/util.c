@@ -14,7 +14,7 @@
 
 #include "zmalloc.h"
 
-const char* wfGlErrorString(GLenum error) {
+const char *wfGlErrorString(GLenum error) {
     switch (error) {
         case GL_NO_ERROR: return "no error";
         case GL_INVALID_ENUM: return "invalid enum";
@@ -26,8 +26,23 @@ const char* wfGlErrorString(GLenum error) {
     }
 }
 
+const char *wfGlFbErrorString() {
+    switch (glCheckFramebufferStatus(GL_FRAMEBUFFER)) {
+        case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:         return "framebuffer incomplete attachment";
+        case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: return "framebuffer incomplete missing attachment";
+        case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:        return "framebuffer incomplete draw buffer";
+        case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:        return "framebuffer incomplete read buffer";
+        case GL_FRAMEBUFFER_UNSUPPORTED:                   return "framebuffer unsupported";
+        case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:        return "framebuffer incomplete multisample";
+        case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:      return "framebuffer incomplete layer targets";
+        case GL_FRAMEBUFFER_UNDEFINED:                     return "framebuffer undefined";
+
+        default: return NULL;
+    }
+}
+
 /* caller is responsible for freeing the buffer if not NULL */
-char* loadfile(char *filename) {
+char *loadfile(const char *filename) {
     struct stat stats;
 
     char *buffer = NULL;

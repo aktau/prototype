@@ -63,6 +63,11 @@
         assert(programIsLinked(program)); \
     }
 
+#define GL_FRAMEBUFFER_ERROR() \
+    if (DEBUG_TEST) {\
+        assert(wfGlFbErrorString() == NULL);\
+    }
+
 #define clean_errno() (errno == 0 ? "None" : strerror(errno))
 
 /**
@@ -102,10 +107,11 @@
 
 #define TWOPI_OVER_360 0.0174533
 
-const char* wfGlErrorString(GLenum error);
+const char *wfGlErrorString(GLenum error);
+const char *wfGlFbErrorString();
 
 /* caller frees string when done */
-char* loadfile(char *filename);
+char *loadfile(const char *filename);
 
 int shaderIsCompiled(GLuint shader);
 int programIsLinked(GLuint program);
