@@ -69,17 +69,20 @@ static void init() {
     /* Enable smooth shading */
     // glShadeModel(GL_SMOOTH);
 
-    /* Set the background black */
+    /* set the background black */
     glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
 
-    /* Depth buffer setup */
+    /* depth buffer setup */
     glClearDepth( 1.0f );
 
+    /* disable dithering */
+    glDisable(GL_DITHER);
+
     /* Enables Depth Testing */
-    glEnable(GL_DEPTH_TEST);
+    // glEnable(GL_DEPTH_TEST);
 
     /* The Type Of Depth Test To Do */
-    glDepthFunc(GL_LEQUAL);
+    // glDepthFunc(GL_LEQUAL);
 
     /* Really Nice Perspective Calculations */
     // glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
@@ -149,7 +152,7 @@ int checkShaderCompile(GLuint shader) {
         char *log = zmalloc((size_t) length);
         glGetShaderInfoLog(shader, length, &length, log);
 
-        trace("[ERROR] could not compile shader correctly: %s", log);
+        trace("[ERROR] could not compile shader correctly: %s\n", log);
 
         zfree(log);
 
@@ -171,7 +174,7 @@ int checkShaderProgram(GLuint program) {
         char *log = zmalloc((size_t) length);
         glGetProgramInfoLog(program, length, &length, log);
 
-        trace("[ERROR] could not link correctly: %s", log);
+        trace("[ERROR] could not link correctly: %s\n", log);
 
         zfree(log);
 
@@ -219,7 +222,7 @@ void setupShaders(GLuint *vtshader, GLuint *fgshader, GLuint *program) {
     GL_ERROR("link shader program");
 
     if (checkShaderProgram(*program)) {
-        trace("shader compiled correctly, using program");
+        trace("shader compiled correctly, using program\n");
 
         glUseProgram(*program);
     }
@@ -326,11 +329,11 @@ static void diagFrameDone(SDL_Window *window) {
 }
 
 int main(int argc, char* argv[]) {
-    int vsync     = 1;
+    int vsync     = 0;
     int doublebuf = 1;
 
-    int width  = 1280;
-    int height = 720;
+    int width  = 704;
+    int height = 440;
 
     SDL_Init(SDL_INIT_VIDEO);
 
@@ -379,10 +382,37 @@ int main(int argc, char* argv[]) {
             switch (event.type) {
                 case SDL_KEYDOWN:
                     break;
+
                 case SDL_KEYUP:
-                    if (event.key.keysym.sym == SDLK_ESCAPE)
-                        done = 1;
+                    switch (event.key.keysym.sym) {
+                        case SDLK_ESCAPE:
+                            done = 1;
+                        break;
+
+                        case SDLK_v:
+                            vsync = !vsync;
+
+                            if (SDL_GL_SetSwapInterval(vsync) == -1) {
+                                trace("could not set desired vsync mode: %s\n", (vsync ? "on" : "off"));
+                            }
+                            else {
+                                trace("turned vsync %s\n", (vsync ? "on" : "off"));
+                            }
+                        break;
+
+                        case SDLK_d:
+                            doublebuf = !doublebuf;
+
+                            if (SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, doublebuf) == -1) {
+                                trace("could not set desired doublebuf mode: %d\n", doublebuf);
+                            }
+                            else {
+                                trace("turned doublebuf %s\n", (doublebuf ? "on" : "off"));
+                            }
+                        break;
+                    }
                     break;
+
                 case SDL_QUIT:
                     done = 1;
                     break;
@@ -391,8 +421,9 @@ int main(int argc, char* argv[]) {
 
         render();
 
+        // glFlush();
+
         SDL_GL_SwapWindow(window);
-        // SDL_Delay(10);
 
         diagFrameDone(window);
     }
