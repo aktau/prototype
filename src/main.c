@@ -335,6 +335,25 @@ int main(int argc, char* argv[]) {
     while (!done) {
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
+                case SDL_WINDOWEVENT:
+                    switch (event.window.event) {
+                        case SDL_WINDOWEVENT_RESIZED:
+                        {
+                            int newWidth  = event.window.data1;
+                            int newHeight = event.window.data2;
+
+                            trace(
+                                "Window %d resized to %dx%d\n",
+                                event.window.windowID,
+                                newWidth, newHeight
+                            );
+
+                            setupTransform(newWidth, newHeight);
+                        }
+                        break;
+                    }
+                    break;
+
                 case SDL_KEYDOWN:
                     break;
 
@@ -371,6 +390,9 @@ int main(int argc, char* argv[]) {
                 case SDL_QUIT:
                     done = 1;
                     break;
+
+                // default:
+                //     trace("unkown even type received: %d\n", event.type);
             }
         }
 
