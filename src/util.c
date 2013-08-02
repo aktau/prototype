@@ -54,7 +54,7 @@ char *loadfile(const char *filename) {
     res = stat(filename, &stats);
     ERROR_HANDLE(res == -1, errno, "could not stat %s", filename);
 
-    trace("size of file %s: %llu\n", filename, stats.st_size);
+    trace("size of file %s: %llu bytes\n", filename, stats.st_size);
 
     size = (size_t) stats.st_size;
 

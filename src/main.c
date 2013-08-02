@@ -191,6 +191,13 @@ void setupShaders(GLuint *vtshader, GLuint *fgshader, GLuint *program) {
     zfree(fgShaderSource);
 }
 
+void destroyShaders(GLuint *vtshader, GLuint *fgshader, GLuint *program) {
+    glUseProgram(0);
+    glDeleteProgram(*program);
+
+    GL_ERROR("delete shader program");
+}
+
 static void render() {
     /* clear screen */
     glClearColor(0,0,0,1);
@@ -369,14 +376,13 @@ int main(int argc, char* argv[]) {
 
         render();
 
-        // glFlush();
-
         SDL_GL_SwapWindow(window);
 
         diagFrameDone(window);
     }
 
     destroyTriangle(&vao, &vbo, &cbo);
+    destroyShaders(&vtShader, &fgShader, &program);
 
     SDL_GL_DeleteContext(glcontext);
 

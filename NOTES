@@ -10,3 +10,25 @@ Zmalloc features native support for jemalloc and tcmalloc, but even easier would
 trick later and see if it helps.
 
 Alternatively or additionally, we could consider an arena allocator (i.e.: libarena): http://25thandclement.com/~william/projects/libarena.html
+
+Links to be reviewed for implementation
+=======================================
+
+Techniques from "crazy fractal worlds":
+http://www.youtube.com/watch?v=8-5Z_031x00
+http://www.iquilezles.org/www/material/function2009/function2009.pdf
+
+Distance functions - iñigo quilez:
+http://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm
+
+Awesome articles - iñigo quilez:
+http://iquilezles.org/www/
+
+The care and feeding of an OpenGL 3.2 core context on OSX:
+http://hci.rwth-aachen.de/opengl_3_2_tutorial
+
+Fully self-contained OpenGL 3.2 + GLSL 1.5 example, with matrix functions in C:
+http://www.lighthouse3d.com/cg-topics/code-samples/opengl-3-3-glsl-1-5-sample/
+
+Indexed drawing:
+http://www.arcsynthesis.org/gltut/Positioning/Tutorial%2005.html
