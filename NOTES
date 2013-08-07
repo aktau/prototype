@@ -32,3 +32,42 @@ http://www.lighthouse3d.com/cg-topics/code-samples/opengl-3-3-glsl-1-5-sample/
 
 Indexed drawing:
 http://www.arcsynthesis.org/gltut/Positioning/Tutorial%2005.html
+
+Kazmatch, a C math library for games:
+https://github.com/Kazade/kazmath/tree/master/kazmath
+
+Apple, best practices for working with vertex data:
+http://developer.apple.com/library/ios/#documentation/3ddrawing/conceptual/opengles_programmingguide/TechniquesforWorkingwithVertexData/TechniquesforWorkingwithVertexData.html
+
+[INSTANCING] Drawing instanced geometry with the help of glVertexAttribDivisor:
+http://programming4.us/multimedia/8306.aspx
+
+[INSTANCING] Alternative way to instance, pass a buffer and index it with gl_InstanceId:
+http://gamedev.stackexchange.com/questions/60203/most-efficient-way-to-draw-large-number-of-the-same-objects-but-with-different
+
+[INSTANCING] Wolfire Lugaru: pseudo-instancing and discussion:
+http://blog.wolfire.com/2009/11/Fast-object-instancing
+
+[INSTANCING] iki.fi, pass a (transformation) matrix (mat4) with 4 glVertexAttribPointer()-calls and glVertexAttribDivisor, very cool:
+http://sol.gfxile.net/instancing.html
+
+[FILESYSTEM] efsw, file system watching (C++ but used by C projects as well):
+https://bitbucket.org/SpartanJ/efsw
+
+[ENGINES] DarkHammer, C, Lua:
+https://bitbucket.org/sepul/dark-hammer
+
+[ENGINES] Urho3D, C++, Lua, Task-based multithreading:
+https://code.google.com/p/urho3d/
+
+[SHADER EFFECTS] Glow and Bloom:
+http://devmaster.net/posts/3100/shader-effects-glow-and-bloom
+
+[SHADER EFFECTS]: Depth of field (DOF):
+http://devmaster.net/posts/3021/shader-effects-depth-of-field
+
+[GRAPHICS] Screen space ambient occlusion (SSAO), a step for deferred rendering:
+http://devmaster.net/posts/3095/shader-effects-screen-space-ambient-occlusion
+
+[LUA] How to export symbols from an executable:
+http://stackoverflow.com/questions/3954137/mac-how-to-export-symbols-from-an-executable

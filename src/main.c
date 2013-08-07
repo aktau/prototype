@@ -88,18 +88,85 @@ static void init() {
     // glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 }
 
-static void genTriangle(GLuint *vao, GLuint *vbo, GLuint *cbo) {
+static void genTriangle(GLuint *vao, GLuint *vbo, GLuint *cbo, GLuint *ibo) {
     GLfloat vertices[] = {
-        -0.8f, -0.8f, 0.0f, 1.0f,
-         0.0f,  0.8f, 0.0f, 1.0f,
-         0.8f, -0.8f, 0.0f, 1.0f
+        0.0f, 0.0f, 0.0f, 1.0f,
+        /* top */
+        -0.2f, 0.8f, 0.0f, 1.0f,
+        0.2f, 0.8f, 0.0f, 1.0f,
+        0.0f, 0.8f, 0.0f, 1.0f,
+        0.0f, 1.0f, 0.0f, 1.0f,
+        /* bottom */
+        -0.2f, -0.8f, 0.0f, 1.0f,
+        0.2f, -0.8f, 0.0f, 1.0f,
+        0.0f, -0.8f, 0.0f, 1.0f,
+        0.0f, -1.0f, 0.0f, 1.0f,
+        /* left */
+        -0.8f, -0.2f, 0.0f, 1.0f,
+        -0.8f, 0.2f, 0.0f, 1.0f,
+        -0.8f, 0.0f, 0.0f, 1.0f,
+        -1.0f, 0.0f, 0.0f, 1.0f,
+        /* right */
+        0.8f, -0.2f, 0.0f, 1.0f,
+        0.8f, 0.2f, 0.0f, 1.0f,
+        0.8f, 0.0f, 0.0f, 1.0f,
+        1.0f, 0.0f, 0.0f, 1.0f
     };
 
     GLfloat colors[] = {
+        1.0f, 1.0f, 1.0f, 1.0f,
+        0.0f, 1.0f, 0.0f, 1.0f,
+        0.0f, 0.0f, 1.0f, 1.0f,
+        0.0f, 1.0f, 1.0f, 1.0f,
+        1.0f, 0.0f, 0.0f, 1.0f,
+        0.0f, 0.0f, 1.0f, 1.0f,
+        0.0f, 1.0f, 0.0f, 1.0f,
+        0.0f, 1.0f, 1.0f, 1.0f,
         1.0f, 0.0f, 0.0f, 1.0f,
         0.0f, 1.0f, 0.0f, 1.0f,
-        0.0f, 0.0f, 1.0f, 1.0f
+        0.0f, 0.0f, 1.0f, 1.0f,
+        0.0f, 1.0f, 1.0f, 1.0f,
+        1.0f, 0.0f, 0.0f, 1.0f,
+        0.0f, 0.0f, 1.0f, 1.0f,
+        0.0f, 1.0f, 0.0f, 1.0f,
+        0.0f, 1.0f, 1.0f, 1.0f,
+        1.0f, 0.0f, 0.0f, 1.0f
     };
+
+    GLubyte indices[] = {
+        /* top */
+        0, 1, 3,
+        0, 3, 2,
+        3, 1, 4,
+        3, 4, 2,
+        /* bottom */
+        0, 5, 7,
+        0, 7, 6,
+        7, 5, 8,
+        7, 8, 6,
+        /* left */
+        0, 9, 11,
+        0, 11, 10,
+        11, 9, 12,
+        11, 12, 10,
+        /* right */
+        0, 13, 15,
+        0, 15, 14,
+        15, 13, 16,
+        15, 16, 14
+    };
+
+    // GLfloat vertices[] = {
+    //     -0.8f, -0.8f, 0.0f, 1.0f,
+    //      0.0f,  0.8f, 0.0f, 1.0f,
+    //      0.8f, -0.8f, 0.0f, 1.0f
+    // };
+
+    // GLfloat colors[] = {
+    //     1.0f, 0.0f, 0.0f, 1.0f,
+    //     0.0f, 1.0f, 0.0f, 1.0f,
+    //     0.0f, 0.0f, 1.0f, 1.0f
+    // };
 
     glGenVertexArrays(1, vao);
     glBindVertexArray(*vao);
@@ -121,18 +188,26 @@ static void genTriangle(GLuint *vao, GLuint *vbo, GLuint *cbo) {
     glEnableVertexAttribArray(1);
 
     GL_ERROR("create VBO of colors");
+
+    glGenBuffers(1, ibo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *ibo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    GL_ERROR("create VBO of colors");
 }
 
-void destroyTriangle(GLuint *vao, GLuint *vbo, GLuint *cbo) {
+void destroyTriangle(GLuint *vao, GLuint *vbo, GLuint *cbo, GLuint *ibo) {
     GLenum error = glGetError();
 
     glDisableVertexAttribArray(1);
     glDisableVertexAttribArray(0);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     glDeleteBuffers(1, cbo);
     glDeleteBuffers(1, vbo);
+    glDeleteBuffers(1, ibo);
 
     glBindVertexArray(0);
     glDeleteVertexArrays(1, vao);
@@ -203,7 +278,8 @@ static void render() {
     glClearColor(0,0,0,1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    /* glDrawArrays(GL_TRIANGLES, 0, 3); */
+    glDrawElements(GL_TRIANGLES, 48, GL_UNSIGNED_BYTE, (GLvoid*)0);
 }
 
 static void printGlInfo() {
@@ -287,8 +363,9 @@ int main(int argc, char* argv[]) {
     int vsync     = 0;
     int doublebuf = 1;
 
-    int width  = 704;
-    int height = 440;
+    /* 16:9 => 704x440 */
+    int width  = 800;
+    int height = 600;
 
     SDL_Init(SDL_INIT_VIDEO);
 
@@ -329,8 +406,8 @@ int main(int argc, char* argv[]) {
     GLuint vtShader, fgShader, program;
     setupShaders(&vtShader, &fgShader, &program);
 
-    GLuint vao, vbo, cbo;
-    genTriangle(&vao, &vbo, &cbo);
+    GLuint vao, vbo, cbo, ibo;
+    genTriangle(&vao, &vbo, &cbo, &ibo);
 
     while (!done) {
         while (SDL_PollEvent(&event)) {
@@ -403,7 +480,7 @@ int main(int argc, char* argv[]) {
         diagFrameDone(window);
     }
 
-    destroyTriangle(&vao, &vbo, &cbo);
+    destroyTriangle(&vao, &vbo, &cbo, &ibo);
     destroyShaders(&vtShader, &fgShader, &program);
 
     SDL_GL_DeleteContext(glcontext);
