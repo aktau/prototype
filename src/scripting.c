@@ -30,10 +30,10 @@ void wfScriptInit(void) {
 
     // Load script
     int status = luaL_loadfile(lua, "./game/hello.lua");
-    ERROR_EXIT(status != 0, status, "could not load lua script");
+    ERROR_EXIT(status != 0, status, "could not load lua script: %s", lua_tostring(lua, -1));
 
     int result = lua_pcall(lua, 0, LUA_MULTRET, 0);
-    ERROR_EXIT(result != 0, result, "could not execute lua script");
+    ERROR_EXIT(result != 0, result, "could not execute lua script: %s", lua_tostring(lua, -1));
 }
 
 void wfScriptDestroy(void) {
