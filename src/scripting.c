@@ -23,6 +23,21 @@ void wfScriptInit(void) {
     wfScriptLoadLibraries(lua);
 
     trace("succesfully loaded lua\n");
+
+    // char *script = loadfile("./game/hello.lua");
+    // trace("loading script: %s\n", script);
+    // zfree(script);
+
+    // Load script
+    int status = luaL_loadfile(lua, "./game/hello.lua");
+    ERROR_EXIT(status != 0, status, "could not load lua script");
+
+    int result = lua_pcall(lua, 0, LUA_MULTRET, 0);
+    ERROR_EXIT(result != 0, result, "could not execute lua script");
+}
+
+void wfScriptDestroy(void) {
+    /* lua_close(lua); */
 }
 
 static void wfScriptLoadLibraries(lua_State *lua) {

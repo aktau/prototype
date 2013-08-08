@@ -504,6 +504,10 @@ int main(int argc, char* argv[]) {
     destroyTriangle(&vao, &vbo, &cbo, &ibo);
     destroyShaders(&vtShader, &fgShader, &program);
 
+#ifdef HAVE_LUA
+    wfScriptDestroy();
+#endif
+
     SDL_GL_DeleteContext(glcontext);
 
     SDL_DestroyWindow(window);

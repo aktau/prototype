@@ -118,6 +118,7 @@
 
 #ifdef HAVE_LUA
 void wfScriptInit(void);
+void wfScriptDestroy(void);
 #endif
 
 const char *wfGlErrorString(GLenum error);

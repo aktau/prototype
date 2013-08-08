@@ -77,3 +77,6 @@ http://stackoverflow.com/questions/3954137/mac-how-to-export-symbols-from-an-exe
 
 [LUA] How to include an extra module at compile time (such as YAML):
 http://stackoverflow.com/questions/11485911/lua-5-2-c-api-and-require
+
+[LUA] use FFI module:
+http://stackoverflow.com/questions/5919743/how-to-use-luajits-ffi-module-when-embedding?rq=1
