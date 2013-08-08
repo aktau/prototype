@@ -86,6 +86,15 @@
                 }\
         } while (0)
 
+#define ERROR_EXIT(cond, err, ...) \
+        do {\
+                if ((cond)) {\
+                        fprintf(stderr, " (%d: '%s')\n", (errno), clean_errno());\
+                        trace("[ERROR] " __VA_ARGS__);\
+                        exit(42);\
+                }\
+        } while (0)
+
 #define ERROR_HANDLE(cond, err, ...) \
         do {\
                 if ((cond)) {\
@@ -106,6 +115,10 @@
 #define ARRAY_SIZE(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
 
 #define TWOPI_OVER_360 0.0174533
+
+#ifdef HAVE_LUA
+void wfScriptInit(void);
+#endif
 
 const char *wfGlErrorString(GLenum error);
 const char *wfGlFbErrorString();

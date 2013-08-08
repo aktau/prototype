@@ -367,6 +367,8 @@ int main(int argc, char* argv[]) {
     int width  = 800;
     int height = 600;
 
+    trace("Prototype/warfare engine, initializing SDL\n");
+
     SDL_Init(SDL_INIT_VIDEO);
 
     /* set the opengl context version, this is the latest that OSX can handle, for now... */
@@ -378,6 +380,8 @@ int main(int argc, char* argv[]) {
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
+    trace("Creating SDL window\n");
+
     SDL_Window *window = SDL_CreateWindow(
         "SDL2/OpenGL prototype",
         SDL_WINDOWPOS_UNDEFINED,
@@ -386,11 +390,21 @@ int main(int argc, char* argv[]) {
         SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
     );
 
+    trace("Creating OpenGL context\n");
+
+    Uint32 t = SDL_GetTicks();
+
     SDL_GLContext glcontext = SDL_GL_CreateContext(window);
+
+    trace("Took %u ms to setup the OpenGL context\n", SDL_GetTicks() - t);
 
     printGlInfo();
 
     init();
+
+#ifdef HAVE_LUA
+    wfScriptInit();
+#endif
 
     SDL_Event event;
     Uint8 done = 0;

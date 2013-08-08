@@ -66,8 +66,14 @@ http://devmaster.net/posts/3100/shader-effects-glow-and-bloom
 [SHADER EFFECTS]: Depth of field (DOF):
 http://devmaster.net/posts/3021/shader-effects-depth-of-field
 
+[TESSELATION] Tesselation does work on OSX:
+http://jonmacey.blogspot.de/2013/05/glsl-tessellation-shaders-under-mac-osx.html
+
 [GRAPHICS] Screen space ambient occlusion (SSAO), a step for deferred rendering:
 http://devmaster.net/posts/3095/shader-effects-screen-space-ambient-occlusion
 
 [LUA] How to export symbols from an executable:
 http://stackoverflow.com/questions/3954137/mac-how-to-export-symbols-from-an-executable
+
+[LUA] How to include an extra module at compile time (such as YAML):
+http://stackoverflow.com/questions/11485911/lua-5-2-c-api-and-require

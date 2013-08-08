@@ -125,18 +125,21 @@ LIBS = ./build/libSDL2.a ./build/libSDL2main.a \
 	-framework CoreAudio -framework AudioToolbox -framework AudioUnit \
 	-framework ForceFeedback -framework IOKit
 
+EXECUTABLE:=prototype
+SOURCE:=src/main.c \
+	src/util.c \
+	src/zmalloc.c
+
 DEPENDENCY_TARGETS =
 
 ifeq ($(ENABLE_LUA), 1)
 	INCS += -I$(LUA_PATH)/src
 	LIBS += $(LUA_PATH)/src/liblua.a
 	DEPENDENCY_TARGETS += lua
+	CFLAGS += -D HAVE_LUA
+	SOURCE += src/scripting.c
 endif
 
-EXECUTABLE:=prototype
-SOURCE:=src/main.c \
-	src/util.c \
-	src/zmalloc.c
 OBJECTS=$(patsubst src%.c,build%.o, $(SOURCE))
 
 debug: CFLAGS += $(CFLAGS_DEBUG)
