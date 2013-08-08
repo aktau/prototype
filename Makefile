@@ -10,9 +10,13 @@
 # $^ The names of all the prerequisite files (space separated)
 # $* The stem (the bit which matches the % wildcard in the rule definition.
 
-SDL_PATH=./deps/sdl2
+ENABLE_LUA ?= 1
 
-CCFLAGS = -D_THREAD_SAFE \
+# CC = /usr/local/bin/gcc-4.8
+CC = /usr/local/bin/clang
+CC_VERSION := $(shell $(CC) --version | head -1 | cut -f1 -d' ')
+
+CFLAGS ?= -D_THREAD_SAFE \
 	-D_FORTIFY_SOURCE=2 \
 	-Wextra \
 	-Wcast-align \
@@ -34,55 +38,57 @@ CCFLAGS = -D_THREAD_SAFE \
 	-pedantic \
 	-std=c11
 
-# CC = /usr/local/bin/gcc-4.8
-CC = /usr/local/bin/clang
-CC_VERSION := $(shell $(CC) --version | head -1 | cut -f1 -d' ')
+# END OF CONFIGURABLE PART
+
+DEPS_PATH := ./deps
+SDL_PATH := $(DEPS_PATH)/sdl2
+LUA_PATH := $(DEPS_PATH)/lua
 
 ifeq ($(OS),Windows_NT)
-	CCFLAGS += -D WIN32
+	CFLAGS += -D WIN32
 	ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
-		CCFLAGS += -D AMD64
+		CFLAGS += -D AMD64
 	endif
 	ifeq ($(PROCESSOR_ARCHITECTURE),x86)
-		CCFLAGS += -D IA32
+		CFLAGS += -D IA32
 	endif
 else
 	UNAME_S := $(shell uname -s)
 
 	ifeq ($(UNAME_S),Linux)
-		CCFLAGS += -D LINUX
+		CFLAGS += -D LINUX
 	endif
 	ifeq ($(UNAME_S),Darwin)
-		CCFLAGS += -D OSX
+		CFLAGS += -D OSX
 	endif
 
 	ifneq (,$(findstring clang,$(CC_VERSION)))
-		CCFLAGS += -D CLANG
+		CFLAGS += -D CLANG
 
 		# -pthread is not necessary when using Clang on Darwin
 		ifneq ($(UNAME_S),Darwin)
-			CCFLAGS += -pthread
+			CFLAGS += -pthread
 		endif
 	else
-		CCFLAGS += -D GCC
-		CCFLAGS += -pthread
+		CFLAGS += -D GCC
+		CFLAGS += -pthread
 
 		# at least on OS X 10.7.5, the apple linker does not understand AVX, and gcc uses it natively
 		ifeq ($(UNAME_S),Darwin)
-			CCFLAGS += -mno-avx
+			CFLAGS += -mno-avx
 		endif
 	endif
 
 	UNAME_P := $(shell uname -m)
 
 	ifeq ($(UNAME_P),x86_64)
-		CCFLAGS += -D AMD64
+		CFLAGS += -D AMD64
 	endif
 	ifneq ($(filter %86,$(UNAME_P)),)
-		CCFLAGS += -D IA32
+		CFLAGS += -D IA32
 	endif
 	ifneq ($(filter arm%,$(UNAME_P)),)
-		CCFLAGS += -D ARM
+		CFLAGS += -D ARM
 	endif
 endif
 
@@ -90,11 +96,11 @@ endif
 # is not the default, so for now I'm not bothering to make a wrapper script to make it
 # use the gold linker, and just disable LTO for clang
 
-CCFLAGS_DEBUG := -g3 \
+CFLAGS_DEBUG := -g3 \
 		-O \
 		-DDEBUG
 
-CCFLAGS_RELEASE := -g3 \
+CFLAGS_RELEASE := -g3 \
 		-O2 \
 		-march=native \
 		-mtune=native \
@@ -103,10 +109,10 @@ CCFLAGS_RELEASE := -g3 \
 
 ifneq (,$(findstring clang,$(CC_VERSION)))
 	# if clang, add vectorize
-	CCFLAGS_RELEASE += -fslp-vectorize
+	CFLAGS_RELEASE += -fslp-vectorize
 else
-	#if gcc, add lto
-	CCFLAGS_RELEASE += -flto
+	#if gcc, add lto (clang can do it, but requires a special linker)
+	CFLAGS_RELEASE += -flto
 endif
 
 INCS = -I$(SDL_PATH)/include \
@@ -119,30 +125,40 @@ LIBS = ./build/libSDL2.a ./build/libSDL2main.a \
 	-framework CoreAudio -framework AudioToolbox -framework AudioUnit \
 	-framework ForceFeedback -framework IOKit
 
+DEPENDENCY_TARGETS =
+
+ifeq ($(ENABLE_LUA), 1)
+	INCS += -I$(LUA_PATH)/src
+	LIBS += $(LUA_PATH)/src/liblua.a
+	DEPENDENCY_TARGETS += lua
+endif
+
 EXECUTABLE:=prototype
 SOURCE:=src/main.c \
 	src/util.c \
 	src/zmalloc.c
 OBJECTS=$(patsubst src%.c,build%.o, $(SOURCE))
 
-debug: CCFLAGS += $(CCFLAGS_DEBUG)
+debug: CFLAGS += $(CFLAGS_DEBUG)
 debug: $(EXECUTABLE)
 
-release: CCFLAGS += $(CCFLAGS_RELEASE)
+release: CFLAGS += $(CFLAGS_RELEASE)
 release: $(EXECUTABLE)
 
 all: debug
 
 $(EXECUTABLE): $(OBJECTS)
+		echo $(ENABLE_LUA)
+		-(cd $(DEPS_PATH) && $(MAKE) $(DEPENDENCY_TARGETS) CC=$(CC))
 		install -d build
-		$(CC) -o $@ $^ $(CCFLAGS) $(LIBS)
+		$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 # zmalloc.c needs -fno-strict-aliasing unfortunately, so we have a special rule for it
 build/zmalloc.o: src/zmalloc.c
-		$(CC) -c $< -o $@ $(CCFLAGS) -fno-strict-aliasing $(INCS)
+		$(CC) -c $< -o $@ $(CFLAGS) -fno-strict-aliasing $(INCS)
 
 build/%.o: src/%.c
-		$(CC) -c $< -o $@ $(CCFLAGS) $(INCS)
+		$(CC) -c $< -o $@ $(CFLAGS) $(INCS)
 
 clean:
 	rm -f build/*.o || true

@@ -22,6 +22,10 @@ prototype
 *.out
 *.app
 
+# Make-generated files
+.make-*
+.prerequisites
+
 # everything below is for SDL2
 syntax:glob
 deps/sdl2/aclocal.m4
