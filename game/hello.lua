@@ -7,6 +7,8 @@ function fact (n)
     end
 end
 
+local fn = 5
+
 -- prints hello world!
 print("Hello world from Lua inside of prototype!")
-print(fact(3))
+print("The facturial of " .. fn .. " is " .. fact(fn))

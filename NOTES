@@ -80,3 +80,6 @@ http://stackoverflow.com/questions/11485911/lua-5-2-c-api-and-require
 
 [LUA] use FFI module:
 http://stackoverflow.com/questions/5919743/how-to-use-luajits-ffi-module-when-embedding?rq=1
+
+[TERRAIN] Terrain generation tutorial:
+http://www.shamusyoung.com/twentysidedtale/?p=147

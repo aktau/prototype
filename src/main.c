@@ -399,7 +399,7 @@ int main(int argc, char* argv[]) {
 
     trace("Creating OpenGL context\n");
 
-    Uint32 t = SDL_GetTicks();
+    uint32_t t = SDL_GetTicks();
 
     SDL_GLContext glcontext = SDL_GL_CreateContext(window);
 

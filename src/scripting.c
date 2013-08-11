@@ -28,12 +28,18 @@ void wfScriptInit(void) {
     // trace("loading script: %s\n", script);
     // zfree(script);
 
-    // Load script
-    int status = luaL_loadfile(lua, "./game/hello.lua");
-    ERROR_EXIT(status != 0, status, "could not load lua script: %s", lua_tostring(lua, -1));
+    int error = luaL_loadfile(lua, "./game/hello.lua") || lua_pcall(lua, 0, LUA_MULTRET, 0);
+    ERROR_HANDLE(error != 0, error, "could not load lua script: %s", lua_tostring(lua, -1));
 
-    int result = lua_pcall(lua, 0, LUA_MULTRET, 0);
-    ERROR_EXIT(result != 0, result, "could not execute lua script: %s", lua_tostring(lua, -1));
+    return;
+error:
+    /* pop error message from the stack */
+    lua_pop(lua, 1);
+
+    /* always clean up after self */
+    lua_close(lua);
+
+    exit(1);
 }
 
 void wfScriptDestroy(void) {
