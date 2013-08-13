@@ -72,6 +72,7 @@ Release
 deps/sdl2/android-project/local.propertiesdeps/sdl2/
 
 deps/sdl2/sdl.pc
+deps/sdl2/sdl2.pc
 deps/sdl2/test/autom4te*
 deps/sdl2/test/config.cache
 deps/sdl2/test/config.log
@@ -124,6 +125,11 @@ deps/sdl2/test/torturethread
 deps/sdl2/test/*.exe
 deps/sdl2/test/*.dSYM
 
+deps/sdl2/libtool
+deps/sdl2/Makefile.rules
+deps/sdl2/sdl2-config
+
+# for lua
 deps/lua/src/lua
 deps/lua/src/luac
 deps/lua/src/liblua.a

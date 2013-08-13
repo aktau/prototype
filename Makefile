@@ -119,7 +119,7 @@ INCS = -I$(SDL_PATH)/include \
 	-I/usr/include/malloc \
 	-I/usr/X11R6/include
 
-LIBS = ./build/libSDL2.a ./build/libSDL2main.a \
+LIBS = $(SDL_PATH)/build/.libs/libSDL2.a $(SDL_PATH)/build/libSDL2main.a \
 	-lm -liconv \
 	-framework Cocoa -framework Carbon -framework OpenGL \
 	-framework CoreAudio -framework AudioToolbox -framework AudioUnit \
