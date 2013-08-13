@@ -1756,6 +1756,8 @@ SDL_MaximizeWindow(SDL_Window * window)
         return;
     }
 
+    // !!! FIXME: should this check if the window is resizable?
+
     if (_this->MaximizeWindow) {
         _this->MaximizeWindow(_this, window);
     }
@@ -2111,8 +2113,8 @@ SDL_OnWindowFocusLost(SDL_Window * window)
     SDL_UpdateWindowGrab(window);
 
     /* If we're fullscreen and lose focus, minimize unless the hint tells us otherwise */
-     if ((window->flags & SDL_WINDOW_FULLSCREEN) && ShouldMinimizeOnFocusLoss() ) {
-            SDL_MinimizeWindow(window);
+    if ((window->flags & SDL_WINDOW_FULLSCREEN) && ShouldMinimizeOnFocusLoss()) {
+        SDL_MinimizeWindow(window);
     }
 }
 
@@ -2852,6 +2854,12 @@ SDL_GL_SwapWindow(SDL_Window * window)
         SDL_SetError("The specified window isn't an OpenGL window");
         return;
     }
+
+    if (SDL_GL_GetCurrentWindow() != window) {
+        SDL_SetError("The specified window has not been made current");
+        return;
+    }
+
     _this->GL_SwapWindow(_this, window);
 }
 

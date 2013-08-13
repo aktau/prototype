@@ -47,9 +47,6 @@
 /* Uncomment this to log messages entering and exiting methods in this file */
 //#define DEBUG_JNI
 
-/* Implemented in audio/android/SDL_androidaudio.c */
-extern void Android_RunAudioThread();
-
 static void Android_JNI_ThreadDestroyed(void*);
 
 /*******************************************************************************
@@ -71,6 +68,7 @@ static jclass mActivityClass;
 
 // method signatures
 static jmethodID midCreateGLContext;
+static jmethodID midDeleteGLContext;
 static jmethodID midFlipBuffers;
 static jmethodID midAudioInit;
 static jmethodID midAudioWriteShortBuffer;
@@ -120,10 +118,12 @@ void SDL_Android_Init(JNIEnv* mEnv, jclass cls)
 
     midCreateGLContext = (*mEnv)->GetStaticMethodID(mEnv, mActivityClass,
                                 "createGLContext","(II[I)Z");
+    midDeleteGLContext = (*mEnv)->GetStaticMethodID(mEnv, mActivityClass,
+                                "deleteGLContext","()V");
     midFlipBuffers = (*mEnv)->GetStaticMethodID(mEnv, mActivityClass,
                                 "flipBuffers","()V");
     midAudioInit = (*mEnv)->GetStaticMethodID(mEnv, mActivityClass,
-                                "audioInit", "(IZZI)V");
+                                "audioInit", "(IZZI)I");
     midAudioWriteShortBuffer = (*mEnv)->GetStaticMethodID(mEnv, mActivityClass,
                                 "audioWriteShortBuffer", "([S)V");
     midAudioWriteByteBuffer = (*mEnv)->GetStaticMethodID(mEnv, mActivityClass,
@@ -161,6 +161,15 @@ void Java_org_libsdl_app_SDLActivity_onNativeKeyUp(
 {
     Android_OnKeyUp(keycode);
 }
+
+// Keyboard Focus Lost
+void Java_org_libsdl_app_SDLActivity_onNativeKeyboardFocusLost(
+                                    JNIEnv* env, jclass jcls)
+{
+    /* Calling SDL_StopTextInput will take care of hiding the keyboard and cleaning up the DummyText widget */
+    SDL_StopTextInput();
+}
+
 
 // Touch
 void Java_org_libsdl_app_SDLActivity_onNativeTouch(
@@ -231,15 +240,6 @@ void Java_org_libsdl_app_SDLActivity_nativeResume(
         SDL_SendWindowEvent(Android_Window, SDL_WINDOWEVENT_FOCUS_GAINED, 0, 0);
         SDL_SendWindowEvent(Android_Window, SDL_WINDOWEVENT_RESTORED, 0, 0);
     }
-}
-
-void Java_org_libsdl_app_SDLActivity_nativeRunAudioThread(
-                                    JNIEnv* env, jclass cls)
-{
-    /* This is the audio thread, with a different environment */
-    Android_JNI_SetupThread();
-
-    Android_RunAudioThread();
 }
 
 void Java_org_libsdl_app_SDLInputConnection_nativeCommitText(
@@ -352,6 +352,14 @@ SDL_bool Android_JNI_CreateContext(int majorVersion, int minorVersion,
     return success ? SDL_TRUE : SDL_FALSE;
 }
 
+SDL_bool Android_JNI_DeleteContext(void)
+{
+    /* There's only one context, so no parameter for now */
+    JNIEnv *env = Android_JNI_GetEnv();
+    (*env)->CallStaticVoidMethod(env, mActivityClass, midDeleteGLContext);
+    return SDL_TRUE;
+}
+
 void Android_JNI_SwapWindow()
 {
     JNIEnv *mEnv = Android_JNI_GetEnv();
@@ -456,7 +464,11 @@ int Android_JNI_OpenAudioDevice(int sampleRate, int is16Bit, int channelCount, i
     audioBuffer16Bit = is16Bit;
     audioBufferStereo = channelCount > 1;
 
-    (*env)->CallStaticVoidMethod(env, mActivityClass, midAudioInit, sampleRate, audioBuffer16Bit, audioBufferStereo, desiredBufferFrames);
+    if ((*env)->CallStaticIntMethod(env, mActivityClass, midAudioInit, sampleRate, audioBuffer16Bit, audioBufferStereo, desiredBufferFrames) != 0) {
+        /* Error during audio initialization */
+        __android_log_print(ANDROID_LOG_WARN, "SDL", "SDL audio: error on AudioTrack initialization!");
+        return 0;
+    }
 
     /* Allocating the audio buffer from the Java side and passing it as the return value for audioInit no longer works on
      * Android >= 4.2 due to a "stale global reference" error. So now we allocate this buffer directly from this side. */
@@ -1350,3 +1362,4 @@ const char * SDL_AndroidGetExternalStoragePath()
 #endif /* __ANDROID__ */
 
 /* vi: set ts=4 sw=4 expandtab: */
+

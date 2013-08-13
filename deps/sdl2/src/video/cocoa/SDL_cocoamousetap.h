@@ -20,8 +20,14 @@
 */
 #include "SDL_config.h"
 
-/* General fatal signal handling code for SDL */
+#ifndef _SDL_cocoamousetap_h
+#define _SDL_cocoamousetap_h
 
-extern void SDL_InstallParachute(void);
-extern void SDL_UninstallParachute(void);
+#include "SDL_cocoamouse.h"
+
+extern void Cocoa_InitMouseEventTap(SDL_MouseData *driverdata);
+extern void Cocoa_QuitMouseEventTap(SDL_MouseData *driverdata);
+
+#endif /* _SDL_cocoamousetap_h */
+
 /* vi: set ts=4 sw=4 expandtab: */

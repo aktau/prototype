@@ -424,6 +424,7 @@ D3D_Reset(SDL_Renderer * renderer)
     IDirect3DDevice9_SetRenderState(data->device, D3DRS_LIGHTING, FALSE);
     IDirect3DDevice9_GetRenderTarget(data->device, 0, &data->defaultRenderTarget);
     SDL_memset(data->scaleMode, 0xFF, sizeof(data->scaleMode));
+    D3D_UpdateViewport(renderer);
     return 0;
 }
 
@@ -449,7 +450,6 @@ D3D_ActivateRenderer(SDL_Renderer * renderer)
         if (D3D_Reset(renderer) < 0) {
             return -1;
         }
-        D3D_UpdateViewport(renderer);
 
         data->updateSize = SDL_FALSE;
     }
@@ -833,7 +833,7 @@ D3D_CreateRenderer(SDL_Window * window, Uint32 flags)
             0x80e40000, 0x0000ffff
         };
 #endif
-        if (shader_data) {
+        if (shader_data != NULL) {
             result = IDirect3DDevice9_CreatePixelShader(data->device, shader_data, &data->ps_yuv);
             if (!FAILED(result)) {
                 renderer->info.texture_formats[renderer->info.num_texture_formats++] = SDL_PIXELFORMAT_YV12;
@@ -864,10 +864,8 @@ GetScaleQuality(void)
 
     if (!hint || *hint == '0' || SDL_strcasecmp(hint, "nearest") == 0) {
         return D3DTEXF_POINT;
-    } else if (*hint == '1' || SDL_strcasecmp(hint, "linear") == 0) {
+    } else /*if (*hint == '1' || SDL_strcasecmp(hint, "linear") == 0)*/ {
         return D3DTEXF_LINEAR;
-    } else {
-        return D3DTEXF_ANISOTROPIC;
     }
 }
 

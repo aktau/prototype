@@ -32,6 +32,7 @@
 #include "SDL_cocoavideo.h"
 #include "SDL_cocoashape.h"
 #include "SDL_cocoamouse.h"
+#include "SDL_cocoaopengl.h"
 
 
 static Uint32 s_moveHack;
@@ -39,6 +40,16 @@ static Uint32 s_moveHack;
 static __inline__ void ConvertNSRect(NSRect *r)
 {
     r->origin.y = CGDisplayPixelsHigh(kCGDirectMainDisplay) - r->origin.y - r->size.height;
+}
+
+static void ScheduleContextUpdates(SDL_WindowData *data)
+{
+    NSMutableArray *contexts = data->nscontexts;
+    @synchronized (contexts) {
+        for (SDLOpenGLContext *context in contexts) {
+            [context scheduleUpdate];
+        }
+    }
 }
 
 @implementation Cocoa_WindowListener
@@ -131,6 +142,7 @@ static __inline__ void ConvertNSRect(NSRect *r)
     NSNotificationCenter *center;
     NSWindow *window = _data->nswindow;
     NSView *view = [window contentView];
+    NSArray *windows = nil;
 
     center = [NSNotificationCenter defaultCenter];
 
@@ -155,6 +167,21 @@ static __inline__ void ConvertNSRect(NSRect *r)
     if ([view nextResponder] == self) {
         [view setNextResponder:nil];
     }
+
+    /* Make the next window in the z-order Key. If we weren't the foreground
+       when closed, this is a no-op.
+       !!! FIXME: Note that this is a hack, and there are corner cases where
+       !!! FIXME:  this fails (such as the About box). The typical nib+RunLoop
+       !!! FIXME:  handles this for Cocoa apps, but we bypass all that in SDL.
+       !!! FIXME:  We should remove this code when we find a better way to
+       !!! FIXME:  have the system do this for us. See discussion in
+       !!! FIXME:   http://bugzilla.libsdl.org/show_bug.cgi?id=1825
+    */
+    windows = [NSApp orderedWindows];
+    if ([windows count] > 0) {
+        NSWindow *win = (NSWindow *) [windows objectAtIndex:0];
+        [win makeKeyAndOrderFront:self];
+    }
 }
 
 - (BOOL)windowShouldClose:(id)sender
@@ -171,7 +198,6 @@ static __inline__ void ConvertNSRect(NSRect *r)
 - (void)windowDidMove:(NSNotification *)aNotification
 {
     int x, y;
-    SDL_VideoDevice *device = SDL_GetVideoDevice();
     SDL_Window *window = _data->window;
     NSWindow *nswindow = _data->nswindow;
     NSRect rect = [nswindow contentRectForFrameRect:[nswindow frame]];
@@ -195,16 +221,13 @@ static __inline__ void ConvertNSRect(NSRect *r)
     x = (int)rect.origin.x;
     y = (int)rect.origin.y;
 
-    if (window == device->current_glwin) {
-        [((NSOpenGLContext *) device->current_glctx) update];
-    }
+    ScheduleContextUpdates(_data);
 
     SDL_SendWindowEvent(window, SDL_WINDOWEVENT_MOVED, x, y);
 }
 
 - (void)windowDidResize:(NSNotification *)aNotification
 {
-    SDL_VideoDevice *device = SDL_GetVideoDevice();
     int x, y, w, h;
     NSRect rect = [_data->nswindow contentRectForFrameRect:[_data->nswindow frame]];
     ConvertNSRect(&rect);
@@ -215,14 +238,19 @@ static __inline__ void ConvertNSRect(NSRect *r)
     if (SDL_IsShapedWindow(_data->window))
         Cocoa_ResizeWindowShape(_data->window);
 
-    if (_data->window == device->current_glwin) {
-        [((NSOpenGLContext *) device->current_glctx) update];
-    }
+    ScheduleContextUpdates(_data);
 
     /* The window can move during a resize event, such as when maximizing
        or resizing from a corner */
     SDL_SendWindowEvent(_data->window, SDL_WINDOWEVENT_MOVED, x, y);
     SDL_SendWindowEvent(_data->window, SDL_WINDOWEVENT_RESIZED, w, h);
+
+    const BOOL zoomed = [_data->nswindow isZoomed];
+    if (!zoomed) {
+        SDL_SendWindowEvent(_data->window, SDL_WINDOWEVENT_RESTORED, 0, 0);
+    } else if (zoomed) {
+        SDL_SendWindowEvent(_data->window, SDL_WINDOWEVENT_MAXIMIZED, 0, 0);
+    }
 }
 
 - (void)windowDidMiniaturize:(NSNotification *)aNotification
@@ -391,6 +419,11 @@ static __inline__ void ConvertNSRect(NSRect *r)
                 y = window->h - 1;
             }
 
+#if !SDL_MAC_NO_SANDBOX
+            /* When SDL_MAC_NO_SANDBOX is set, this is handled by
+             * SDL_cocoamousetap.m.
+             */
+
             cgpoint.x = window->x + x;
             cgpoint.y = window->y + y;
 
@@ -401,6 +434,7 @@ static __inline__ void ConvertNSRect(NSRect *r)
             CGSetLocalEventsSuppressionInterval(0.0);
             CGDisplayMoveCursorToPoint(kCGDirectMainDisplay, cgpoint);
             CGSetLocalEventsSuppressionInterval(0.25);
+#endif
         }
     }
     SDL_SendMouseMotion(window, 0, 0, x, y);
@@ -581,6 +615,7 @@ SetupWindowData(_THIS, SDL_Window * window, NSWindow *nswindow, SDL_bool created
     data->nswindow = nswindow;
     data->created = created;
     data->videodata = videodata;
+    data->nscontexts = [[NSMutableArray alloc] init];
 
     pool = [[NSAutoreleasePool alloc] init];
 
@@ -759,7 +794,8 @@ void
 Cocoa_SetWindowPosition(_THIS, SDL_Window * window)
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    NSWindow *nswindow = ((SDL_WindowData *) window->driverdata)->nswindow;
+    SDL_WindowData *windata = (SDL_WindowData *) window->driverdata;
+    NSWindow *nswindow = windata->nswindow;
     NSRect rect;
     Uint32 moveHack;
 
@@ -774,9 +810,7 @@ Cocoa_SetWindowPosition(_THIS, SDL_Window * window)
     [nswindow setFrameOrigin:rect.origin];
     s_moveHack = moveHack;
 
-    if (window == _this->current_glwin) {
-        [((NSOpenGLContext *) _this->current_glctx) update];
-    }
+    ScheduleContextUpdates(windata);
 
     [pool release];
 }
@@ -793,9 +827,7 @@ Cocoa_SetWindowSize(_THIS, SDL_Window * window)
     size.height = window->h;
     [nswindow setContentSize:size];
 
-    if (window == _this->current_glwin) {
-        [((NSOpenGLContext *) _this->current_glctx) update];
-    }
+    ScheduleContextUpdates(windata);
 
     [pool release];
 }
@@ -877,13 +909,12 @@ void
 Cocoa_MaximizeWindow(_THIS, SDL_Window * window)
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    NSWindow *nswindow = ((SDL_WindowData *) window->driverdata)->nswindow;
+    SDL_WindowData *windata = (SDL_WindowData *) window->driverdata;
+    NSWindow *nswindow = windata->nswindow;
 
     [nswindow zoom:nil];
 
-    if (window == _this->current_glwin) {
-        [((NSOpenGLContext *) _this->current_glctx) update];
-    }
+    ScheduleContextUpdates(windata);
 
     [pool release];
 }
@@ -1020,9 +1051,7 @@ Cocoa_SetWindowFullscreen(_THIS, SDL_Window * window, SDL_VideoDisplay * display
     [nswindow makeKeyAndOrderFront:nil];
     [data->listener resumeVisibleObservation];
 
-    if (window == _this->current_glwin) {
-        [((NSOpenGLContext *) _this->current_glctx) update];
-    }
+    ScheduleContextUpdates(data);
 
     [pool release];
 }
@@ -1115,6 +1144,14 @@ Cocoa_DestroyWindow(_THIS, SDL_Window * window)
         if (data->created) {
             [data->nswindow close];
         }
+
+        NSArray *contexts = [[data->nscontexts copy] autorelease];
+        for (SDLOpenGLContext *context in contexts) {
+            /* Calling setWindow:NULL causes the context to remove itself from the context list. */            
+            [context setWindow:NULL];
+        }
+        [data->nscontexts release];
+
         SDL_free(data);
     }
     [pool release];
