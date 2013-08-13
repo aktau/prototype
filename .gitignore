@@ -22,6 +22,10 @@ prototype
 *.out
 *.app
 
+# Make-generated files
+.make-*
+.prerequisites
+
 # everything below is for SDL2
 syntax:glob
 deps/sdl2/aclocal.m4
@@ -119,3 +123,7 @@ deps/sdl2/test/testwm2
 deps/sdl2/test/torturethread
 deps/sdl2/test/*.exe
 deps/sdl2/test/*.dSYM
+
+deps/lua/src/lua
+deps/lua/src/luac
+deps/lua/src/liblua.a
