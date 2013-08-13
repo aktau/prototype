@@ -489,12 +489,12 @@ int main(int argc, char* argv[]) {
                     done = 1;
                     break;
 
-                // default:
-                //     trace("unkown even type received: %d\n", event.type);
-            }
-        }
 
-        render();
+                /* default: trace("unkown even type received: %d\n", event.type); */
+            }
+
+            render();
+        }
 
         SDL_GL_SwapWindow(window);
 
