@@ -57,10 +57,9 @@ const char *wfScriptVersion(void) {
     /* start a barebones lua interpreter and get the version number */
     lua_State *lua = luaL_newstate();
     {
-        /* load base library */
-        // luaopen_base(lua);
+        /* load base library (and remove it, see linit.c) */
         luaL_requiref(lua, "_G", luaopen_base, 1);
-        lua_pop(lua, 1);  /* remove lib */
+        lua_pop(lua, 1);
 
         /* get version */
         lua_getglobal(lua, "_VERSION");

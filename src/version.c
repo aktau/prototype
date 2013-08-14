@@ -12,18 +12,6 @@
 #include "util.h"
 
 const char *wfCompiler(void) {
-    // static char buffer[WF_STATIC_STRING_BUFSIZE];
-
-    // #if defined(__clang__) && defined(__clang_major__) && defined(__clang_minor__) && defined(__clang_patchlevel__)
-    //     snprintf(buffer, WF_STATIC_STRING_BUFSIZE, "clang %d.%d.%d", __clang_major__, __clang_minor__, __clang_patchlevel__);
-    // #elif defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__)
-    //     snprintf(buffer, WF_STATIC_STRING_BUFSIZE, "gcc %d.%d.%d", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
-    // #else
-    //     snprintf(buffer, WF_STATIC_STRING_BUFSIZE, "unkwown compiler");
-    // #endif
-
-    // return buffer;
-
     #if defined(__clang__) && defined(__clang_major__) && defined(__clang_minor__) && defined(__clang_patchlevel__)
         return "clang " XSTR(__clang_major__) "." XSTR(__clang_minor__) "." XSTR(__clang_patchlevel__);
     #elif defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__)

@@ -371,7 +371,7 @@ int main(int argc, char* argv[]) {
     trace("Compiled by: %s\n", wfCompiler());
 
     #ifdef HAVE_LUA
-        trace("Scripting enabled, %s\n", wfScriptVersion());;
+        trace("Scripting enabled, %s\n", wfScriptVersion());
         wfScriptInit();
     #endif
 
