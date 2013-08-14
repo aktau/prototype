@@ -90,5 +90,11 @@ http://lua-users.org/wiki/SimpleLuaApiExample
 [LUA] The lua faq:
 http://www.luafaq.org/
 
+[LUA] Support both 5.1 and 5.2 with a tiny bit of IFDEF:
+http://lua.2524044.n2.nabble.com/Standard-Lua-modules-in-5-2-1-td7581168.html
+
 [TERRAIN] Terrain generation tutorial:
 http://www.shamusyoung.com/twentysidedtale/?p=147
+
+[COMPILERS] Things DEFINE'd by specific compilers:
+http://sourceforge.net/p/predef/wiki/Compilers/
