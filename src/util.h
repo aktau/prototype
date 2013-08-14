@@ -112,13 +112,20 @@
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 #endif
 
+#define XSTR(a) STR(a)
+#define STR(a) #a
+
 #define ARRAY_SIZE(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
 
 #define TWOPI_OVER_360 0.0174533
 
+#define WF_STATIC_STRING_BUFSIZE 512
+
+
 #ifdef HAVE_LUA
 void wfScriptInit(void);
 void wfScriptDestroy(void);
+const char *wfScriptVersion(void);
 #endif
 
 const char *wfGlErrorString(GLenum error);
@@ -129,5 +136,8 @@ char *loadfile(const char *filename);
 
 int shaderIsCompiled(GLuint shader);
 int programIsLinked(GLuint program);
+
+/* version.c */
+const char *wfCompiler(void);
 
 #endif

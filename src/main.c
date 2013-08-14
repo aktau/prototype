@@ -367,7 +367,13 @@ int main(int argc, char* argv[]) {
     int width  = 800;
     int height = 600;
 
-    trace("Prototype/warfare engine, initializing SDL\n");
+    trace("Prototype/warfare engine, starting up\n");
+    trace("Compiled by: %s\n", wfCompiler());
+
+    #ifdef HAVE_LUA
+        trace("Scripting enabled, %s\n", wfScriptVersion());;
+        wfScriptInit();
+    #endif
 
     SDL_Init(SDL_INIT_VIDEO);
 
@@ -408,10 +414,6 @@ int main(int argc, char* argv[]) {
     printGlInfo();
 
     init();
-
-#ifdef HAVE_LUA
-    wfScriptInit();
-#endif
 
     SDL_Event event;
     Uint8 done = 0;

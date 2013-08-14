@@ -50,3 +50,23 @@ static void wfScriptLoadLibraries(lua_State *lua) {
     /* just open all libraries for now, over time we should */
     luaL_openlibs(lua);
 }
+
+const char *wfScriptVersion(void) {
+    static char buffer[WF_STATIC_STRING_BUFSIZE];
+
+    /* start a barebones lua interpreter and get the version number */
+    lua_State *lua = luaL_newstate();
+    {
+        /* load base library */
+        // luaopen_base(lua);
+        luaL_requiref(lua, "_G", luaopen_base, 1);
+        lua_pop(lua, 1);  /* remove lib */
+
+        /* get version */
+        lua_getglobal(lua, "_VERSION");
+        snprintf(buffer, WF_STATIC_STRING_BUFSIZE, "Lua compiled against "  LUA_RELEASE " (running with %s)", lua_tostring(lua, -1));
+    }
+    lua_close(lua);
+
+    return buffer;
+}

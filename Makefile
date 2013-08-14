@@ -128,7 +128,8 @@ LIBS = $(SDL_PATH)/build/.libs/libSDL2.a $(SDL_PATH)/build/libSDL2main.a \
 EXECUTABLE:=prototype
 SOURCE:=src/main.c \
 	src/util.c \
-	src/zmalloc.c
+	src/zmalloc.c \
+	src/version.c
 
 DEPENDENCY_TARGETS =
 
@@ -151,7 +152,6 @@ release: $(EXECUTABLE)
 all: debug
 
 $(EXECUTABLE): $(OBJECTS)
-		echo $(ENABLE_LUA)
 		-(cd $(DEPS_PATH) && $(MAKE) $(DEPENDENCY_TARGETS) CC=$(CC))
 		install -d build
 		$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
