@@ -12,8 +12,8 @@
 
 ENABLE_LUA ?= 1
 
-# CC := /usr/local/bin/gcc-4.8
-CC := /usr/local/bin/clang
+CC := /usr/local/bin/gcc-4.8
+# CC := /usr/local/bin/clang
 
 STD := -std=c11 -pedantic
 SECURITY := -D_THREAD_SAFE -D_FORTIFY_SOURCE=2
@@ -109,7 +109,7 @@ SOURCE := src/main.c \
 	src/zmalloc.c \
 	src/version.c
 
-DEPENDENCY_TARGETS :=
+DEPENDENCY_TARGETS := sdl2
 
 ifeq ($(ENABLE_LUA), 1)
 	INCS += -I$(LUA_PATH)/src
