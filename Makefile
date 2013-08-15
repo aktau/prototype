@@ -12,8 +12,8 @@
 
 ENABLE_LUA ?= 1
 
-CC := /usr/local/bin/gcc-4.8
-# CC := /usr/local/bin/clang
+# CC := /usr/local/bin/gcc-4.8
+CC := /usr/local/bin/clang
 
 STD := -std=c11 -pedantic
 SECURITY := -D_THREAD_SAFE -D_FORTIFY_SOURCE=2

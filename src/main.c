@@ -216,21 +216,28 @@ void destroyTriangle(GLuint *vao, GLuint *vbo, GLuint *cbo, GLuint *ibo) {
 }
 
 void setupShaders(GLuint *vtshader, GLuint *fgshader, GLuint *program) {
-    GLchar *vtShaderSource = (GLchar *) loadfile("./src/shaders/color.vert");
-    GLchar *fgShaderSource = (GLchar *) loadfile("./src/shaders/color.frag");
+    GLchar * const vtShaderSource = (GLchar * const) loadfile("./src/shaders/color.vert");
+    GLchar * const fgShaderSource = (GLchar * const) loadfile("./src/shaders/color.frag");
+
+    /*
+     * a hacky way to get around the overly zealous -Wcast-qual error messages, I'm
+     * torn between removing -Wcast-qual and removing this hack...
+     */
+    const GLchar *vt = (const GLchar *) vtShaderSource;
+    const GLchar *fg = (const GLchar *) fgShaderSource;
 
     trace("vertex shader: \n%s\n", vtShaderSource);
     trace("fragment shader: \n%s\n", fgShaderSource);
 
     *vtshader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(*vtshader, 1, (const GLchar **) &vtShaderSource, NULL);
+    glShaderSource(*vtshader, 1, &vt, NULL);
     glCompileShader(*vtshader);
 
     GL_SHADER_ERROR(*vtshader);
     GL_ERROR("create and compile vertex shader");
 
     *fgshader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(*fgshader, 1, (const GLchar **) &fgShaderSource, NULL);
+    glShaderSource(*fgshader, 1, &fg, NULL);
     glCompileShader(*fgshader);
 
     GL_SHADER_ERROR(*fgshader);
