@@ -501,9 +501,9 @@ int main(int argc, char* argv[]) {
 
                 /* default: trace("unkown even type received: %d\n", event.type); */
             }
-
-            render();
         }
+
+        render();
 
         SDL_GL_SwapWindow(window);
 

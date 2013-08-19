@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <inttypes.h>
 
 #define GL3_PROTOTYPES
 #include <OpenGL/gl3.h>
@@ -65,10 +66,18 @@
 
 #define GL_FRAMEBUFFER_ERROR() \
     if (DEBUG_TEST) {\
-        assert(wfGlFbErrorString() == NULL);\
+        assert(wfGlFbErrorString() == NULL); \
     }
 
 #define clean_errno() (errno == 0 ? "None" : strerror(errno))
+
+#define BENCH_START(identifier) \
+    uint64_t _bench_##identifier = SDL_GetPerformanceCounter();
+
+/* trace("[BENCHMARK]: %" PRIu64 " ticks passed on [" STR(identifier) "]\n", _bench_##identifier); */
+#define BENCH_END(identifier) \
+    trace("[BENCHMARK]: %-6.2fμs [" STR(identifier) "]\n", 1000000 * (SDL_GetPerformanceCounter() - _bench_##identifier) / (float)SDL_GetPerformanceFrequency());
+
 
 /**
  * if cond, report err, execute msg and return with val, threadsafe
