@@ -75,6 +75,15 @@ http://jonmacey.blogspot.de/2013/05/glsl-tessellation-shaders-under-mac-osx.html
 [GRAPHICS] Screen space ambient occlusion (SSAO), a step for deferred rendering:
 http://devmaster.net/posts/3095/shader-effects-screen-space-ambient-occlusion
 
+[GRPAHICS] Article full of links for deferred rendering:
+http://www.gamerendering.com/2008/11/01/deferred-lightning/
+Killzone 2 presentation on deferred rendering - http://www.guerrilla-games.com/publications/dr_kz2_rsx_dev07.pdf
+Deferred rendering demystified, gamedev.net - http://www.gamedev.net/page/resources/_/technical/graphics-programming-and-theory/deferred-rendering-demystified-r2746
+Intel research, deferred rendering - http://visual-computing.intel-research.net/art/publications/deferred_rendering/
+
+[GRAPHICS] Best tutorial on bump mapping I've seen yet:
+http://ogldev.atspace.co.uk/www/tutorial26/tutorial26.html
+
 [LUA] How to export symbols from an executable:
 http://stackoverflow.com/questions/3954137/mac-how-to-export-symbols-from-an-executable
 
