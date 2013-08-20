@@ -66,12 +66,12 @@ distclean:
 
 sdl2: .make-prerequisites
 	@printf '%b %b\n' $(MAKECOLOR)MAKE$(ENDCOLOR) $(BINCOLOR)$@$(ENDCOLOR)
-	cd sdl2 && $(MAKE) CC="$(SDL_CC)"
+	$(MAKE) -C sdl2 CC="$(SDL_CC)"
 
 LUA_OS ?= macosx
 
 lua: .make-prerequisites
 	@printf '%b %b\n' $(MAKECOLOR)MAKE$(ENDCOLOR) $(BINCOLOR)$@$(ENDCOLOR)
-	cd lua/src && $(MAKE) CC="$(CC)"
+	$(MAKE) -C lua/src amalg CC="$(CC)"
 
 .PHONY: lua sdl2
