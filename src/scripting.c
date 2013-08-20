@@ -58,14 +58,15 @@ const char *wfScriptVersion(void) {
     lua_State *lua = luaL_newstate();
     {
         /* load base library (and remove it, see linit.c) */
-        luaL_requiref(lua, "_G", luaopen_base, 1);
-        lua_pop(lua, 1);
+        // luaL_requiref(lua, "_G", luaopen_base, 1);
+        // lua_pop(lua, 1);
 
         /* get version */
-        lua_getglobal(lua, "_VERSION");
-        snprintf(buffer, WF_STATIC_STRING_BUFSIZE, "Lua compiled against "  LUA_RELEASE " (running with %s)", lua_tostring(lua, -1));
+        // lua_getglobal(lua, "_VERSION");
+        // snprintf(buffer, WF_STATIC_STRING_BUFSIZE, "Lua compiled against "  LUA_RELEASE " (running with %s)", lua_tostring(lua, -1));
     }
     lua_close(lua);
 
-    return buffer;
+    // return buffer;
+    return "luajit";
 }

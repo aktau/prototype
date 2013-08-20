@@ -102,10 +102,20 @@ http://www.luafaq.org/
 [LUA] Support both 5.1 and 5.2 with a tiny bit of IFDEF:
 http://lua.2524044.n2.nabble.com/Standard-Lua-modules-in-5-2-1-td7581168.html
 
+[PHYSICS] How to create a custom physics engine:
+http://gamedev.tutsplus.com/tutorials/implementation/how-to-create-a-custom-2d-physics-engine-the-core-engine/
+
+[TERRAIN] The seminal simplex noise paper (look for JS implementations as well):
+http://webstaff.itn.liu.se/~stegu/simplexnoise/simplexnoise.pdf
+
 [TERRAIN] Terrain generation tutorial:
 http://www.shamusyoung.com/twentysidedtale/?p=147
+
+[PATHFINDING] Avoiding collisions with pathfinding:
+http://cleverpuntitle.blogspot.be/2013/08/avoiding-pathfinding-caused-collisions.html
 
 [COMPILERS] Things DEFINE'd by specific compilers:
 http://sourceforge.net/p/predef/wiki/Compilers/
 
-[BENCHMARK] Create code to benchnark pieces
+[BENCHMARK] Create code to benchmark pieces, some inspiration:
+http://preshing.com/20111203/a-c-profiling-module-for-multithreaded-apis

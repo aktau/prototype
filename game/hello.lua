@@ -8,7 +8,9 @@ function fact (n)
 end
 
 local fn = 5
+local moar = 10
 
--- prints hello world!
-print("Hello world from Lua inside of prototype!")
+print("lua interpreter compatibility version: " .. tostring(_VERSION))
+print("jit status: " .. tostring(jit.status()))
 print("The facturial of " .. fn .. " is " .. fact(fn))
+print("The facturial of " .. moar .. " is " .. fact(moar))

@@ -113,7 +113,8 @@ DEPENDENCY_TARGETS := sdl2
 
 ifeq ($(ENABLE_LUA), 1)
 	INCS += -I$(LUA_PATH)/src
-	LIBS += $(LUA_PATH)/src/liblua.a
+	# LIBS += ./build/libluajit.a
+	LIBS += $(LUA_PATH)/src/libluajit.a
 	DEPENDENCY_TARGETS += lua
 	CFLAGS += -DHAVE_LUA
 	SOURCE += src/scripting.c
@@ -133,7 +134,7 @@ release: $(EXECUTABLE)
 $(EXECUTABLE): $(OBJECTS)
 		-(cd $(DEPS_PATH) && $(MAKE) $(DEPENDENCY_TARGETS) CC=$(CC))
 		install -d build
-		$(CC) -o $@ $^ $(LIBS) $(CFLAGS)
+		$(CC) -o $@ $^ $(LIBS) $(CFLAGS) -pagezero_size 10000 -image_base 100000000
 
 # zmalloc.c needs -fno-strict-aliasing unfortunately, so we have a special rule for it
 build/zmalloc.o: src/zmalloc.c

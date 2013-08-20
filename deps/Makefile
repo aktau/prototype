@@ -72,6 +72,6 @@ LUA_OS ?= macosx
 
 lua: .make-prerequisites
 	@printf '%b %b\n' $(MAKECOLOR)MAKE$(ENDCOLOR) $(BINCOLOR)$@$(ENDCOLOR)
-	cd lua/src && $(MAKE) $(LUA_OS) CC="$(CC)"
+	cd lua/src && $(MAKE) CC="$(CC)" HOST_CC="$(CC)"
 
 .PHONY: lua sdl2
