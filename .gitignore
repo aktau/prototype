@@ -133,3 +133,10 @@ deps/sdl2/sdl2-config
 deps/lua/src/lua
 deps/lua/src/luac
 deps/lua/src/liblua.a
+deps/lua/src/luajit
+deps/lua/src/*.s
+deps/lua/src/lj_*def.h
+deps/lua/src/jit/vmdef.lua
+deps/lua/src/host/buildvm
+deps/lua/src/host/buildvm_arch.h
+deps/lua/src/host/minilua
