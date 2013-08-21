@@ -134,6 +134,7 @@
 #ifdef HAVE_LUA
 void wfScriptInit(void);
 void wfScriptDestroy(void);
+int wfScriptMemUsed(void);
 const char *wfScriptVersion(void);
 #endif
 
