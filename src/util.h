@@ -19,7 +19,11 @@
 #include <inttypes.h>
 
 #define GL3_PROTOTYPES
-#include <OpenGL/gl3.h>
+#ifdef __APPLE__
+    #include <OpenGL/gl3.h>
+#else
+    #include <GL3/gl3.h>
+#endif
 
 #include "SDL.h"
 #include "zmalloc.h"
@@ -52,7 +56,7 @@
             fprintf(stderr, " [OpenGL] %s \n", wfGlErrorString(_tmp_error)); \
             exit(1); \
         } \
-    } \
+    }
 
 #define GL_SHADER_ERROR(shader) \
     if (DEBUG_TEST) { \

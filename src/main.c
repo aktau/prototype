@@ -14,19 +14,10 @@
 #include <stdint.h>
 #include <limits.h>
 
-/**
- * this is mac only, probably gl/gl3.h for linux and something else for win.
- * For win we will likely also need glew or another extension loader.
- */
-#define GL3_PROTOTYPES
-#include <OpenGL/gl3.h>
-
-#include "SDL.h"
-
 #include "util.h"
 #include "vec.h"
 
-// #include "SDL_opengl.h"
+#include "SDL.h"
 
 /**
  * TODO: switch to basic shaders
@@ -48,18 +39,6 @@ static void setupTransform(int width, int height) {
 
     /* setup viewport */
     glViewport(0, 0, (GLsizei) width, (GLsizei) height);
-
-    /* Now, regular OpenGL functions ... */
-    // if (ortho) {
-    //     glMatrixMode(GL_PROJECTION);
-    //     glLoadIdentity();
-    //     glOrtho(-320, 320, 240, -240, 0, 1);
-    // }
-    // else {
-    //     glMatrixMode(GL_PROJECTION);
-    //     glLoadIdentity();
-    //     perspective(45.0f, ratio, 0.1f, 100.0f);
-    // }
 
     // glMatrixMode(GL_MODELVIEW);
     // glLoadIdentity();
