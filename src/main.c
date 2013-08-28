@@ -195,8 +195,8 @@ void destroyTriangle(GLuint *vao, GLuint *vbo, GLuint *cbo, GLuint *ibo) {
 }
 
 void setupShaders(GLuint *vtshader, GLuint *fgshader, GLuint *program) {
-    GLchar * const vtShaderSource = (GLchar * const) loadfile("./src/shaders/color.vert");
-    GLchar * const fgShaderSource = (GLchar * const) loadfile("./src/shaders/color.frag");
+    GLchar * const vtShaderSource = (GLchar * const) loadfile("./src/shaders/texture.vert");
+    GLchar * const fgShaderSource = (GLchar * const) loadfile("./src/shaders/texture.frag");
 
     /*
      * a hacky way to get around the overly zealous -Wcast-qual error messages, I'm
@@ -421,6 +421,16 @@ int main(int argc, char* argv[]) {
 
     GLuint vao, vbo, cbo, ibo;
     genTriangle(&vao, &vbo, &cbo, &ibo);
+
+    GLint texUniformLoc = glGetUniformLocation(program, "tex");
+
+    glActiveTexture(GL_TEXTURE0 + 0);
+    GLuint texture = wfTexLoad("./game/img/monolith.png");
+    glUniform1i(texUniformLoc, 0);
+
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    GL_ERROR("texture binding");
 
     while (!done) {
         while (SDL_PollEvent(&event)) {

@@ -107,7 +107,9 @@ EXECUTABLE := prototype
 SOURCE := src/main.c \
 	src/util.c \
 	src/zmalloc.c \
-	src/version.c
+	src/version.c \
+	src/texture.c \
+	src/stb_image.c
 
 DEPENDENCY_TARGETS := sdl2
 

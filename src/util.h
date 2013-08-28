@@ -21,6 +21,7 @@
 #define GL3_PROTOTYPES
 #ifdef __APPLE__
     #include <OpenGL/gl3.h>
+    #include <OpenGL/gl3ext.h>
 #else
     #include <GL3/gl3.h>
 #endif
@@ -134,7 +135,6 @@
 
 #define WF_STATIC_STRING_BUFSIZE 512
 
-
 #ifdef HAVE_LUA
 void wfScriptInit(void);
 void wfScriptDestroy(void);
@@ -142,6 +142,7 @@ int wfScriptMemUsed(void);
 const char *wfScriptVersion(void);
 #endif
 
+/* error handling */
 const char *wfGlErrorString(GLenum error);
 const char *wfGlFbErrorString();
 
@@ -153,5 +154,8 @@ int programIsLinked(GLuint program);
 
 /* version.c */
 const char *wfCompiler(void);
+
+/* texture.c */
+GLuint wfTexLoad(const char *imagepath);
 
 #endif
