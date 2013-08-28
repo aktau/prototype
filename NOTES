@@ -119,3 +119,29 @@ http://sourceforge.net/p/predef/wiki/Compilers/
 
 [BENCHMARK] Create code to benchmark pieces, some inspiration:
 http://preshing.com/20111203/a-c-profiling-module-for-multithreaded-apis
+
+[GRAPHICS] Creating a small path-tracer (ray-tracing) from scratch:
+http://geon.github.io/programming/2013/08/22/gloss-my-bidirectional-path-tracer/
+
+[GRAPHICS] Brigade, advanced (realtime!) path tracer:
+http://raytracey.blogspot.co.nz/
+
+[LUA] Lulup, line-level profiler for Lua and LuaJIT (actually just LuaJIT for now, needs FFI):
+http://blog.jgc.org/2013/04/lulip-line-level-profiler-for-code.html
+
+[PROGRAMMING] The nature of code (processing), L-systems, fractals, physics, attractors, ...:
+http://natureofcode.com/book/chapter-6-autonomous-agents/
+http://acko.net/files/fullfrontal/fullfrontal/wdcode/online.html
+http://acko.net/files/fullfrontal/fullfrontal/webglmath/online.html
+https://www.udacity.com/course/viewer#!/c-cs291/l-68866048/m-96403513 (udacity url)
+
+[IDEA] Make mathbox shapes as objects in prototype (interpolate all the things):
+http://acko.net/blog/making-mathbox/
+
+[NETWORKING] Halo's networking architecture and Gaffer on Games
+http://www.gdcvault.com/play/1014345/I-Shot-You-First-Networking
+http://gafferongames.com/networking-for-game-programmers/
+http://www.reddit.com/r/gamedev/comments/1l3q5a/netcode/
+
+[PHYSICS-OPENCL] Instanced drawing the OpenGL, physics with OpenCL for absolutely awesome speed:
+http://www.altdevblogaday.com/2011/06/11/a-short-opencl-tutorial-updating-world-transforms-of-instanced-meshes-on-the-gpu/
