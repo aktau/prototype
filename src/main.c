@@ -172,7 +172,7 @@ static void genTriangle(GLuint *vao, GLuint *vbo, GLuint *cbo, GLuint *ibo) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *ibo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    GL_ERROR("create VBO of colors");
+    GL_ERROR("create VBO of indices");
 }
 
 void destroyTriangle(GLuint *vao, GLuint *vbo, GLuint *cbo, GLuint *ibo) {
@@ -192,71 +192,6 @@ void destroyTriangle(GLuint *vao, GLuint *vbo, GLuint *cbo, GLuint *ibo) {
     glDeleteVertexArrays(1, vao);
 
     GL_ERROR("delete buffer objects");
-}
-
-void setupShaders(GLuint *vtshader, GLuint *fgshader, GLuint *program) {
-    GLchar * const vtShaderSource = (GLchar * const) loadfile("./src/shaders/texture.vert");
-    GLchar * const fgShaderSource = (GLchar * const) loadfile("./src/shaders/texture.frag");
-
-    /*
-     * a hacky way to get around the overly zealous -Wcast-qual error messages, I'm
-     * torn between removing -Wcast-qual and removing this hack...
-     */
-    const GLchar *vt = (const GLchar *) vtShaderSource;
-    const GLchar *fg = (const GLchar *) fgShaderSource;
-
-    trace("vertex shader: \n%s\n", vtShaderSource);
-    trace("fragment shader: \n%s\n", fgShaderSource);
-
-    *vtshader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(*vtshader, 1, &vt, NULL);
-    glCompileShader(*vtshader);
-
-    GL_SHADER_ERROR(*vtshader);
-    GL_ERROR("create and compile vertex shader");
-
-    *fgshader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(*fgshader, 1, &fg, NULL);
-    glCompileShader(*fgshader);
-
-    GL_SHADER_ERROR(*fgshader);
-    GL_ERROR("create and compile fragment shader");
-
-    *program = glCreateProgram();
-
-    glAttachShader(*program, *vtshader);
-    glAttachShader(*program, *fgshader);
-
-    GL_ERROR("attach shaders");
-
-    glBindAttribLocation(*program, 0, "in_position");
-    glBindAttribLocation(*program, 1, "in_color");
-
-    glLinkProgram(*program);
-
-    GL_PROGRAM_ERROR(*program);
-    GL_ERROR("link shader program");
-
-    glUseProgram(*program);
-
-    GL_ERROR("use shader program");
-
-    /* cleanup */
-    glDetachShader(*program, *vtshader);
-    glDetachShader(*program, *fgshader);
-
-    glDeleteShader(*vtshader);
-    glDeleteShader(*fgshader);
-
-    zfree(vtShaderSource);
-    zfree(fgShaderSource);
-}
-
-void destroyShaders(GLuint *vtshader, GLuint *fgshader, GLuint *program) {
-    glUseProgram(0);
-    glDeleteProgram(*program);
-
-    GL_ERROR("delete shader program");
 }
 
 static void render() {
@@ -416,16 +351,18 @@ int main(int argc, char* argv[]) {
 
     setupTransform(width, height);
 
-    GLuint vtShader, fgShader, program;
-    setupShaders(&vtShader, &fgShader, &program);
+    // GLuint vtShader, fgShader, program;
+
+    struct gfxShaderProgram shader;
+    gfxLoadShaderFromFile(&shader, "./src/shaders/texture.vert", "./src/shaders/texture.frag");
 
     GLuint vao, vbo, cbo, ibo;
     genTriangle(&vao, &vbo, &cbo, &ibo);
 
-    GLint texUniformLoc = glGetUniformLocation(program, "tex");
+    GLint texUniformLoc = glGetUniformLocation(shader.id, "tex");
 
     glActiveTexture(GL_TEXTURE0 + 0);
-    GLuint texture = wfTexLoad("./game/img/monolith.png");
+    GLuint texture = gfxLoadTexture("./game/img/monolith.png");
     glUniform1i(texUniformLoc, 0);
 
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -504,7 +441,7 @@ int main(int argc, char* argv[]) {
     }
 
     destroyTriangle(&vao, &vbo, &cbo, &ibo);
-    destroyShaders(&vtShader, &fgShader, &program);
+    gfxDestroyShader(&shader);
 
 #ifdef HAVE_LUA
     wfScriptDestroy();

@@ -95,7 +95,9 @@ endif
 
 INCS := -I$(SDL_PATH)/include \
 	-I/usr/include/malloc \
-	-I/usr/X11R6/include
+	-I/usr/X11R6/include \
+	-I./src \
+	-I./src/gfx
 
 LIBS := $(SDL_PATH)/build/.libs/libSDL2.a $(SDL_PATH)/build/libSDL2main.a \
 	-lm -liconv \
@@ -108,14 +110,14 @@ SOURCE := src/main.c \
 	src/util.c \
 	src/zmalloc.c \
 	src/version.c \
-	src/texture.c \
-	src/stb_image.c
+	src/stb_image.c \
+	src/gfx/texture.c \
+	src/gfx/shader.c
 
 DEPENDENCY_TARGETS := sdl2
 
 ifeq ($(ENABLE_LUA), 1)
 	INCS += -I$(LUA_PATH)/src
-	# LIBS += ./build/libluajit.a
 	LIBS += $(LUA_PATH)/src/libluajit.a
 	DEPENDENCY_TARGETS += lua
 	CFLAGS += -DHAVE_LUA
@@ -132,11 +134,15 @@ debug: $(EXECUTABLE)
 release: CFLAGS += $(DEBUG) $(OPT)
 release: $(EXECUTABLE)
 
-
 $(EXECUTABLE): $(OBJECTS)
 		-(cd $(DEPS_PATH) && $(MAKE) $(DEPENDENCY_TARGETS) CC=$(CC))
 		install -d build
 		$(CC) -o $@ $^ $(LIBS) $(CFLAGS) -pagezero_size 10000 -image_base 100000000
+
+# stb_image doesn't conform to C11, so it provokes a lot of warnings, turn off
+# warnings for this one file
+build/stb_image.o: src/stb_image.c
+		$(CC) -c $< -o $@ $(filter-out $(WARN),$(CFLAGS)) -fno-strict-aliasing $(INCS)
 
 # zmalloc.c needs -fno-strict-aliasing unfortunately, so we have a special rule for it
 build/zmalloc.o: src/zmalloc.c

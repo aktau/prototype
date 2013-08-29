@@ -29,6 +29,8 @@
 #include "SDL.h"
 #include "zmalloc.h"
 
+#include "gfx.h"
+
 #ifdef DEBUG
 #define DEBUG_TEST 1
 #else
@@ -57,16 +59,6 @@
             fprintf(stderr, " [OpenGL] %s \n", wfGlErrorString(_tmp_error)); \
             exit(1); \
         } \
-    }
-
-#define GL_SHADER_ERROR(shader) \
-    if (DEBUG_TEST) { \
-        assert(shaderIsCompiled(shader)); \
-    }
-
-#define GL_PROGRAM_ERROR(program) \
-    if (DEBUG_TEST) { \
-        assert(programIsLinked(program)); \
     }
 
 #define GL_FRAMEBUFFER_ERROR() \
@@ -149,13 +141,15 @@ const char *wfGlFbErrorString();
 /* caller frees string when done */
 char *loadfile(const char *filename);
 
-int shaderIsCompiled(GLuint shader);
-int programIsLinked(GLuint program);
-
 /* version.c */
 const char *wfCompiler(void);
 
 /* texture.c */
-GLuint wfTexLoad(const char *imagepath);
+GLuint gfxLoadTexture(const char *image);
+
+/* gfx/shader.c */
+void gfxLoadShaderFromFile(struct gfxShaderProgram *shader, const char *vertfile, const char *fragfile);
+void gfxLoadShader(struct gfxShaderProgram *shader, const char *vertsrc, const char *fragsrc);
+void gfxDestroyShader(struct gfxShaderProgram *shader);
 
 #endif

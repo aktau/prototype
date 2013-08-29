@@ -11,7 +11,7 @@
 
 #include "stb_image.h"
 
-static int uploadTexture(const char *imagepath);
+static int gfxUploadTexture(const char *image);
 
 /**
  * will return a texture id with a nice, trilinearly filtered texture (with anisotropy)
@@ -28,7 +28,7 @@ static int uploadTexture(const char *imagepath);
  * an example:
  * http://www.geeks3d.com/20110908/opengl-3-3-sampler-objects-control-your-texture-units/
  */
-GLuint wfTexLoad(const char *imagepath) {
+GLuint gfxLoadTexture(const char *image) {
     GLfloat anisotropy = 0.0f;
     GLuint texture;
 
@@ -55,14 +55,15 @@ GLuint wfTexLoad(const char *imagepath) {
     GL_ERROR("set texture parameters");
 
     /* load and upload the image, then free */
-    uploadTexture(imagepath);
+    int success = gfxUploadTexture(image);
+    ERROR_HANDLE(success == 0, errno, "error while uploading texture");
 
     /* generate the mipmaps */
     glGenerateMipmap(GL_TEXTURE_2D);
 
     GL_ERROR("generate mipmaps");
 
-    trace("successfully loaded %s, anisotropy: %f\n", imagepath, anisotropy);
+    trace("successfully loaded %s, anisotropy: %f\n", image, anisotropy);
 
     return texture;
 
@@ -72,12 +73,15 @@ error:
     return 0;
 }
 
-/* returns 0 for failure, 1 for success */
-static int uploadTexture(const char *imagepath) {
+/**
+ * Uploads an image to the currently bound texture,
+ * returns 0 for failure, 1 for success
+ */
+static int gfxUploadTexture(const char *image) {
     int width, height, components;
     unsigned char *data = NULL;
 
-    data = stbi_load(imagepath, &width, &height, &components, 0);
+    data = stbi_load(image, &width, &height, &components, 0);
     ERROR_HANDLE(data == NULL, errno, "couldn't load image (perhaps it doesn't exist, or it is corrupt");
 
     GLenum format = (components == 3) ? GL_RGB : GL_RGBA;
