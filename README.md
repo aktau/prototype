@@ -13,6 +13,20 @@ building
 
 For now, just run `make`
 
+acknowledgements
+================
+
+Sean Barrett, creator of stb_image.c and stb_truetype.c, loading images
+ and rendering text have never been so pleasant (and easy to include
+ in a project)
+Samuel Anjam, creator of the BlendELF engine, upon which much of my code
+ and structure is based.
+Mike Pall, creator of LuaJIT, amazing piece of engineering
+Sam Lantinga, creator of SDL, cross-platform graphics for the masses
+
+Anyone I might have forgotten, I'm in your debt. If you find that you deserve
+to be in this list, please shoot me a mail and you'll be added asap!
+
 Licence (MIT)
 =============
 
