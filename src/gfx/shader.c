@@ -59,13 +59,21 @@ void gfxLoadShader(struct gfxShaderProgram *shader, const char *vertsrc, const c
 
     GL_ERROR("attach shaders");
 
-    glBindAttribLocation(program, GFX_VERTEX, "in_position");
-    glBindAttribLocation(program, GFX_NORMAL, "in_normal");
-    glBindAttribLocation(program, GFX_TEX_COORD, "in_texcoord");
-    glBindAttribLocation(program, GFX_COLOR, "in_color");
-    glBindAttribLocation(program, GFX_TANGENT, "in_tangent");
-
-    GL_ERROR("bind attrib locations");
+    /**
+     * We're specifying the layout in the shaders now (this OpenGL 3.3
+     * feature is thankfully supported on OSX 10.7+). So now you can
+     * name your vertex attributes what you want. Be aware that the
+     * engine will always choose the same order though, as detailed
+     * below in the "legacy" code:
+     *
+     * glBindAttribLocation(program, GFX_VERTEX, "in_position");
+     * glBindAttribLocation(program, GFX_NORMAL, "in_normal");
+     * glBindAttribLocation(program, GFX_TEXCOORD, "in_texcoord");
+     * glBindAttribLocation(program, GFX_COLOR, "in_color");
+     * glBindAttribLocation(program, GFX_TANGENT, "in_tangent");
+     *
+     * GL_ERROR("bind attrib locations");
+     */
 
     glLinkProgram(program);
 

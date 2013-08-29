@@ -1,6 +1,5 @@
 #version 150
-
-precision highp float;
+#extension GL_ARB_explicit_attrib_location : enable
 
 in vec3 vertColor;
 

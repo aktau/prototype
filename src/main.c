@@ -19,12 +19,6 @@
 
 #include "SDL.h"
 
-/**
- * TODO: switch to basic shaders
- * TODO: cleanup shaders fully (unuse program + delete)
- * TODO: print GL errors until no more errors: http://www.lighthouse3d.com/cg-topics/code-samples/opengl-3-3-glsl-1-5-sample/
- */
-
 // static void perspective(GLdouble fovy, GLdouble aspect, GLdouble near, GLdouble far) {
 //     GLdouble half_height = near * tan( fovy * 0.5 * TWOPI_OVER_360 );
 //     GLdouble half_width = half_height * aspect;
@@ -155,16 +149,19 @@ static void genTriangle(GLuint *vao, GLuint *vbo, GLuint *cbo, GLuint *ibo) {
     glGenBuffers(1, vbo);
     glBindBuffer(GL_ARRAY_BUFFER, *vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(GFX_VERTEX, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(GFX_VERTEX);
 
     GL_ERROR("create VBO of vertex data");
 
     glGenBuffers(1, cbo);
     glBindBuffer(GL_ARRAY_BUFFER, *cbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(GFX_NORMAL, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(GFX_NORMAL);
+
+    glVertexAttribPointer(GFX_TEXCOORD, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(GFX_TEXCOORD);
 
     GL_ERROR("create VBO of colors");
 
