@@ -148,3 +148,9 @@ http://www.altdevblogaday.com/2011/06/11/a-short-opencl-tutorial-updating-world-
 
 [OPENGL] Tips and tricks for modern OpenGL:
 http://openglinsights.com/tips.html
+
+[OPENGL] Why have two matrices in GLSL instead of one pre-multiplied one?
+http://stackoverflow.com/questions/10617589/why-would-it-be-beneficial-to-have-a-separate-projection-matrix-yet-combine-mod
+
+[OPENGL]: glPrimitiveRestartIndex():
+The restart index is the index that, when fetched from the index buffer (hint hint) doesn't actually specify a vertex. It instead means that the primitive should be restarted. So if you set the restart index to 65535, and draw {0, 1, 2, 3, 4, 65535, 5, 6, 7, 8} as a GL_TRIANGLE_STRIP, you will get 5 triangles. The first three from the first 5 indices, and the next two from the last 4. 65535 is what says to restart. –

@@ -38,14 +38,16 @@ void gfxLoadShader(struct gfxShaderProgram *shader, const char *vertsrc, const c
 
     /* create and compile shaders */
     GLuint vert = glCreateShader(GL_VERTEX_SHADER);
+    GLuint frag = glCreateShader(GL_FRAGMENT_SHADER);
+
     glShaderSource(vert, 1, &vertsrc, NULL);
+    glShaderSource(frag, 1, &fragsrc, NULL);
+
     glCompileShader(vert);
 
     GL_SHADER_ERROR(vert);
     GL_ERROR("create and compile vertex shader");
 
-    GLuint frag = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(frag, 1, &fragsrc, NULL);
     glCompileShader(frag);
 
     GL_SHADER_ERROR(frag);
