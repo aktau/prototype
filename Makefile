@@ -137,7 +137,7 @@ release: CFLAGS += $(DEBUG) $(OPT)
 release: $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS)
-		-(cd $(DEPS_PATH) && $(MAKE) $(DEPENDENCY_TARGETS) CC=$(CC))
+		-$(MAKE) -C $(DEPS_PATH) -j4 $(DEPENDENCY_TARGETS) CC=$(CC)
 		install -d build
 		$(CC) -o $@ $^ $(LIBS) $(CFLAGS) -pagezero_size 10000 -image_base 100000000
 
