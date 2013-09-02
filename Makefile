@@ -112,7 +112,9 @@ SOURCE := src/main.c \
 	src/version.c \
 	src/stb_image.c \
 	src/gfx/texture.c \
-	src/gfx/shader.c
+	src/gfx/shader.c \
+	src/gfx/model.c \
+	src/scratch.c
 
 DEPENDENCY_TARGETS := sdl2
 

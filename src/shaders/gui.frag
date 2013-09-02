@@ -15,17 +15,15 @@
 
 #version 150
 
-precision highp float;
-
 /* uniforms */
-uniform sampler2D texture0;
+// uniform sampler2D tex;
 
 /* in */
-in vec2 uv;
+// in vec2 uv;
 
 /* out */
 out vec3 fragColor;
 
 void main() {
-    fragColor = texture(texture0, uv).rgb;
+    fragColor = vec3(1.0, 0.4, 0.1);
 }

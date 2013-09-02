@@ -7,7 +7,6 @@
  * file that was distributed with the source code.
  */
 
-
 #ifndef __util_h__
 #define __util_h__
 
@@ -29,6 +28,7 @@
 #include "SDL.h"
 #include "zmalloc.h"
 
+#include "types.h"
 #include "gfx.h"
 
 #ifdef DEBUG
@@ -151,5 +151,13 @@ GLuint gfxLoadTexture(const char *image);
 void gfxLoadShaderFromFile(struct gfxShaderProgram *shader, const char *vertfile, const char *fragfile);
 void gfxLoadShader(struct gfxShaderProgram *shader, const char *vertsrc, const char *fragsrc);
 void gfxDestroyShader(struct gfxShaderProgram *shader);
+
+void gfxSetShaderParams(const struct gfxShaderProgram *shader);
+
+/* gfx/model.c */
+void gfxDestroyModel(struct gfxModel *model);
+
+/* scratch.c */
+void gfxCrystal(struct gfxModel *model);
 
 #endif

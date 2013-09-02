@@ -7,11 +7,15 @@
  * file that was distributed with the source code.
  */
 
-#define GFX_VERTEX      0x0000
-#define GFX_NORMAL      0x0001
-#define GFX_TEXCOORD    0x0002
-#define GFX_COLOR       0x0003
-#define GFX_TANGENT     0x0004
+#ifndef __gfx_h__
+#define __gfx_h__
+
+#define GFX_VERTEX              0x0000
+#define GFX_NORMAL              0x0001
+#define GFX_TEXCOORD            0x0002
+#define GFX_COLOR               0x0003
+#define GFX_TANGENT             0x0004
+#define GFX_MAX_ATTRIB_ARRAY    0x0005
 
 struct gfxTransform {
     float position[3];
@@ -33,39 +37,44 @@ struct gfxTexture {
     /* int type; */
 };
 
-struct gfxShaderProgram {
-    struct gfxShaderProgram *next;
+struct gfxUniformLocations {
+    int projectionMatrix;
+    int invProjectionMatrix;
+    int modelviewMatrix;
+    int normalMatrix;
 
+    int texture0;
+    int texture1;
+    int texture2;
+    int texture3;
+
+    int colorMap;
+    int normalMap;
+    int heightMap;
+    int specularMap;
+    int colorRampMap;
+    int lightMap;
+    int cubeMap;
+
+    int shadowProjectionMatrix;
+    int shadowMap;
+
+    int ambientColor;
+    int diffuseColor;
+    int specularColor;
+    int shininess;
+
+    int lightPosition;
+    int lightColor;
+
+    int cameraPosition;
+};
+
+struct gfxShaderProgram {
     unsigned int id;
 
-    int projectionMatrixLoc;
-    int invProjectionMatrixLoc;
-    int modelviewMatrixLoc;
-    int normalMatrixLoc;
-
-    int texture0Loc;
-    int texture1Loc;
-    int texture2Loc;
-    int texture3Loc;
-
-    int colorMapLoc;
-    int normalMapLoc;
-    int heightMapLoc;
-    int specularMapLoc;
-    int colorRampMapLoc;
-    int lightMapLoc;
-    int cubeMapLoc;
-
-    int shadowProjectionMatrixLoc;
-    int shadowMapLoc;
-
-    int ambientColorLoc;
-    int diffuseColorLoc;
-    int specularColorLoc;
-    int shininessLoc;
-
-    int lightPositionLoc;
-    int lightColorLoc;
-
-    int cameraPositionLoc;
+    struct gfxUniformLocations loc;
+    struct gfxShaderProgram *next;
 };
+
+#endif

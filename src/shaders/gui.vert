@@ -14,18 +14,18 @@
  */
 
 #version 150
-
-precision highp float;
+#extension GL_ARB_explicit_attrib_location : enable
 
 /* uniforms */
-uniform sampler2D texture0;
+uniform mat4 projection;
 
 /* in */
-in vec2 uv;
+layout(location = 0) in vec3 in_position;
 
 /* out */
-out vec3 fragColor;
+// out vec3 color;
 
 void main() {
-    fragColor = texture(texture0, uv).rgb;
+    // color = vec3(0.5, 1.0, 1.0);
+    gl_Position = projection * vec4(in_position, 1.0);
 }

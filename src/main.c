@@ -52,152 +52,61 @@ static void init() {
     glDisable(GL_DITHER);
 
     /* Enables Depth Testing */
-    // glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);
 
     /* The Type Of Depth Test To Do */
-    // glDepthFunc(GL_LEQUAL);
+    glDepthFunc(GL_LEQUAL);
 
     /* Really Nice Perspective Calculations */
     // glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
+    /* backface culling is essentially free */
+    // glEnable(GL_CULL_FACE);
+    // glCullFace(GL_BACK);
 }
 
-static void genTriangle(GLuint *vao, GLuint *vbo, GLuint *cbo, GLuint *ibo) {
-    GLfloat vertices[] = {
-        0.0f, 0.0f, 0.0f, 1.0f,
-        /* top */
-        -0.2f, 0.8f, 0.0f, 1.0f,
-        0.2f, 0.8f, 0.0f, 1.0f,
-        0.0f, 0.8f, 0.0f, 1.0f,
-        0.0f, 1.0f, 0.0f, 1.0f,
-        /* bottom */
-        -0.2f, -0.8f, 0.0f, 1.0f,
-        0.2f, -0.8f, 0.0f, 1.0f,
-        0.0f, -0.8f, 0.0f, 1.0f,
-        0.0f, -1.0f, 0.0f, 1.0f,
-        /* left */
-        -0.8f, -0.2f, 0.0f, 1.0f,
-        -0.8f, 0.2f, 0.0f, 1.0f,
-        -0.8f, 0.0f, 0.0f, 1.0f,
-        -1.0f, 0.0f, 0.0f, 1.0f,
-        /* right */
-        0.8f, -0.2f, 0.0f, 1.0f,
-        0.8f, 0.2f, 0.0f, 1.0f,
-        0.8f, 0.0f, 0.0f, 1.0f,
-        1.0f, 0.0f, 0.0f, 1.0f
-    };
+static void gfxRender3D(struct gfxModel *model, struct gfxShaderProgram *program) {
+    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_BLEND);
 
-    GLfloat colors[] = {
-        1.0f, 1.0f, 1.0f, 1.0f,
-        0.0f, 1.0f, 0.0f, 1.0f,
-        0.0f, 0.0f, 1.0f, 1.0f,
-        0.0f, 1.0f, 1.0f, 1.0f,
-        1.0f, 0.0f, 0.0f, 1.0f,
-        0.0f, 0.0f, 1.0f, 1.0f,
-        0.0f, 1.0f, 0.0f, 1.0f,
-        0.0f, 1.0f, 1.0f, 1.0f,
-        1.0f, 0.0f, 0.0f, 1.0f,
-        0.0f, 1.0f, 0.0f, 1.0f,
-        0.0f, 0.0f, 1.0f, 1.0f,
-        0.0f, 1.0f, 1.0f, 1.0f,
-        1.0f, 0.0f, 0.0f, 1.0f,
-        0.0f, 0.0f, 1.0f, 1.0f,
-        0.0f, 1.0f, 0.0f, 1.0f,
-        0.0f, 1.0f, 1.0f, 1.0f,
-        1.0f, 0.0f, 0.0f, 1.0f
-    };
-
-    GLubyte indices[] = {
-        /* top */
-        0, 1, 3,
-        0, 3, 2,
-        3, 1, 4,
-        3, 4, 2,
-        /* bottom */
-        0, 5, 7,
-        0, 7, 6,
-        7, 5, 8,
-        7, 8, 6,
-        /* left */
-        0, 9, 11,
-        0, 11, 10,
-        11, 9, 12,
-        11, 12, 10,
-        /* right */
-        0, 13, 15,
-        0, 15, 14,
-        15, 13, 16,
-        15, 16, 14
-    };
-
-    // GLfloat vertices[] = {
-    //     -0.8f, -0.8f, 0.0f, 1.0f,
-    //      0.0f,  0.8f, 0.0f, 1.0f,
-    //      0.8f, -0.8f, 0.0f, 1.0f
-    // };
-
-    // GLfloat colors[] = {
-    //     1.0f, 0.0f, 0.0f, 1.0f,
-    //     0.0f, 1.0f, 0.0f, 1.0f,
-    //     0.0f, 0.0f, 1.0f, 1.0f
-    // };
-
-    glGenVertexArrays(1, vao);
-    glBindVertexArray(*vao);
-
-    GL_ERROR("create VAO");
-
-    glGenBuffers(1, vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, *vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(GFX_VERTEX, 4, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(GFX_VERTEX);
-
-    GL_ERROR("create VBO of vertex data");
-
-    glGenBuffers(1, cbo);
-    glBindBuffer(GL_ARRAY_BUFFER, *cbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
-    glVertexAttribPointer(GFX_NORMAL, 4, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(GFX_NORMAL);
-
-    glVertexAttribPointer(GFX_TEXCOORD, 4, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(GFX_TEXCOORD);
-
-    GL_ERROR("create VBO of colors");
-
-    glGenBuffers(1, ibo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *ibo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    GL_ERROR("create VBO of indices");
-}
-
-void destroyTriangle(GLuint *vao, GLuint *vbo, GLuint *cbo, GLuint *ibo) {
-    GLenum error = glGetError();
-
-    glDisableVertexAttribArray(1);
-    glDisableVertexAttribArray(0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    glDeleteBuffers(1, cbo);
-    glDeleteBuffers(1, vbo);
-    glDeleteBuffers(1, ibo);
-
-    glBindVertexArray(0);
-    glDeleteVertexArrays(1, vao);
-
-    GL_ERROR("delete buffer objects");
-}
-
-static void render() {
     /* clear screen */
     glClearColor(0,0,0,1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    /* glDrawArrays(GL_TRIANGLES, 0, 3); */
-    glDrawElements(GL_TRIANGLES, 48, GL_UNSIGNED_BYTE, (GLvoid*)0);
+    glUseProgram(program->id);
+    glBindVertexArray(model->vao);
+
+    glActiveTexture(GL_TEXTURE0 + 0);
+    glBindTexture(GL_TEXTURE_2D, model->texture[0]);
+
+    gfxSetShaderParams(program);
+
+    {
+        /* glDrawArrays(GL_TRIANGLES, 0, 3); */
+        glDrawElements(GL_TRIANGLES, 48, GL_UNSIGNED_BYTE, (GLvoid*)0);
+    }
+
+    glBindVertexArray(0);
+    glUseProgram(0);
+}
+
+static void gfxRender2D(struct gfxModel *model, struct gfxShaderProgram *program) {
+    /* no depth testing when rendering 2D */
+    glDisable(GL_DEPTH_TEST);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+
+    /* use gui shader */
+    glUseProgram(program->id);
+    glBindVertexArray(model->vao);
+
+    {
+
+    }
+
+    glBindVertexArray(0);
+    glUseProgram(0);
 }
 
 static void printGlInfo() {
@@ -348,23 +257,18 @@ int main(int argc, char* argv[]) {
 
     setupTransform(width, height);
 
-    // GLuint vtShader, fgShader, program;
-
     struct gfxShaderProgram shader;
     gfxLoadShaderFromFile(&shader, "./src/shaders/texture.vert", "./src/shaders/texture.frag");
 
-    GLuint vao, vbo, cbo, ibo;
-    genTriangle(&vao, &vbo, &cbo, &ibo);
+    struct gfxShaderProgram guiShader;
+    gfxLoadShaderFromFile(&guiShader, "./src/shaders/gui.vert", "./src/shaders/gui.frag");
 
-    GLint texUniformLoc = glGetUniformLocation(shader.id, "tex");
+    struct gfxModel crystal;
+    gfxCrystal(&crystal);
 
     glActiveTexture(GL_TEXTURE0 + 0);
     GLuint texture = gfxLoadTexture("./game/img/monolith.png");
-    glUniform1i(texUniformLoc, 0);
-
-    glBindTexture(GL_TEXTURE_2D, texture);
-
-    GL_ERROR("texture binding");
+    crystal.texture[0] = texture;
 
     while (!done) {
         while (SDL_PollEvent(&event)) {
@@ -430,15 +334,20 @@ int main(int argc, char* argv[]) {
             }
         }
 
-        render();
+        /* render 3D: world, characters, ... */
+        gfxRender3D(&crystal, &shader);
+
+        /* render 2D: HUD, console, ... */
+        gfxRender2D(&crystal, &guiShader);
 
         SDL_GL_SwapWindow(window);
 
         diagFrameDone(window);
     }
 
-    destroyTriangle(&vao, &vbo, &cbo, &ibo);
+    gfxDestroyModel(&crystal);
     gfxDestroyShader(&shader);
+    gfxDestroyShader(&guiShader);
 
 #ifdef HAVE_LUA
     wfScriptDestroy();

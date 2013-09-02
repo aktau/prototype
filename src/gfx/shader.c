@@ -22,6 +22,13 @@
 static int gfxCheckShader(GLuint shader);
 static int gfxCheckShaderProgram(GLuint program);
 
+void gfxSetShaderParams(const struct gfxShaderProgram *shader) {
+    if (shader->loc.texture0 != -1) glUniform1i(shader->loc.texture0, 0);
+    if (shader->loc.texture1 != -1) glUniform1i(shader->loc.texture1, 1);
+    if (shader->loc.texture2 != -1) glUniform1i(shader->loc.texture2, 2);
+    if (shader->loc.texture3 != -1) glUniform1i(shader->loc.texture3, 3);
+}
+
 void gfxLoadShaderFromFile(struct gfxShaderProgram *shader, const char *vertfile, const char *fragfile) {
     GLchar * const vertsrc = (GLchar * const) loadfile(vertfile);
     GLchar * const fragsrc = (GLchar * const) loadfile(fragfile);
@@ -33,6 +40,8 @@ void gfxLoadShaderFromFile(struct gfxShaderProgram *shader, const char *vertfile
 }
 
 void gfxLoadShader(struct gfxShaderProgram *shader, const char *vertsrc, const char *fragsrc) {
+    memset(shader, 0x0, sizeof(struct gfxShaderProgram));
+
     trace("vertex shader: \n%s\n", vertsrc);
     trace("fragment shader: \n%s\n", fragsrc);
 
@@ -92,6 +101,16 @@ void gfxLoadShader(struct gfxShaderProgram *shader, const char *vertsrc, const c
 
     glDeleteShader(vert);
     glDeleteShader(frag);
+
+    shader->loc.projectionMatrix    = glGetUniformLocation(program, "projectionMatrix");
+    shader->loc.invProjectionMatrix = glGetUniformLocation(program, "invProjectMatrix");
+    shader->loc.modelviewMatrix     = glGetUniformLocation(program, "modelviewMatrix");
+    shader->loc.normalMatrix        = glGetUniformLocation(program, "normalMatrix");
+
+    shader->loc.texture0            = glGetUniformLocation(program, "texture0");
+    shader->loc.texture1            = glGetUniformLocation(program, "texture1");
+    shader->loc.texture2            = glGetUniformLocation(program, "texture2");
+    shader->loc.texture3            = glGetUniformLocation(program, "texture3");
 
     shader->id = program;
 }
