@@ -94,15 +94,15 @@ static void gfxRender2D(struct gfxModel *model, struct gfxShaderProgram *program
     /* no depth testing when rendering 2D */
     glDisable(GL_DEPTH_TEST);
 
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+    // glEnable(GL_BLEND);
+    // glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
     /* use gui shader */
     glUseProgram(program->id);
     glBindVertexArray(model->vao);
 
     {
-
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, (GLvoid*)0);
     }
 
     glBindVertexArray(0);
@@ -266,6 +266,9 @@ int main(int argc, char* argv[]) {
     struct gfxModel crystal;
     gfxCrystal(&crystal);
 
+    struct gfxModel quad;
+    gfxQuad(&quad);
+
     glActiveTexture(GL_TEXTURE0 + 0);
     GLuint texture = gfxLoadTexture("./game/img/monolith.png");
     crystal.texture[0] = texture;
@@ -338,7 +341,7 @@ int main(int argc, char* argv[]) {
         gfxRender3D(&crystal, &shader);
 
         /* render 2D: HUD, console, ... */
-        gfxRender2D(&crystal, &guiShader);
+        gfxRender2D(&quad, &guiShader);
 
         SDL_GL_SwapWindow(window);
 

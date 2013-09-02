@@ -158,6 +158,7 @@ void gfxSetShaderParams(const struct gfxShaderProgram *shader);
 void gfxDestroyModel(struct gfxModel *model);
 
 /* scratch.c */
+void gfxQuad(struct gfxModel *model);
 void gfxCrystal(struct gfxModel *model);
 
 #endif

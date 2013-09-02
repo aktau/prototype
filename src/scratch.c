@@ -13,6 +13,63 @@
 
 #include "util.h"
 
+void gfxQuad(struct gfxModel *model) {
+    memset(model, 0x0, sizeof(struct gfxModel));
+
+    const GLfloat vertices[] = {
+        -0.5f, -0.5f, 0.0f, 1.0f,
+        -0.5f, 0.5f, 0.0f, 1.0f,
+        0.5f, -0.5f, 0.0f, 1.0f,
+        0.5f, 0.5f, 0.0f, 1.0f
+    };
+
+    const GLfloat texcoords[] = {
+        0, 0,
+        0, 1,
+        1, 0,
+        1, 1
+    };
+
+    const GLubyte indices[] = {
+        /* first triangle */
+        0, 1, 2,
+        /* second triangle */
+        2, 1, 3
+    };
+
+    /* generate and bind VAO */
+    glGenVertexArrays(1, &(model->vao));
+    glBindVertexArray(model->vao);
+
+    GL_ERROR("create VAO");
+
+    /* generate all VBO's */
+    glGenBuffers(GFX_VBO_NUM, model->vbo);
+
+    /* send vertices to GPU */
+    glBindBuffer(GL_ARRAY_BUFFER, model->vbo[GFX_VBO_VERTEX]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(GFX_VERTEX, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(GFX_VERTEX);
+
+    /* send texcoords to GPU */
+    glBindBuffer(GL_ARRAY_BUFFER, model->vbo[GFX_VBO_TEXCOORD]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(texcoords), texcoords, GL_STATIC_DRAW);
+    glVertexAttribPointer(GFX_TEXCOORD, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(GFX_TEXCOORD);
+
+    GL_ERROR("load model VBO's");
+
+    /* send vertex indices to the GPU */
+    glGenBuffers(1, &model->ibo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model->ibo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    /* unbind to prevent modification */
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+
 void gfxCrystal(struct gfxModel *model) {
     memset(model, 0x0, sizeof(struct gfxModel));
 
