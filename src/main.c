@@ -54,6 +54,10 @@ static void init() {
     /* The Type Of Depth Test To Do */
     glDepthFunc(GL_LEQUAL);
 
+    /* MSAA */
+    glEnable(GL_MULTISAMPLE);
+    // glDisable(GL_MULTISAMPLE);
+
     /**
      * really nice perspective calculations
      *
