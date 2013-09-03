@@ -23,7 +23,9 @@ enum GFX_VBO_TYPE {
 struct gfxModel {
     unsigned int vao;
     unsigned int vbo[GFX_VBO_NUM];
+
     unsigned int ibo;
+    int numIndices;
 
     unsigned int texture[1];
 };

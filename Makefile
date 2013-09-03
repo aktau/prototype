@@ -4,11 +4,14 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with the source code.
-
+#
 # $@ The name of the target file (the one before the colon)
 # $< The name of the first (or only) prerequisite file (the first one after the colon)
 # $^ The names of all the prerequisite files (space separated)
 # $* The stem (the bit which matches the % wildcard in the rule definition.
+#
+# if ever in need of a cross-platform solution for making directories:
+# http://stackoverflow.com/questions/99132/how-to-check-if-a-directory-exists-in-a-makefile
 
 ENABLE_LUA ?= 1
 
@@ -22,7 +25,8 @@ WARN := -Wextra -Wcast-align -Wcast-qual \
 	-Wfloat-equal -Wformat=2 -Wredundant-decls \
 	-Wundef -Wdisabled-optimization -Wshadow \
 	-Wmissing-braces -Wstrict-aliasing=2 -Wstrict-overflow=5 \
-	-Wconversion -Wno-unused-parameter
+	-Wconversion -Wno-unused-parameter \
+	-Wno-missing-field-initializers -Wno-missing-braces
 DEBUG := -g3 -DDEBUG
 OPT := -O2 -march=native -mtune=native -ftree-vectorize
 
@@ -114,6 +118,7 @@ SOURCE := src/main.c \
 	src/gfx/texture.c \
 	src/gfx/shader.c \
 	src/gfx/model.c \
+	src/gfx/math.c \
 	src/scratch.c
 
 DEPENDENCY_TARGETS := sdl2
@@ -151,10 +156,11 @@ build/zmalloc.o: src/zmalloc.c
 		$(CC) -c $< -o $@ $(CFLAGS) -fno-strict-aliasing $(INCS)
 
 build/%.o: src/%.c
+		@mkdir -p $(dir $@)
 		$(CC) -c $< -o $@ $(CFLAGS) $(INCS)
 
 clean:
-	rm -f build/*.o || true
+	rm -rf build/* || true
 	rm -f $(EXECUTABLE) || true
 
 .PHONY: all debug release

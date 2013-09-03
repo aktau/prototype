@@ -39,9 +39,6 @@ static void setupTransform(int width, int height) {
 }
 
 static void init() {
-    /* Enable smooth shading */
-    // glShadeModel(GL_SMOOTH);
-
     /* set the background black */
     glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
 
@@ -57,53 +54,26 @@ static void init() {
     /* The Type Of Depth Test To Do */
     glDepthFunc(GL_LEQUAL);
 
-    /* Really Nice Perspective Calculations */
-    // glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-
-    /* backface culling is essentially free */
-    // glEnable(GL_CULL_FACE);
-    // glCullFace(GL_BACK);
+    /**
+     * really nice perspective calculations
+     *
+     * glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+     */
 }
 
-static void gfxRender3D(struct gfxModel *model, struct gfxShaderProgram *program) {
-    glEnable(GL_DEPTH_TEST);
-    glDisable(GL_BLEND);
-
-    /* clear screen */
-    glClearColor(0,0,0,1);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+static void gfxRender(struct gfxModel *model, struct gfxRenderParams *params, struct gfxShaderProgram *program) {
     glUseProgram(program->id);
     glBindVertexArray(model->vao);
 
-    glActiveTexture(GL_TEXTURE0 + 0);
-    glBindTexture(GL_TEXTURE_2D, model->texture[0]);
-
-    gfxSetShaderParams(program);
-
-    {
-        /* glDrawArrays(GL_TRIANGLES, 0, 3); */
-        glDrawElements(GL_TRIANGLES, 48, GL_UNSIGNED_BYTE, (GLvoid*)0);
+    if (model->texture[0]) {
+        glActiveTexture(GL_TEXTURE0 + 0);
+        glBindTexture(GL_TEXTURE_2D, model->texture[0]);
     }
 
-    glBindVertexArray(0);
-    glUseProgram(0);
-}
+    gfxSetShaderParams(program, params);
 
-static void gfxRender2D(struct gfxModel *model, struct gfxShaderProgram *program) {
-    /* no depth testing when rendering 2D */
-    glDisable(GL_DEPTH_TEST);
-
-    // glEnable(GL_BLEND);
-    // glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-
-    /* use gui shader */
-    glUseProgram(program->id);
-    glBindVertexArray(model->vao);
-
-    {
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, (GLvoid*)0);
-    }
+    /* glDrawArrays(GL_TRIANGLES, 0, 3); */
+    glDrawElements(GL_TRIANGLES, model->numIndices, GL_UNSIGNED_BYTE, (GLvoid*)0);
 
     glBindVertexArray(0);
     glUseProgram(0);
@@ -263,8 +233,19 @@ int main(int argc, char* argv[]) {
     struct gfxShaderProgram guiShader;
     gfxLoadShaderFromFile(&guiShader, "./src/shaders/gui.vert", "./src/shaders/gui.frag");
 
+    struct gfxRenderParams world = { 0 };
+
+    gfxMatrix4SetIdentity(world.projectionMatrix);
+    world.blend = GFX_NONE;
+    world.cull  = GFX_NONE;
+
     struct gfxModel crystal;
     gfxCrystal(&crystal);
+
+    struct gfxRenderParams gui = { 0 };
+
+    gui.blend = GFX_BLEND_ALPHA; //GFX_BLEND_PREMUL_ALPHA;
+    gui.cull  = GFX_NONE;
 
     struct gfxModel quad;
     gfxQuad(&quad);
@@ -272,6 +253,8 @@ int main(int argc, char* argv[]) {
     glActiveTexture(GL_TEXTURE0 + 0);
     GLuint texture = gfxLoadTexture("./game/img/monolith.png");
     crystal.texture[0] = texture;
+
+    trace("and the texture was... %u\n", texture);
 
     while (!done) {
         while (SDL_PollEvent(&event)) {
@@ -337,11 +320,10 @@ int main(int argc, char* argv[]) {
             }
         }
 
-        /* render 3D: world, characters, ... */
-        gfxRender3D(&crystal, &shader);
-
-        /* render 2D: HUD, console, ... */
-        gfxRender2D(&quad, &guiShader);
+        /* clear the screen and render a few objects */
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        gfxRender(&crystal, &world, &shader);
+        gfxRender(&quad, &gui, &guiShader);
 
         SDL_GL_SwapWindow(window);
 

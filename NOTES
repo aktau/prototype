@@ -11,6 +11,31 @@ trick later and see if it helps.
 
 Alternatively or additionally, we could consider an arena allocator (i.e.: libarena): http://25thandclement.com/~william/projects/libarena.html
 
+Tutorials
+=========
+The three best:
+http://www.opengl-tutorial.org/
+http://ogldev.atspace.co.uk/
+http://arcsynthesis.org/gltut/
+
+Features to implement
+=====================
+- Font rendering w/ distance fields (Valve tech)
+- Model loading (assimp)
+- Particles
+- SSAO
+- MSAA
+- Volumetric clouds
+- Volumetric lighting
+- Global illumination
+- Bumpmapping
+- Parallax mapping
+- Tesselation
+- GPU skinning
+- GPU animation
+- Instancing
+- Cache oblivious vertex indexing
+
 Links to be reviewed for implementation
 =======================================
 

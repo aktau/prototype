@@ -22,7 +22,58 @@
 static int gfxCheckShader(GLuint shader);
 static int gfxCheckShaderProgram(GLuint program);
 
-void gfxSetShaderParams(const struct gfxShaderProgram *shader) {
+void gfxSetShaderParams(const struct gfxShaderProgram *shader, const struct gfxRenderParams *params) {
+    /**
+     * TODO:
+     * glEnable(GL_DEPTH_TEST);
+     * glEnable(GL_MULTISAMPLE);
+     */
+
+    /**
+     * blending: http://stackoverflow.com/questions/6853004/procedure-for-alpha-blending-textured-quads-in-opengl-3
+     */
+    if (params->blend == GFX_NONE) {
+        glDisable(GL_BLEND);
+    }
+    else {
+        glEnable(GL_BLEND);
+        switch (params->blend) {
+            case GFX_BLEND_ALPHA:
+                /**
+                 * (almost) equivalent to the following
+                 *
+                 * glBlendEquation(GL_FUNC_ADD);
+                 * glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                 *
+                 * except that the alpha channel itself gets blended differently
+                 */
+                glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+                glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+                break;
+            case GFX_BLEND_PREMUL_ALPHA:
+                glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+                glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+                break;
+        }
+    }
+
+    /**
+     * culling
+     */
+    if (params->cull == GFX_NONE) {
+        glDisable(GL_CULL_FACE);
+    }
+    else {
+        glEnable(GL_CULL_FACE);
+        switch (params->cull) {
+            case GFX_CULL_FRONT: glCullFace(GL_BACK); break;
+            case GFX_CULL_BACK: glCullFace(GL_BACK); break;
+        }
+    }
+
+    if (shader->loc.projectionMatrix != -1) glUniformMatrix4fv(shader->loc.projectionMatrix, 1, GL_FALSE, params->projectionMatrix);
+    // if (shader->loc.modelviewMatrix != -1) glUniformMatrix4fv(shader->loc.modelviewMatrix, 1, GL_FALSE, params->modelviewMatrix);
+
     if (shader->loc.texture0 != -1) glUniform1i(shader->loc.texture0, 0);
     if (shader->loc.texture1 != -1) glUniform1i(shader->loc.texture1, 1);
     if (shader->loc.texture2 != -1) glUniform1i(shader->loc.texture2, 2);

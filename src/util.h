@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <math.h>
 #include <inttypes.h>
 
 #define GL3_PROTOTYPES
@@ -152,7 +153,7 @@ void gfxLoadShaderFromFile(struct gfxShaderProgram *shader, const char *vertfile
 void gfxLoadShader(struct gfxShaderProgram *shader, const char *vertsrc, const char *fragsrc);
 void gfxDestroyShader(struct gfxShaderProgram *shader);
 
-void gfxSetShaderParams(const struct gfxShaderProgram *shader);
+void gfxSetShaderParams(const struct gfxShaderProgram *shader, const struct gfxRenderParams *params);
 
 /* gfx/model.c */
 void gfxDestroyModel(struct gfxModel *model);

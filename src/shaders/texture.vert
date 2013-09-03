@@ -16,12 +16,18 @@
 #version 150
 #extension GL_ARB_explicit_attrib_location : enable
 
+/* uniforms */
+uniform mat4 projectionMatrix;
+// uniform mat4 modelviewMatrix;
+
+/* in */
 layout(location = 0) in vec3 in_position;
 layout(location = 2) in vec2 in_texcoord;
 
+/* out */
 out vec2 uv;
 
 void main() {
     uv          = in_texcoord;
-    gl_Position = vec4(in_position, 1.0);
+    gl_Position = projectionMatrix * vec4(in_position, 1.0);
 }

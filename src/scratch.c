@@ -23,6 +23,13 @@ void gfxQuad(struct gfxModel *model) {
         0.5f, 0.5f, 0.0f, 1.0f
     };
 
+    // const GLfloat vertices[] = {
+    //     -1.0f, -1.0f, 0.0f, 1.0f,
+    //     -1.0f, 1.0f, 0.0f, 1.0f,
+    //     1.0f, -1.0f, 0.0f, 1.0f,
+    //     1.0f, 1.0f, 0.0f, 1.0f
+    // };
+
     const GLfloat texcoords[] = {
         0, 0,
         0, 1,
@@ -64,6 +71,8 @@ void gfxQuad(struct gfxModel *model) {
     glGenBuffers(1, &model->ibo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model->ibo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    model->numIndices = ARRAY_SIZE(indices);
 
     /* unbind to prevent modification */
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -179,6 +188,8 @@ void gfxCrystal(struct gfxModel *model) {
     glGenBuffers(1, &model->ibo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model->ibo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    model->numIndices = ARRAY_SIZE(indices);
 
     /* unbind to prevent modification */
     glBindBuffer(GL_ARRAY_BUFFER, 0);
