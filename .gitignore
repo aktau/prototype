@@ -2,7 +2,8 @@
 prototype
 
 # profile files
-*.run
+perf/*.run
+perf/matmul
 
 # debug files
 *.dSYM

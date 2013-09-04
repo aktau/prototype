@@ -12,15 +12,34 @@
 #include <string.h>
 #include <sys/time.h>
 
-#include <xmmintrin.h>
+#ifdef __AVX__
 #include <immintrin.h>
+#define HAVE_AVX_STRING "yes"
+#else
+#define HAVE_AVX_STRING "no"
+#endif
+
+#ifdef __SSE__
+#include <xmmintrin.h>
+#define HAVE_SSE_STRING "yes"
+#else
+#define HAVE_SSE_STRING "no"
+#endif
 
 #define ARRAY_SIZE(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
 
- typedef union {
-     float m[4][4];
-     __m128 row[4];
- } Mat44;
+typedef union {
+    float m[4][4];
+    __m128 row[4];
+} Mat44;
+
+static void __attribute__ ((noinline)) mmulDummy(const float *restrict m1, const float *restrict m2, float *restrict m3) {
+
+}
+
+static void __attribute__ ((noinline)) mmulDummyU(const Mat44 *restrict m1, const Mat44 *restrict m2, Mat44 *restrict m3) {
+
+}
 
 static void __attribute__ ((noinline)) matmul4x4(const float* m1, const float* m2, float* m3) {
     m3[0]  = m1[0]*m2[0] + m1[1]*m2[4] + m1[2]*m2[8] + m1[3]*m2[12];
@@ -313,8 +332,11 @@ static void __attribute__ ((noinline)) matmul4x4sseunr2compact(const float *rest
     _mm_store_ps(&r[12], r_line);
 }
 
-// linear combination:
-// a[0] * B.row[0] + a[1] * B.row[1] + a[2] * B.row[2] + a[3] * B.row[3]
+/**
+ * https://gist.github.com/rygorous/4172889
+ * linear combination:
+ * a[0] * B.row[0] + a[1] * B.row[1] + a[2] * B.row[2] + a[3] * B.row[3]
+ */
 static inline __m128 lincomb_SSE(const __m128 a, const float *B) {
     __m128 result;
 
@@ -416,6 +438,12 @@ void __attribute__ ((noinline)) matmul4x4sse42rew(const float *restrict A, const
     _mm_store_ps(&out[12], temp);
 }
 
+#ifdef __AVX__
+
+/**
+ * https://gist.github.com/rygorous/4172889
+ */
+
 // dual linear combination using AVX instructions on YMM regs
 static inline __m256 twolincomb_AVX_8_pointer(__m256 A01, const float *restrict B) {
     __m256 result;
@@ -440,7 +468,7 @@ static inline __m256 twolincomb_AVX_8_pointer(__m256 A01, const float *restrict 
 
 // this should be noticeably faster with actual 256-bit wide vector units (Intel);
 // not sure about double-pumped 128-bit (AMD), would need to check.
-void matmul4x4avx8x(const float *restrict A, const float *restrict B, float *restrict out) {
+void __attribute__ ((noinline)) matmul4x4avx8x(const float *restrict A, const float *restrict B, float *restrict out) {
     _mm256_zeroupper();
     __m256 A01 = _mm256_loadu_ps(&A[0]);
     __m256 A23 = _mm256_loadu_ps(&A[8]);
@@ -453,8 +481,7 @@ void matmul4x4avx8x(const float *restrict A, const float *restrict B, float *res
 }
 
 // dual linear combination using AVX instructions on YMM regs
-static inline __m256 twolincomb_AVX_8(__m256 A01, const Mat44 *restrict B)
-{
+static inline __m256 twolincomb_AVX_8(__m256 A01, const Mat44 *restrict B) {
     __m256 result;
     result = _mm256_mul_ps(_mm256_shuffle_ps(A01, A01, 0x00), _mm256_broadcast_ps(&B->row[0]));
     result = _mm256_add_ps(result, _mm256_mul_ps(_mm256_shuffle_ps(A01, A01, 0x55), _mm256_broadcast_ps(&B->row[1])));
@@ -465,7 +492,7 @@ static inline __m256 twolincomb_AVX_8(__m256 A01, const Mat44 *restrict B)
 
 // this should be noticeably faster with actual 256-bit wide vector units (Intel);
 // not sure about double-pumped 128-bit (AMD), would need to check.
-void matmul4x4avx8xunion(const Mat44 *restrict A, const Mat44 *restrict B, Mat44 *restrict out) {
+void __attribute__ ((noinline)) matmul4x4avx8xunion(const Mat44 *restrict A, const Mat44 *restrict B, Mat44 *restrict out) {
     _mm256_zeroupper();
     __m256 A01 = _mm256_loadu_ps(&A->m[0][0]);
     __m256 A23 = _mm256_loadu_ps(&A->m[2][0]);
@@ -476,6 +503,8 @@ void matmul4x4avx8xunion(const Mat44 *restrict A, const Mat44 *restrict B, Mat44
     _mm256_storeu_ps(&out->m[0][0], out01x);
     _mm256_storeu_ps(&out->m[2][0], out23x);
 }
+
+#endif
 
 void printMatrix(const float *m) {
     for (int row=0; row < 4; ++row) {
@@ -618,33 +647,40 @@ int main(int argc, char* argv[]) {
     memcpy(two, baseTwo, sizeof(float) * 16);
     memcpy(three, baseTwo, sizeof(float) * 16);
 
-    printf("performing %d matrix multiplications per function\n", iterations);
+    printf("performing %d matrix multiplications per function, (SSE: %s, AVX: %s)\n", iterations, HAVE_SSE_STRING, HAVE_AVX_STRING);
 
     struct benchSetup benches[] = {
-        // { "naive", matmul4x4 },
-        // { "restrict", matmul4x4res },
-        // { "restrict, stream", matmul4x4resstream },
+        { "naive", matmul4x4 },
+        { "restrict", matmul4x4res },
+        { "restrict, stream", matmul4x4resstream },
+#ifdef __AVX__
+        { "avx", matmul4x4avx8x },
+#else
+        { "avx (dummy)", mmulDummy },
+#endif
         { "restrict, sse", matmul4x4sse },
         { "restrict, sse, unrolled", matmul4x4sseunr },
         { "restrict, sse, max unrolled", matmul4x4sseunr2 },
         { "restrict, sse, max unrolled, compact", matmul4x4sseunr2compact },
         { "restrict, sse 4.2, unrolled", matmul4x4sse42 },
         { "restrict, sse 4.2, max unrolled", matmul4x4sse42unr },
-        { "restrict, sse 4.2, reworked", matmul4x4sse42rew },
-        { "avx", matmul4x4avx8x }
+        { "restrict, sse 4.2, reworked", matmul4x4sse42rew }
     };
 
     static const struct {
         const char *name;
         mmul_union_t mmulFunction;
     } union_benches[] = {
-        { "union avx",      matmul4x4avx8xunion }
+#ifdef __AVX__
+        { "union avx", matmul4x4avx8xunion }
+#else
+        { "union avx (dummy)", mmulDummyU }
+#endif
     };
 
     for (int i = 0; i < ARRAY_SIZE(union_benches); ++i) {
         benchmarkUnion(union_benches[i].name, union_benches[i].mmulFunction);
     }
-    printf("\n\n");
 
     for (int i = 0; i < ARRAY_SIZE(benches); ++i) {
         benchmark(benches[i].name, benches[i].mmulFunction);

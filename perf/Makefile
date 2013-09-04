@@ -1,5 +1,5 @@
-# CC := /usr/local/bin/gcc-4.8
-CC := /usr/local/bin/clang
+CC := /usr/local/bin/gcc-4.8
+# CC := /usr/local/bin/clang
 CC_VERSION := $(shell $(CC) --version | head -1 | cut -f1 -d' ')
 
 STD := -std=c11 -pedantic
@@ -27,7 +27,7 @@ else
 	else
 		# at least on OS X 10.7.5, the apple linker does not understand AVX, and gcc uses it natively
 		ifeq ($(UNAME_S),Darwin)
-			#OPT += -mno-avx
+			# OPT += -mno-avx
 		endif
 	endif
 endif
