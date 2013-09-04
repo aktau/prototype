@@ -70,8 +70,9 @@ else
 		CFLAGS += -pthread
 
 		# at least on OS X 10.7.5, the apple linker does not understand AVX, and gcc uses it natively
+		# fixed: http://mac-os-forge.2317878.n4.nabble.com/gcc-as-AVX-binutils-and-MacOS-X-10-7-td144472.html
 		ifeq ($(UNAME_S),Darwin)
-			CFLAGS += -mno-avx
+			# CFLAGS += -mno-avx
 		endif
 	endif
 

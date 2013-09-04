@@ -1,6 +1,9 @@
 # the executable
 prototype
 
+# profile files
+*.run
+
 # debug files
 *.dSYM
 
