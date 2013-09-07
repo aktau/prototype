@@ -16,19 +16,19 @@
 void gfxQuad(struct gfxModel *model) {
     memset(model, 0x0, sizeof(struct gfxModel));
 
-    const GLfloat vertices[] = {
-        -0.5f, -0.5f, 0.0f, 1.0f,
-        -0.5f, 0.5f, 0.0f, 1.0f,
-        0.5f, -0.5f, 0.0f, 1.0f,
-        0.5f, 0.5f, 0.0f, 1.0f
-    };
-
     // const GLfloat vertices[] = {
-    //     -1.0f, -1.0f, 0.0f, 1.0f,
-    //     -1.0f, 1.0f, 0.0f, 1.0f,
-    //     1.0f, -1.0f, 0.0f, 1.0f,
-    //     1.0f, 1.0f, 0.0f, 1.0f
+    //     -0.5f, -0.5f, 0.0f, 1.0f,
+    //     -0.5f, 0.5f, 0.0f, 1.0f,
+    //     0.5f, -0.5f, 0.0f, 1.0f,
+    //     0.5f, 0.5f, 0.0f, 1.0f
     // };
+
+    const GLfloat vertices[] = {
+        -0.7f, -0.7f, 0.0f, 1.0f,
+        -0.7f, 0.7f, 0.0f, 1.0f,
+        0.7f, -0.7f, 0.0f, 1.0f,
+        0.7f, 0.7f, 0.0f, 1.0f
+    };
 
     const GLfloat texcoords[] = {
         0, 0,
@@ -64,6 +64,92 @@ void gfxQuad(struct gfxModel *model) {
     glBufferData(GL_ARRAY_BUFFER, sizeof(texcoords), texcoords, GL_STATIC_DRAW);
     glVertexAttribPointer(GFX_TEXCOORD, 2, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(GFX_TEXCOORD);
+
+    GL_ERROR("load model VBO's");
+
+    /* send vertex indices to the GPU */
+    glGenBuffers(1, &model->ibo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model->ibo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    model->numIndices = ARRAY_SIZE(indices);
+
+    /* unbind to prevent modification */
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+
+void gfxCube(struct gfxModel *model) {
+    memset(model, 0x0, sizeof(struct gfxModel));
+
+    static const struct {
+        float vertices[4];
+        float color[4];
+    } staticData[] = {
+        { { -.5f, -.5f,  .5f, 1 }, { 0, 0, 1, 1 } },
+        { { -.5f,  .5f,  .5f, 1 }, { 1, 0, 0, 1 } },
+        { {  .5f,  .5f,  .5f, 1 }, { 0, 1, 0, 1 } },
+        { {  .5f, -.5f,  .5f, 1 }, { 1, 1, 0, 1 } },
+        { { -.5f, -.5f, -.5f, 1 }, { 1, 1, 1, 1 } },
+        { { -.5f,  .5f, -.5f, 1 }, { 1, 0, 0, 1 } },
+        { {  .5f,  .5f, -.5f, 1 }, { 1, 0, 1, 1 } },
+        { {  .5f, -.5f, -.5f, 1 }, { 0, 0, 1, 1 } }
+    };
+
+    // const GLfloat vertices[] = {
+    //     -0.5f, -0.5f, 0.5f, 1.0f,
+    //     -0.5f, 0.5f, 0.5f, 1.0f,
+    //     0.5f, -0.5f, 0.5f, 1.0f,
+    //     0.5f, 0.5f, 0.5f, 1.0f,
+    //     -0.5f, -0.5f, -0.5f, 1.0f,
+    //     -0.5f, 0.5f, -0.5f, 1.0f,
+    //     0.5f, -0.5f, -0.5f, 1.0f,
+    //     0.5f, 0.5f, -0.5f, 1.0f,
+    // };
+
+    // const GLfloat colors[] = {
+    //     0, 0, 1, 1,
+    //     1, 0, 0, 1,
+    //     0, 1, 0, 1,
+    //     1, 1, 0, 1,
+    //     1, 1, 1, 1,
+    //     1, 0, 0, 1,
+    //     1, 0, 1, 1,
+    //     0, 0, 1, 1
+    // };
+
+    const GLubyte indices[] = {
+        0,2,1,  0,3,2,
+        4,3,0,  4,7,3,
+        4,1,5,  4,0,1,
+        3,6,2,  3,7,6,
+        1,6,5,  1,2,6,
+        7,5,6,  7,4,5
+    };
+
+    /* generate and bind VAO */
+    glGenVertexArrays(1, &(model->vao));
+    glBindVertexArray(model->vao);
+
+    GL_ERROR("create VAO");
+
+    /* generate all VBO's */
+    glGenBuffers(GFX_VBO_NUM, model->vbo);
+
+    /* send vertices to GPU */
+    glBindBuffer(GL_ARRAY_BUFFER, model->vbo[GFX_VBO_VERTEX]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(staticData), staticData, GL_STATIC_DRAW);
+    // glVertexAttribPointer(GFX_VERTEX, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(GFX_VERTEX, 4, GL_FLOAT, GL_FALSE, sizeof(staticData[0]), (GLvoid*) 0);
+    glVertexAttribPointer(GFX_COLOR,  4, GL_FLOAT, GL_FALSE, sizeof(staticData[0]), (GLvoid*) sizeof(staticData[0].vertices));
+    glEnableVertexAttribArray(GFX_VERTEX);
+    glEnableVertexAttribArray(GFX_COLOR);
+
+    /* colors */
+    // glBindBuffer(GL_ARRAY_BUFFER, model->vbo[GFX_VBO_COLOR]);
+    // glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    // glVertexAttribPointer(GFX_COLOR, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    // glEnableVertexAttribArray(GFX_COLOR);
 
     GL_ERROR("load model VBO's");
 

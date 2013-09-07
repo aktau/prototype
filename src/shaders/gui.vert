@@ -16,6 +16,17 @@
 #version 150
 #extension GL_ARB_explicit_attrib_location : enable
 
+/* uniform buffers */
+layout(std140) uniform StaticMatrices {
+    mat4 projectionMatrix;
+    // mat3 normalMatrix;
+    // vec4 ambient;
+    // vec4 diffuse;
+    // vec4 specular;
+    // vec4 position;
+    // vec4 direction;
+};
+
 /* uniforms */
 // uniform mat4 projection;
 
@@ -27,5 +38,5 @@ layout(location = 0) in vec3 in_position;
 
 void main() {
     // color = vec3(0.5, 1.0, 1.0);
-    gl_Position = vec4(in_position, 1.0);
+    gl_Position = projectionMatrix * vec4(in_position, 1.0);
 }

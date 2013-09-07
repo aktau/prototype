@@ -13,18 +13,29 @@ Alternatively or additionally, we could consider an arena allocator (i.e.: libar
 
 Tutorials
 =========
-The three best:
+The 5 best:
 http://www.opengl-tutorial.org/
 http://ogldev.atspace.co.uk/
 http://arcsynthesis.org/gltut/
+http://www.antongerdelan.net/opengl - Anton's OpenGL4 tutorials
+http://github.prideout.net/modern-opengl-prezo/ - Modern OpenGL Prezzo
+
+glsl:
+https://github.com/daw42/glslcookbook
+
+Features implemented
+====================
+- MSAA (done, was actually just GL_MULTISAMPLE)
 
 Features to implement
 =====================
+- File notification (inotify/kqueue/... or a cross-platform lib, maybe based on https://code.google.com/p/simplefilewatcher/)
+- Basic lighting (+ shadow mapping) (http://devmaster.net/posts/2974/the-basics-of-3d-lighting)
 - Font rendering w/ distance fields (Valve tech)
 - Model loading (assimp)
-- Particles
+- Particles (https://github.com/daw42/glslcookbook/blob/master/chapter09/shader/particleinstanced.vs)
 - SSAO
-- MSAA
+- Quaternion nlerp instead of slerp (equally useful and cheaper to calculate: http://number-none.com/product/Understanding%20Slerp,%20Then%20Not%20Using%20It/)
 - Volumetric clouds
 - Volumetric lighting
 - Global illumination
@@ -35,6 +46,17 @@ Features to implement
 - GPU animation
 - Instancing
 - Cache oblivious vertex indexing
+- Virtual texture terrain (http://devmaster.net/posts/3258/virtual-texture-terrain)
+- Terrain LOD
+- Water shader (http://www.youtube.com/watch?annotation_id=annotation_790483&feature=iv&src_vid=OiGADgezjC8&v=oUSdSjnDB_E - http://www.gamedev.net/blog/1302/entry-2250847-bow-shock-a-summary-of-work-done-so-far/)
+
+Data oriented design
+====================
+http://www.asawicki.info/news_1422_data-oriented_design_-_links_and_thoughts.html - Links to slides and articles (BitSquid, etc...)
+
+OpenGL wiki interesting articles
+================================
+http://www.opengl.org/wiki/Vertex_Specification
 
 Links to be reviewed for implementation
 =======================================
@@ -188,3 +210,17 @@ http://fabiensanglard.net/doom3_documentation/index.php
 
 [OPENGL] All drawing methods glDrawInstanced(), glDrawElementsBaseVertex(), ...:
 http://www.opengl.org/wiki/Vertex_Rendering
+
+[PERFORMANCE] Demystifying the restrict keyword:
+http://cellperformance.beyond3d.com/articles/2006/05/demystifying-the-restrict-keyword.html
+
+[SIMD/SSE/AVX]
+List of functions with small description, really handy - http://softpixel.com/~cwright/programming/simd/sse4.php
+Check CPU support at runtime - http://stackoverflow.com/questions/6121792/how-to-check-if-a-cpu-supports-the-sse3-instruction-set/7495023#7495023
+http://fastcpp.blogspot.be/2011/04/vector-cross-product-using-sse-code.html
+
+[PERFORMANCE] Best practices for working with vertex data (interleave, ...):
+https://developer.apple.com/library/ios/documentation/3ddrawing/conceptual/opengles_programmingguide/TechniquesforWorkingwithVertexData/TechniquesforWorkingwithVertexData.html
+
+[PERFORMANCE] Optimize vertex data automatically (pre-bake):
+http://www.lighthouse3d.com/tutorials/glsl-core-tutorial/vertex-shader/

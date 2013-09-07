@@ -26,7 +26,6 @@ void gfxSetShaderParams(const struct gfxShaderProgram *shader, const struct gfxR
     /**
      * TODO:
      * glEnable(GL_DEPTH_TEST);
-     * glEnable(GL_MULTISAMPLE);
      */
 
     /**
@@ -37,6 +36,7 @@ void gfxSetShaderParams(const struct gfxShaderProgram *shader, const struct gfxR
     }
     else {
         glEnable(GL_BLEND);
+
         switch (params->blend) {
             case GFX_BLEND_ALPHA:
                 /**
@@ -65,14 +65,16 @@ void gfxSetShaderParams(const struct gfxShaderProgram *shader, const struct gfxR
     }
     else {
         glEnable(GL_CULL_FACE);
+        glFrontFace(GL_CW);
+
         switch (params->cull) {
             case GFX_CULL_FRONT: glCullFace(GL_BACK); break;
             case GFX_CULL_BACK: glCullFace(GL_BACK); break;
         }
     }
 
-    if (shader->loc.projectionMatrix != -1) glUniformMatrix4fv(shader->loc.projectionMatrix, 1, GL_FALSE, params->projectionMatrix);
-    // if (shader->loc.modelviewMatrix != -1) glUniformMatrix4fv(shader->loc.modelviewMatrix, 1, GL_FALSE, params->modelviewMatrix);
+    // if (shader->loc.projectionMatrix != -1) glUniformMatrix4fv(shader->loc.projectionMatrix, 1, GL_FALSE, params->projectionMatrix);
+    if (shader->loc.modelviewMatrix != -1) glUniformMatrix4fv(shader->loc.modelviewMatrix, 1, GL_FALSE, params->modelviewMatrix);
 
     if (shader->loc.texture0 != -1) glUniform1i(shader->loc.texture0, 0);
     if (shader->loc.texture1 != -1) glUniform1i(shader->loc.texture1, 1);
@@ -162,6 +164,14 @@ void gfxLoadShader(struct gfxShaderProgram *shader, const char *vertsrc, const c
     shader->loc.texture1            = glGetUniformLocation(program, "texture1");
     shader->loc.texture2            = glGetUniformLocation(program, "texture2");
     shader->loc.texture3            = glGetUniformLocation(program, "texture3");
+
+    /* uniform blocks for UBO's (Uniform Buffer Objects) */
+    shader->loc.matricesBlockIndex = glGetUniformBlockIndex(program, "StaticMatrices");
+
+    if (shader->loc.matricesBlockIndex != GL_INVALID_INDEX) {
+        trace("shader requires static matrices, binding UBO\n");
+        glUniformBlockBinding(program, shader->loc.matricesBlockIndex, GFX_UBO_MATRICES);
+    }
 
     shader->id = program;
 }

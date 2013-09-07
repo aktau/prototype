@@ -26,24 +26,12 @@
 //     glFrustum(-half_width, half_width, -half_height, half_height, near, far);
 // }
 
-static void setupTransform(int width, int height) {
-    // int ortho = 1;
-
-    // GLfloat ratio = (GLfloat) width / (GLfloat) (height ? height : 1);
-
-    /* setup viewport */
-    glViewport(0, 0, (GLsizei) width, (GLsizei) height);
-
-    // glMatrixMode(GL_MODELVIEW);
-    // glLoadIdentity();
-}
-
 static void init() {
     /* set the background black */
-    glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
     /* depth buffer setup */
-    glClearDepth( 1.0f );
+    glClearDepth(1.0f);
 
     /* disable dithering */
     glDisable(GL_DITHER);
@@ -56,16 +44,9 @@ static void init() {
 
     /* MSAA */
     glEnable(GL_MULTISAMPLE);
-    // glDisable(GL_MULTISAMPLE);
-
-    /**
-     * really nice perspective calculations
-     *
-     * glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-     */
 }
 
-static void gfxRender(struct gfxModel *model, struct gfxRenderParams *params, struct gfxShaderProgram *program) {
+static void gfxRender(const struct gfxModel *model, const struct gfxRenderParams *params, const struct gfxShaderProgram *program) {
     glUseProgram(program->id);
     glBindVertexArray(model->vao);
 
@@ -76,7 +57,6 @@ static void gfxRender(struct gfxModel *model, struct gfxRenderParams *params, st
 
     gfxSetShaderParams(program, params);
 
-    /* glDrawArrays(GL_TRIANGLES, 0, 3); */
     glDrawElements(GL_TRIANGLES, model->numIndices, GL_UNSIGNED_BYTE, (GLvoid*)0);
 
     glBindVertexArray(0);
@@ -229,30 +209,32 @@ int main(int argc, char* argv[]) {
 
     trace("starting to render, vsync is %d\n", SDL_GL_GetSwapInterval());
 
-    setupTransform(width, height);
+    glViewport(0, 0, (GLsizei) width, (GLsizei) height);
 
     struct gfxShaderProgram shader;
     gfxLoadShaderFromFile(&shader, "./src/shaders/texture.vert", "./src/shaders/texture.frag");
+
+    struct gfxShaderProgram colorShader;
+    gfxLoadShaderFromFile(&colorShader, "./src/shaders/color.vert", "./src/shaders/color.frag");
 
     struct gfxShaderProgram guiShader;
     gfxLoadShaderFromFile(&guiShader, "./src/shaders/gui.vert", "./src/shaders/gui.frag");
 
     struct gfxRenderParams world = { 0 };
+    gfxCreateRenderParams(&world);
 
-    gfxMatrix4SetIdentity(world.projectionMatrix);
-    world.blend = GFX_NONE;
-    world.cull  = GFX_NONE;
+    struct gfxRenderParams gui = { 0 };
+    gfxCreateRenderParams(&gui);
+    gui.blend = GFX_BLEND_ALPHA;
+
+    struct gfxModel quad;
+    gfxQuad(&quad);
 
     struct gfxModel crystal;
     gfxCrystal(&crystal);
 
-    struct gfxRenderParams gui = { 0 };
-
-    gui.blend = GFX_BLEND_ALPHA; //GFX_BLEND_PREMUL_ALPHA;
-    gui.cull  = GFX_NONE;
-
-    struct gfxModel quad;
-    gfxQuad(&quad);
+    struct gfxModel cube;
+    gfxCube(&cube);
 
     glActiveTexture(GL_TEXTURE0 + 0);
     GLuint texture = gfxLoadTexture("./game/img/monolith.png");
@@ -276,7 +258,7 @@ int main(int argc, char* argv[]) {
                                 newWidth, newHeight
                             );
 
-                            setupTransform(newWidth, newHeight);
+                            glViewport(0, 0, (GLsizei) newWidth, (GLsizei) newHeight);
                         }
                         break;
                     }
@@ -318,15 +300,49 @@ int main(int argc, char* argv[]) {
                 case SDL_QUIT:
                     done = 1;
                     break;
-
-
-                /* default: trace("unkown even type received: %d\n", event.type); */
             }
         }
 
-        /* clear the screen and render a few objects */
+        /* clear the screen before rendering */
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        uint32_t ticks = SDL_GetTicks();
+        float alpha = (ticks % 10000) / 10000.0f;
+
+        float qua[4];
+        float rotmat[16];
+        float axis[] = { 1.0f, 1.0f, 1.0f };
+
+        gfxVecNormalize(axis);
+        gfxQuaFromAngleAxis(360.0f * alpha, axis, qua);
+        gfxQuaToMatrix4(qua, world.modelviewMatrix);
+
+        /* TODO: should factor out the changes and the re-uploading */
+        // world.modelviewMatrix[14] = cosf(GFX_PI * alpha);
+        // world.modelviewMatrix[13] = sinf(GFX_PI * alpha);
+        // world.modelviewMatrix[12] = sinf(GFX_PI * alpha);
+        // trace("value: cosf(%f) = %f\n", (ticks % 1000) / 1000.0f, world.modelviewMatrix[14]);
+
+        // gfxPerspectiveMatrix(GFX_PI / 2.0f, (float) width / (float) height, 0.5, 3.0f, world.matrices.projectionMatrix);
+        // gfxPerspectiveMatrix(45.0f, (float) width / (float) height, 0.5, 3.0f, world.matrices.projectionMatrix);
+        gfxAltPerspectiveMatrix(0.1, 10.0f, world.matrices.projectionMatrix);
+        // world.matrices.projectionMatrix[3] = (float) (SDL_GetTicks() % 1000) / 1000.0f;
+        glBindBuffer(GL_UNIFORM_BUFFER, world.matrixUbo);
+        // glBufferData(GL_UNIFORM_BUFFER, sizeof(struct gfxGlobalMatrices), &world.matrices, GL_STREAM_DRAW);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(struct gfxGlobalMatrices), &world.matrices);
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+        /* start a batch and render */
+        gfxBatch(&world);
         gfxRender(&crystal, &world, &shader);
+        gfxRender(&cube, &world, &colorShader);
+
+        gui.matrices.projectionMatrix[3] = cosf((float)(SDL_GetTicks() % 1000) / 1000.0f);
+        glBindBuffer(GL_UNIFORM_BUFFER, gui.matrixUbo);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(struct gfxGlobalMatrices), &gui.matrices);
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+        gfxBatch(&gui);
         gfxRender(&quad, &gui, &guiShader);
 
         SDL_GL_SwapWindow(window);
@@ -335,8 +351,13 @@ int main(int argc, char* argv[]) {
     }
 
     gfxDestroyModel(&crystal);
+    gfxDestroyModel(&quad);
+    gfxDestroyModel(&cube);
     gfxDestroyShader(&shader);
+    gfxDestroyShader(&colorShader);
     gfxDestroyShader(&guiShader);
+
+    /* TODO: destroy UBO's */
 
 #ifdef HAVE_LUA
     wfScriptDestroy();

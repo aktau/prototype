@@ -18,7 +18,7 @@ ENABLE_LUA ?= 1
 # CC := /usr/local/bin/gcc-4.8
 CC := /usr/local/bin/clang
 
-STD := -std=c11 -pedantic
+STD := -std=c11 -pedantic -fstrict-aliasing
 SECURITY := -D_THREAD_SAFE -D_FORTIFY_SOURCE=2
 WARN := -Wextra -Wcast-align -Wcast-qual \
 	-Wpointer-arith -Waggregate-return -Wunreachable-code \
@@ -120,6 +120,8 @@ SOURCE := src/main.c \
 	src/gfx/shader.c \
 	src/gfx/model.c \
 	src/gfx/math.c \
+	src/gfx/renderer.c \
+	src/gfx/transform.c \
 	src/scratch.c
 
 DEPENDENCY_TARGETS := sdl2

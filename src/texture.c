@@ -27,6 +27,9 @@ static int gfxUploadTexture(const char *image);
  * Objects overwrite any texture state (clamping, repeat, anisotropy, ...),
  * an example:
  * http://www.geeks3d.com/20110908/opengl-3-3-sampler-objects-control-your-texture-units/
+ *
+ * Samplers:
+ * http://www.opengl.org/wiki/GLSL_Sampler#Binding_textures_to_samplers
  */
 GLuint gfxLoadTexture(const char *image) {
     GLfloat anisotropy = 0.0f;

@@ -40,17 +40,17 @@
 
 #define trace(...) \
     do {\
-            if (DEBUG_TEST) {\
-                    /* fprintf(stderr, "%s:%d:%s(): ", __FILE__, __LINE__, __func__); */ \
-                    char __timestr[32];\
-                    time_t __timestamp;\
-                    struct tm *__timeinfo;\
-                    time(&__timestamp);\
-                    __timeinfo = localtime(&__timestamp);\
-                    strftime(__timestr, 32, "%d/%m %H:%M:%S", __timeinfo);\
-                    fprintf(stderr, "[%s] %s(): ", __timestr, __func__);\
-                    fprintf(stderr, __VA_ARGS__);\
-            }\
+        if (DEBUG_TEST) {\
+            /* fprintf(stderr, "%s:%d:%s(): ", __FILE__, __LINE__, __func__); */ \
+            char __timestr[32];\
+            time_t __timestamp;\
+            struct tm *__timeinfo;\
+            time(&__timestamp);\
+            __timeinfo = localtime(&__timestamp);\
+            strftime(__timestr, 32, "%d/%m %H:%M:%S", __timeinfo);\
+            fprintf(stderr, "[%s] %s(): ", __timestr, __func__);\
+            fprintf(stderr, __VA_ARGS__);\
+        }\
     } while(0)
 
 #define GL_ERROR(...) \
@@ -158,8 +158,13 @@ void gfxSetShaderParams(const struct gfxShaderProgram *shader, const struct gfxR
 /* gfx/model.c */
 void gfxDestroyModel(struct gfxModel *model);
 
+/* gfx/renderer.c */
+void gfxCreateRenderParams(struct gfxRenderParams *params);
+void gfxBatch(const struct gfxRenderParams *params);
+
 /* scratch.c */
 void gfxQuad(struct gfxModel *model);
+void gfxCube(struct gfxModel *model);
 void gfxCrystal(struct gfxModel *model);
 
 #endif

@@ -34,6 +34,8 @@
 #define GFX_CULL_FRONT          0x0001
 #define GFX_CULL_BACK           0x0002
 
+#define GFX_UBO_MATRICES        0x0001
+
 struct gfxTransform {
     float position[3];
     float rotation[3];
@@ -85,29 +87,52 @@ struct gfxUniformLocations {
     int lightColor;
 
     int cameraPosition;
+
+    unsigned int matricesBlockIndex;
 };
 
 struct gfxShaderProgram {
     unsigned int id;
 
     struct gfxUniformLocations loc;
-    struct gfxShaderProgram *next;
+    // struct gfxShaderProgram *next;
+};
+
+/* the C representation of a Uniform Buffer Object */
+struct gfxGlobalMatrices {
+    float projectionMatrix[16];
 };
 
 struct gfxRenderParams {
-    float projectionMatrix[16];
+    float modelviewMatrix[16];
+
+    /* the uniform buffer object that stores matrices common to all (or most) programs */
+    struct gfxGlobalMatrices matrices; /* the C side */
+    unsigned int matrixUbo; /* the OpenGL side */
 
     unsigned char blend;
     unsigned char cull;
 };
 
-/*
-struct gfxShaderParams {
-    float modelviewMatrix[16];
-};
-*/
+static inline float gfxDot(const float *vec1, const float *vec2) {
+    return
+        vec1[0] * vec2[0] +
+        vec1[1] * vec2[1] +
+        vec1[2] * vec2[2];
+}
 
-/* gfx/math.h */
+static inline void gfxCross(const float *restrict vec1, const float *restrict vec2, float *restrict vec3) {
+    vec3[0] = vec1[1] * vec2[2] - vec1[2] * vec2[1];
+    vec3[1] = vec1[2] * vec2[0] - vec1[0] * vec2[2];
+    vec3[2] = vec1[0] * vec2[1] - vec1[1] * vec2[0];
+}
+
+/* gfx/transform.c */
+void gfxPerspectiveMatrix(float fov, float aspect, float near, float far, float *mat);
+void gfxAltPerspectiveMatrix(float near, float far, float *mat);
+void gfxOrthoMatrix(float left, float right, float bottom, float top, float near, float far, float *matrix);
+
+/* gfx/math.c */
 void gfxVecToEuler(float* vec, float* euler);
 void gfxVecNormalize(float* vec);
 void gfxVecDotVec(float* vec1, float* vec2, float* dot);

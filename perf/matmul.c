@@ -79,6 +79,59 @@ static void __attribute__ ((noinline)) matmul4x4res(const float *restrict m1, co
     m3[15] = m1[12]*m2[3] + m1[13]*m2[7] + m1[14]*m2[11] + m1[15]*m2[15];
 }
 
+static void __attribute__ ((noinline)) matmul4x4rescons(const float *restrict const m1, const float *restrict const m2, float *restrict const m3) {
+    m3[0]  = m1[0]*m2[0] + m1[1]*m2[4] + m1[2]*m2[8] + m1[3]*m2[12];
+    m3[1]  = m1[0]*m2[1] + m1[1]*m2[5] + m1[2]*m2[9] + m1[3]*m2[13];
+    m3[2]  = m1[0]*m2[2] + m1[1]*m2[6] + m1[2]*m2[10] + m1[3]*m2[14];
+    m3[3]  = m1[0]*m2[3] + m1[1]*m2[7] + m1[2]*m2[11] + m1[3]*m2[15];
+    m3[4]  = m1[4]*m2[0] + m1[5]*m2[4] + m1[6]*m2[8] + m1[7]*m2[12];
+    m3[5]  = m1[4]*m2[1] + m1[5]*m2[5] + m1[6]*m2[9] + m1[7]*m2[13];
+    m3[6]  = m1[4]*m2[2] + m1[5]*m2[6] + m1[6]*m2[10] + m1[7]*m2[14];
+    m3[7]  = m1[4]*m2[3] + m1[5]*m2[7] + m1[6]*m2[11] + m1[7]*m2[15];
+    m3[8]  = m1[8]*m2[0] + m1[9]*m2[4] + m1[10]*m2[8] + m1[11]*m2[12];
+    m3[9]  = m1[8]*m2[1] + m1[9]*m2[5] + m1[10]*m2[9] + m1[11]*m2[13];
+    m3[10] = m1[8]*m2[2] + m1[9]*m2[6] + m1[10]*m2[10] + m1[11]*m2[14];
+    m3[11] = m1[8]*m2[3] + m1[9]*m2[7] + m1[10]*m2[11] + m1[11]*m2[15];
+    m3[12] = m1[12]*m2[0] + m1[13]*m2[4] + m1[14]*m2[8] + m1[15]*m2[12];
+    m3[13] = m1[12]*m2[1] + m1[13]*m2[5] + m1[14]*m2[9] + m1[15]*m2[13];
+    m3[14] = m1[12]*m2[2] + m1[13]*m2[6] + m1[14]*m2[10] + m1[15]*m2[14];
+    m3[15] = m1[12]*m2[3] + m1[13]*m2[7] + m1[14]*m2[11] + m1[15]*m2[15];
+}
+
+static void __attribute__ ((noinline)) matmul4x4ressemistream(const float *restrict m1, const float *restrict m2, float *restrict m3) {
+    const float
+            l0 = m1[0], l1 = m1[1], l2 = m1[2], l3 = m1[3],
+            l4 = m1[4], l5 = m1[5], l6 = m1[6], l7 = m1[7],
+            l8 = m1[8], l9 = m1[9], l10 = m1[10], l11 = m1[11],
+            l12 = m1[12], l13 = m1[13], l14 = m1[14], l15 = m1[15];
+
+    const float
+            r0 = m2[0], r1 = m2[1], r2 = m2[2], r3 = m2[3],
+            r4 = m2[4], r5 = m2[5], r6 = m2[6], r7 = m2[7],
+            r8 = m2[8], r9 = m2[9], r10 = m2[10], r11 = m2[11],
+            r12 = m2[12], r13 = m2[13], r14 = m2[14], r15 = m2[15];
+
+    m3[0] = l0 * r0 + l1 * r4 + l2 * r8 + l3 * r12;
+    m3[1] = l0 * r1 + l1 * r5 + l2 * r9 + l3 * r13;
+    m3[2] = l0 * r2 + l1 * r6 + l2 * r10 + l3 * r14;
+    m3[3] = l0 * r3 + l1 * r7 + l2 * r11 + l3 * r15;
+
+    m3[4] = l4 * r0 + l5 * r4 + l6 * r8 + l7 * r12;
+    m3[5] = l4 * r1 + l5 * r5 + l6 * r9 + l7 * r13;
+    m3[6] = l4 * r2 + l5 * r6 + l6 * r10 + l7 * r14;
+    m3[7] = l4 * r3 + l5 * r7 + l6 * r11 + l7 * r15;
+
+    m3[8]  = l8 * r0 + l9 * r4 + l10 * r8 + l11 * r12;
+    m3[9]  = l8 * r1 + l9 * r5 + l10 * r9 + l11 * r13;
+    m3[10] = l8 * r2 + l9 * r6 + l10 * r10 + l11 * r14;
+    m3[11] = l8 * r3 + l9 * r7 + l10 * r11 + l11 * r15;
+
+    m3[12] = l12 * r0 + l13 * r4 + l14 * r8 + l15 * r12;
+    m3[13] = l12 * r1 + l13 * r5 + l14 * r9 + l15 * r13;
+    m3[14] = l12 * r2 + l13 * r6 + l14 * r10 + l15 * r14;
+    m3[15] = l12 * r3 + l13 * r7 + l14 * r11 + l15 * r15;
+}
+
 static void __attribute__ ((noinline)) matmul4x4resstream(const float *restrict m1, const float *restrict m2, float *restrict m3) {
     const float l0 = m1[0];
     const float l1 = m1[1];
@@ -652,7 +705,9 @@ int main(int argc, char* argv[]) {
     struct benchSetup benches[] = {
         { "naive", matmul4x4 },
         { "restrict", matmul4x4res },
+        { "restrict, const", matmul4x4rescons },
         { "restrict, stream", matmul4x4resstream },
+        { "restrict, semistream", matmul4x4ressemistream },
 #ifdef __AVX__
         { "avx", matmul4x4avx8x },
 #else
