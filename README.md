@@ -1,17 +1,36 @@
 prototype
 =========
 
-All kinds of things for prototyping, and goofing around
+A prototype game engine that will hopefully one day become the Warfare engine, just a hobby project. It tries
+to make use of the latest and greatest technology, and it should compile out of the box (all dependencies in-tree).
+
+The engine is written in C (the C11 standard, although I believe it's also valid C99, as of current writing). It aims to
+be small and clean, with extensibility provided by Lua (through LuaJIT). It is also written with being cross-platform in mind.
+Although development happens on OS X, no platform-specific functionality has been used, so it should be rather easy
+to port as long as the platform in question has either Clang (LLVM) or GCC avaiable to compile. (MSVC doesn't understand
+C11 unfortunately).
+
+This is alpha software, it is not usable yet, I will post an announcement on my website (www.aktau.be) when I'm ready
+to have the wider world play around with it.
 
 dependencies
 ============
 
-SDL2, but it's included in-tree.
+SDL2 and LuaJIT, they are included in-tree.
 
 building
 ========
 
-For now, just run `make`
+For now, just run
+```bash
+$ make -j8
+```
+
+If you want a release build, do
+
+```bash
+$ make -j8 release
+```
 
 acknowledgements
 ================
@@ -27,14 +46,16 @@ Sam Lantinga, creator of SDL, cross-platform graphics for the masses
 Anyone I might have forgotten, I'm in your debt. If you find that you deserve
 to be in this list, please shoot me a mail and you'll be added asap!
 
-Licence (MIT)
+License (MIT)
 =============
 
-All code except for files in the "deps" folder, that code may have another
-license and/or copyright. Please consult the files in question.
+All files that have not been explicitly marked with a license and are copyright
+by Nicolas Hillegeer, fall under the MIT license. The projects in the "deps" subfolder
+have their own respective licenses, please consult the directory tree for the relevant
+information.
 
 Copyright (c) 2013, Nicolas Hillegeer and other authors mentioned in the AUTHORS file
-All rights reserved.
+(if present). All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
