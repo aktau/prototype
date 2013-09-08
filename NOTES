@@ -224,3 +224,6 @@ https://developer.apple.com/library/ios/documentation/3ddrawing/conceptual/openg
 
 [PERFORMANCE] Optimize vertex data automatically (pre-bake):
 http://www.lighthouse3d.com/tutorials/glsl-core-tutorial/vertex-shader/
+
+[PERFORMANCE] use intels' ispc for higly-optimized SIMD code:
+https://github.com/ispc/ispc

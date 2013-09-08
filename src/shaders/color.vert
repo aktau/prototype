@@ -29,6 +29,7 @@ layout(std140) uniform StaticMatrices {
 
 /* uniforms */
 uniform mat4 modelviewMatrix;
+uniform float timer;
 
 /* in */
 layout(location = 0) in vec3 in_position;
@@ -38,6 +39,12 @@ layout(location = 3) in vec3 in_color;
 out vec3 vertColor;
 
 void main() {
-    vertColor   = in_color;
+    float sint = sin(timer);
+    float cost = cos(timer);
+
+    vertColor = in_color * vec3(sint * sint, cost * cost, 1.0);
+
+    // vec3 druggedColor = mix(vec3(sin(timer), cos(timer), 1.0), vertColor, 1.0 + sin(timer) * 0.5);
+
     gl_Position = projectionMatrix * modelviewMatrix * vec4(in_position, 1.0);
 }

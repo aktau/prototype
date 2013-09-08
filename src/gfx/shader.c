@@ -65,7 +65,7 @@ void gfxSetShaderParams(const struct gfxShaderProgram *shader, const struct gfxR
     }
     else {
         glEnable(GL_CULL_FACE);
-        glFrontFace(GL_CW);
+        glFrontFace(GL_CCW);
 
         switch (params->cull) {
             case GFX_CULL_FRONT: glCullFace(GL_BACK); break;
@@ -80,6 +80,8 @@ void gfxSetShaderParams(const struct gfxShaderProgram *shader, const struct gfxR
     if (shader->loc.texture1 != -1) glUniform1i(shader->loc.texture1, 1);
     if (shader->loc.texture2 != -1) glUniform1i(shader->loc.texture2, 2);
     if (shader->loc.texture3 != -1) glUniform1i(shader->loc.texture3, 3);
+
+    if (shader->loc.timer != -1) glUniform1f(shader->loc.timer, params->timer);
 }
 
 void gfxLoadShaderFromFile(struct gfxShaderProgram *shader, const char *vertfile, const char *fragfile) {
@@ -164,6 +166,8 @@ void gfxLoadShader(struct gfxShaderProgram *shader, const char *vertsrc, const c
     shader->loc.texture1            = glGetUniformLocation(program, "texture1");
     shader->loc.texture2            = glGetUniformLocation(program, "texture2");
     shader->loc.texture3            = glGetUniformLocation(program, "texture3");
+
+    shader->loc.timer               = glGetUniformLocation(program, "timer");
 
     /* uniform blocks for UBO's (Uniform Buffer Objects) */
     shader->loc.matricesBlockIndex = glGetUniformBlockIndex(program, "StaticMatrices");

@@ -88,6 +88,8 @@ struct gfxUniformLocations {
 
     int cameraPosition;
 
+    int timer;
+
     unsigned int matricesBlockIndex;
 };
 
@@ -112,6 +114,9 @@ struct gfxRenderParams {
 
     unsigned char blend;
     unsigned char cull;
+
+    /* relative timer inmilliseconds */
+    float timer;
 };
 
 static inline float gfxDot(const float *vec1, const float *vec2) {

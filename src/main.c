@@ -222,6 +222,7 @@ int main(int argc, char* argv[]) {
 
     struct gfxRenderParams world = { 0 };
     gfxCreateRenderParams(&world);
+    world.cull = GFX_CULL_BACK;
 
     struct gfxRenderParams gui = { 0 };
     gfxCreateRenderParams(&gui);
@@ -259,6 +260,9 @@ int main(int argc, char* argv[]) {
                             );
 
                             glViewport(0, 0, (GLsizei) newWidth, (GLsizei) newHeight);
+
+                            width  = newWidth;
+                            height = newHeight;
                         }
                         break;
                     }
@@ -307,25 +311,67 @@ int main(int argc, char* argv[]) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         uint32_t ticks = SDL_GetTicks();
-        float alpha = (ticks % 10000) / 10000.0f;
+        float ms = (float) ticks * 0.001f;
+        float alpha = (ticks % 5000) / 5000.0f;
 
-        float qua[4];
+        /* translation */
+        float transmat[16];
+        {
+            gfxMatrix4SetIdentity(transmat);
+            // transmat[14] = 2.0f * cosf(ms) - 4.0f;
+            transmat[14] = -2.0f;
+        }
+
+        /* rotation */
         float rotmat[16];
-        float axis[] = { 1.0f, 1.0f, 1.0f };
+        {
+            float xaxis[] = { 1.0f, 0.0f, 0.0f };
+            float yaxis[] = { 0.0f, 1.0f, 0.0f };
 
-        gfxVecNormalize(axis);
-        gfxQuaFromAngleAxis(360.0f * alpha, axis, qua);
-        gfxQuaToMatrix4(qua, world.modelviewMatrix);
+            float neutqua[4] = { 0, 0, 0, 1 };
+            float xqua[4];
+            float yqua[4];
+            float yqua2[4];
+            float finalqua[4];
+
+            gfxVecNormalize(xaxis);
+            gfxVecNormalize(yaxis);
+
+            gfxQuaFromAngleAxis(360.0f * ms, xaxis, xqua);
+            gfxQuaFromAngleAxis(45.0f, yaxis, yqua);
+
+            gfxQuaSlerp(neutqua, yqua, sinf(ms / 10.0f) * 0.5f + 1.0f, yqua2);
+
+            /* apparently this means, apply rotation x before rotation y, i.e. read right to left */
+            gfxMulQuaQua(yqua, xqua, finalqua);
+            // gfxMulQuaQua(xqua, yqua, finalqua);
+            // gfxMulQuaQua(yqua2, xqua, finalqua);
+
+            gfxQuaToMatrix4(xqua, rotmat);
+            // gfxQuaToMatrix4(yqua, rotmat);
+            // gfxQuaToMatrix4(finalqua, rotmat);
+        }
+
+        float tempmat[16];
+        gfxMulMatrix4Matrix4(transmat, rotmat, tempmat);
+
+        {
+            transmat[14] = +2.0f;
+        }
+
+        memcpy(world.modelviewMatrix, tempmat, sizeof(float[16]));
+
+        // gfxMulMatrix4Matrix4(transmat, tempmat, world.modelviewMatrix);
+        // gfxMulMatrix4Matrix4(rotmat, transmat, world.modelviewMatrix);
 
         /* TODO: should factor out the changes and the re-uploading */
-        // world.modelviewMatrix[14] = cosf(GFX_PI * alpha);
-        // world.modelviewMatrix[13] = sinf(GFX_PI * alpha);
-        // world.modelviewMatrix[12] = sinf(GFX_PI * alpha);
-        // trace("value: cosf(%f) = %f\n", (ticks % 1000) / 1000.0f, world.modelviewMatrix[14]);
+        world.timer = ms;
+        // world.modelviewMatrix[14] = 2.0f * cosf(ms) - 4.0f;
+        // trace("value: K * cosf(%f) = %f\n", GFX_PI * alpha, world.modelviewMatrix[14]);
 
         // gfxPerspectiveMatrix(GFX_PI / 2.0f, (float) width / (float) height, 0.5, 3.0f, world.matrices.projectionMatrix);
-        // gfxPerspectiveMatrix(45.0f, (float) width / (float) height, 0.5, 3.0f, world.matrices.projectionMatrix);
-        gfxAltPerspectiveMatrix(0.1, 10.0f, world.matrices.projectionMatrix);
+        gfxPerspectiveMatrix(90.0f, (float) width / (float) height, 0.1f, 10.0f, world.matrices.projectionMatrix);
+        // gfxAltPerspectiveMatrix(0.1f, 10.0f, world.matrices.projectionMatrix);
         // world.matrices.projectionMatrix[3] = (float) (SDL_GetTicks() % 1000) / 1000.0f;
         glBindBuffer(GL_UNIFORM_BUFFER, world.matrixUbo);
         // glBufferData(GL_UNIFORM_BUFFER, sizeof(struct gfxGlobalMatrices), &world.matrices, GL_STREAM_DRAW);
@@ -338,12 +384,13 @@ int main(int argc, char* argv[]) {
         gfxRender(&cube, &world, &colorShader);
 
         gui.matrices.projectionMatrix[3] = cosf((float)(SDL_GetTicks() % 1000) / 1000.0f);
+        gui.timer = ms;
         glBindBuffer(GL_UNIFORM_BUFFER, gui.matrixUbo);
         glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(struct gfxGlobalMatrices), &gui.matrices);
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-        gfxBatch(&gui);
-        gfxRender(&quad, &gui, &guiShader);
+        // gfxBatch(&gui);
+        // gfxRender(&quad, &gui, &guiShader);
 
         SDL_GL_SwapWindow(window);
 
