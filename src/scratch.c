@@ -264,13 +264,12 @@ void gfxCrystal(struct gfxModel *model) {
     glBindVertexArray(0);
 }
 
+#define AXIS_WIDTH          0.1f
+#define AXIS_HALF_WIDTH     (AXIS_WIDTH * 0.5f)
+#define AXIS_LENGTH         0.8f
+
 void gfxAxis(struct gfxModel *model) {
     memset(model, 0x0, sizeof(struct gfxModel));
-
-    const float width = 0.1f;
-    const float hWidth = width * 0.5f;
-
-    const float length = 0.8f;
 
     static const struct {
         float vertices[4];
@@ -278,24 +277,24 @@ void gfxAxis(struct gfxModel *model) {
     } staticData[] = {
         /* x-axis */
         { { 0.0f, 0.0f, 0.0f, 1.0f }, GFX_RED },
-        { { length, 0.0f, hWidth, 1.0f }, GFX_RED },
-        { { length, 0.0f, -hWidth, 1.0f }, GFX_RED },
-        { { length, hWidth, 0.0f, 1.0f }, GFX_RED },
-        { { length, -hWidth, 0.0f, 1.0f }, GFX_RED },
+        { { AXIS_LENGTH, 0.0f, AXIS_HALF_WIDTH, 1.0f }, GFX_RED },
+        { { AXIS_LENGTH, 0.0f, -AXIS_HALF_WIDTH, 1.0f }, GFX_RED },
+        { { AXIS_LENGTH, AXIS_HALF_WIDTH, 0.0f, 1.0f }, GFX_RED },
+        { { AXIS_LENGTH, -AXIS_HALF_WIDTH, 0.0f, 1.0f }, GFX_RED },
 
         /* y-axis */
         { { 0.0f, 0.0f, 0.0f, 1.0f }, GFX_GREEN },
-        { { 0.0f, length, hWidth, 1.0f }, GFX_GREEN },
-        { { 0.0f, length, -hWidth, 1.0f }, GFX_GREEN },
-        { { hWidth, length, 0.0f, 1.0f }, GFX_GREEN },
-        { { -hWidth, length, 0.0f, 1.0f }, GFX_GREEN },
+        { { 0.0f, AXIS_LENGTH, AXIS_HALF_WIDTH, 1.0f }, GFX_GREEN },
+        { { 0.0f, AXIS_LENGTH, -AXIS_HALF_WIDTH, 1.0f }, GFX_GREEN },
+        { { AXIS_HALF_WIDTH, AXIS_LENGTH, 0.0f, 1.0f }, GFX_GREEN },
+        { { -AXIS_HALF_WIDTH, AXIS_LENGTH, 0.0f, 1.0f }, GFX_GREEN },
 
         /* z-axis */
         { { 0.0f, 0.0f, 0.0f, 1.0f }, GFX_BLUE },
-        { { 0.0f, hWidth, length, 1.0f }, GFX_BLUE },
-        { { 0.0f, hWidth, length, 1.0f }, GFX_BLUE },
-        { { hWidth, 0.0f, length, 1.0f }, GFX_BLUE },
-        { { -hWidth, 0.0f, length, 1.0f }, GFX_BLUE }
+        { { 0.0f, AXIS_HALF_WIDTH, AXIS_LENGTH, 1.0f }, GFX_BLUE },
+        { { 0.0f, AXIS_HALF_WIDTH, AXIS_LENGTH, 1.0f }, GFX_BLUE },
+        { { AXIS_HALF_WIDTH, 0.0f, AXIS_LENGTH, 1.0f }, GFX_BLUE },
+        { { -AXIS_HALF_WIDTH, 0.0f, AXIS_LENGTH, 1.0f }, GFX_BLUE }
     };
 
     const GLubyte indices[] = {

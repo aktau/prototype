@@ -40,15 +40,15 @@ $ make -j8 release
 acknowledgements
 ================
 
-Sean Barrett, creator of stb_image.c and stb_truetype.c, loading images
+- Sean Barrett, creator of stb_image.c and stb_truetype.c, loading images
  and rendering text have never been so pleasant (and easy to include
  in a project).
-Samuel Anjam, creator of the BlendELF engine, upon which much of my code
+- Samuel Anjam, creator of the BlendELF engine, upon which much of my code
  and structure is based.
-Mike Pall, creator of LuaJIT, amazing piece of engineering.
-Sam Lantinga, creator of SDL, cross-platform graphics for the masses
-Julien Pommier, creator of sse_mathfun.h, fast transcendental functions!
-Riku Salminen, creator of threedee, the fastest pure 3D math
+- Mike Pall, creator of LuaJIT, amazing piece of engineering.
+- Sam Lantinga, creator of SDL, cross-platform graphics for the masses
+- Julien Pommier, creator of sse_mathfun.h, fast transcendental functions!
+- Riku Salminen, creator of [threedee-simd](https://github.com/rikusalminen/threedee-simd), the fastest pure 3D math
  library I know off.
 
 Anyone I might have forgotten, I'm in your debt. If you find that you deserve

@@ -74,6 +74,9 @@ else
 		ifeq ($(UNAME_S),Darwin)
 			# CFLAGS += -mno-avx
 		endif
+
+		# required for the math libraries (threedee and sse_mathfun.h)
+		CFLAGS += -mfpmath=sse
 	endif
 
 	UNAME_P := $(shell uname -m)

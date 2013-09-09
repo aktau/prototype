@@ -15,6 +15,7 @@
 #include <limits.h>
 
 #include "math/math.h"
+#include "math/sse_mathfun.h"
 
 #include "util.h"
 #include "vec.h"
@@ -174,30 +175,30 @@ int main(int argc, char* argv[]) {
 
     trace("supported vector instructions: ");
     #ifdef __SSE__
-        trace("SSE ");
+        printf("SSE ");
     #endif
     #ifdef __SSE2__
-        trace("SSE2 ");
+        printf("SSE2 ");
     #endif
     #ifdef __SSE3__
-        trace("SSE3 ");
+        printf("SSE3 ");
     #endif
     #ifdef __SSE4__
-        trace("SSE4 ");
+        printf("SSE4 ");
     #endif
     #ifdef __SSE4_1__
-        trace("SSE4.1 ");
+        printf("SSE4.1 ");
     #endif
     #ifdef __SSE4_2__
-        trace("SSE4.2 ");
+        printf("SSE4.2 ");
     #endif
     #ifdef __AVX__
-        trace("AVX ");
+        printf("AVX ");
     #endif
     #ifdef __FMA4__
-        trace("FMA4 ");
+        printf("FMA4 ");
     #endif
-    trace("\n");
+    printf("\n");
 
     #ifdef HAVE_LUA
         trace("scripting enabled, %s\n", wfScriptVersion());
@@ -404,6 +405,12 @@ int main(int argc, char* argv[]) {
             0, 0, 0, 1
         };
 
+        {
+            vec4 xqua;
+
+            quat_to_mat(xqua);
+        }
+
         float rotmat[16];
         {
             float xaxis[] = { 1.0f, 0.0f, 0.0f };
@@ -459,8 +466,14 @@ int main(int argc, char* argv[]) {
 
         vec4 a = { 1, 2, 3, 4 }, b = { 5, 6, 7, 8 };
 
-        printv(a);
-        printv(b);
+        // printv(a);
+        // printv(b);
+
+        // v4sf in = { 0.1f, GFX_PI, GFX_PI * 0.5f, GFX_PI * 0.25f };
+        // v4sf out = sin_ps(in);
+
+        // printv(in);
+        // printv(out);
 
         // gfxMulMatrix4Matrix4(transmat, tempmat, world.modelviewMatrix);
 
