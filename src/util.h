@@ -166,5 +166,6 @@ void gfxBatch(const struct gfxRenderParams *params);
 void gfxQuad(struct gfxModel *model);
 void gfxCube(struct gfxModel *model);
 void gfxCrystal(struct gfxModel *model);
+void gfxAxis(struct gfxModel *model);
 
 #endif

@@ -1,11 +1,15 @@
-The license below is valid for all files code except for files in the "deps" folder,
-who may be under another license and/or copyright. Please consult the files in question.
+All files that have not been explicitly marked with a license and are copyright
+by Nicolas Hillegeer, fall under the MIT license, detailed below.
+
+The projects in the "deps" subfolder have their own respective licenses, please
+consult the directory tree for the relevant information. The files in "src/math"
+fall under the zlib license and are by different authors.
 
 When individual files explicitly mention a license or copyright in the file, then
 those take precedence for that particular file.
 
-Copyright (c) 2013, Nicolas Hillegeer and other authors mentioned in the AUTHORS file
-All rights reserved.
+Copyright (c) 2013, Nicolas Hillegeer and other authors mentioned in the AUTHORS
+file and in individual files. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:

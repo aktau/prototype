@@ -13,6 +13,11 @@ C11 unfortunately).
 This is alpha software, it is not usable yet, I will post an announcement on my website (www.aktau.be) when I'm ready
 to have the wider world play around with it.
 
+For those of you following at home and reading the source code. All matrices, everywhere are stored in such a way
+that columns are contiguous in memory (i.e.: column-major order). This is the native format for OpenGL and it makes
+it a bit more efficient to do SIMD operations on matrices. This means that, when you see a matrix you can imagine
+that is a `float[16]`, and that `(mat[0], mat[1], mat[2], mat[3])` is the first column.
+
 dependencies
 ============
 
@@ -37,11 +42,14 @@ acknowledgements
 
 Sean Barrett, creator of stb_image.c and stb_truetype.c, loading images
  and rendering text have never been so pleasant (and easy to include
- in a project)
+ in a project).
 Samuel Anjam, creator of the BlendELF engine, upon which much of my code
  and structure is based.
-Mike Pall, creator of LuaJIT, amazing piece of engineering
+Mike Pall, creator of LuaJIT, amazing piece of engineering.
 Sam Lantinga, creator of SDL, cross-platform graphics for the masses
+Julien Pommier, creator of sse_mathfun.h, fast transcendental functions!
+Riku Salminen, creator of threedee, the fastest pure 3D math
+ library I know off.
 
 Anyone I might have forgotten, I'm in your debt. If you find that you deserve
 to be in this list, please shoot me a mail and you'll be added asap!
@@ -50,12 +58,17 @@ License (MIT)
 =============
 
 All files that have not been explicitly marked with a license and are copyright
-by Nicolas Hillegeer, fall under the MIT license. The projects in the "deps" subfolder
-have their own respective licenses, please consult the directory tree for the relevant
-information.
+by Nicolas Hillegeer, fall under the MIT license, detailed below.
 
-Copyright (c) 2013, Nicolas Hillegeer and other authors mentioned in the AUTHORS file
-(if present). All rights reserved.
+The projects in the "deps" subfolder have their own respective licenses, please
+consult the directory tree for the relevant information. The files in "src/math"
+fall under the zlib license and are by different authors.
+
+When individual files explicitly mention a license or copyright in the file, then
+those take precedence for that particular file.
+
+Copyright (c) 2013, Nicolas Hillegeer and other authors mentioned in the AUTHORS
+file and in individual files. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:

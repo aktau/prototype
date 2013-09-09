@@ -14,17 +14,34 @@
 #include <stdint.h>
 #include <limits.h>
 
+#include "math/math.h"
+
 #include "util.h"
 #include "vec.h"
 
 #include "SDL.h"
 
-// static void perspective(GLdouble fovy, GLdouble aspect, GLdouble near, GLdouble far) {
-//     GLdouble half_height = near * tan( fovy * 0.5 * TWOPI_OVER_360 );
-//     GLdouble half_width = half_height * aspect;
+void printv(vec4 vec) {
+    const float *x = (const float*)&vec;
 
-//     glFrustum(-half_width, half_width, -half_height, half_height, near, far);
-// }
+    trace("%2.3f\t%2.3f\t%2.3f\t%2.3f\n", x[0], x[1], x[2], x[3]);
+}
+
+void printvi(vec4 vec) {
+    const uint32_t *x = (const uint32_t*)&vec;
+
+    trace("%8x\t%8x\t%8x\t%8x\n", x[0], x[1], x[2], x[3]);
+}
+
+void printm(mat4 mat) {
+    const float *m = (const float*)&mat;
+
+    trace("\n");
+    for(int i = 0; i < 4; ++i) {
+        printf("%2.3f\t%2.3f\t%2.3f\t%2.3f\n", m[i + 0], m[i + 4], m[i + 8], m[i + 12]);
+    }
+    printf("\n");
+}
 
 static void init() {
     /* set the background black */
@@ -152,11 +169,38 @@ int main(int argc, char* argv[]) {
     int width  = 800;
     int height = 600;
 
-    trace("Prototype/warfare engine, starting up\n");
-    trace("Compiled by: %s\n", wfCompiler());
+    trace("prototype/warfare engine, starting up\n");
+    trace("compiler: %s\n", wfCompiler());
+
+    trace("supported vector instructions: ");
+    #ifdef __SSE__
+        trace("SSE ");
+    #endif
+    #ifdef __SSE2__
+        trace("SSE2 ");
+    #endif
+    #ifdef __SSE3__
+        trace("SSE3 ");
+    #endif
+    #ifdef __SSE4__
+        trace("SSE4 ");
+    #endif
+    #ifdef __SSE4_1__
+        trace("SSE4.1 ");
+    #endif
+    #ifdef __SSE4_2__
+        trace("SSE4.2 ");
+    #endif
+    #ifdef __AVX__
+        trace("AVX ");
+    #endif
+    #ifdef __FMA4__
+        trace("FMA4 ");
+    #endif
+    trace("\n");
 
     #ifdef HAVE_LUA
-        trace("Scripting enabled, %s\n", wfScriptVersion());
+        trace("scripting enabled, %s\n", wfScriptVersion());
         wfScriptInit();
     #endif
 
@@ -178,7 +222,7 @@ int main(int argc, char* argv[]) {
     SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
 
-    trace("Creating SDL window\n");
+    trace("creating SDL window\n");
 
     SDL_Window *window = SDL_CreateWindow(
         "SDL2/OpenGL prototype",
@@ -188,13 +232,13 @@ int main(int argc, char* argv[]) {
         SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
     );
 
-    trace("Creating OpenGL context\n");
+    trace("creating OpenGL context\n");
 
     uint32_t t = SDL_GetTicks();
 
     SDL_GLContext glcontext = SDL_GL_CreateContext(window);
 
-    trace("Took %u ms to setup the OpenGL context\n", SDL_GetTicks() - t);
+    trace("took %u ms to setup the OpenGL context\n", SDL_GetTicks() - t);
 
     printGlInfo();
 
@@ -231,6 +275,9 @@ int main(int argc, char* argv[]) {
     struct gfxModel quad;
     gfxQuad(&quad);
 
+    struct gfxModel axis;
+    gfxAxis(&axis);
+
     struct gfxModel crystal;
     gfxCrystal(&crystal);
 
@@ -241,7 +288,9 @@ int main(int argc, char* argv[]) {
     GLuint texture = gfxLoadTexture("./game/img/monolith.png");
     crystal.texture[0] = texture;
 
-    trace("and the texture was... %u\n", texture);
+    int rotate = 0;
+    int reversemult = 0;
+    int combined = 0;
 
     while (!done) {
         while (SDL_PollEvent(&event)) {
@@ -275,7 +324,22 @@ int main(int argc, char* argv[]) {
                     switch (event.key.keysym.sym) {
                         case SDLK_ESCAPE:
                             done = 1;
-                        break;
+                            break;
+
+                        case SDLK_r:
+                            rotate = !rotate;
+                            trace("rotation is now %d\n", rotate);
+                            break;
+
+                        case SDLK_c:
+                            combined = (combined + 1) % 3;
+                            trace("combined is now %d\n", combined);
+                            break;
+
+                        case SDLK_o:
+                            reversemult = !reversemult;
+                            trace("reverse is now %d\n", reversemult);
+                            break;
 
                         case SDLK_v:
                             vsync = !vsync;
@@ -286,7 +350,7 @@ int main(int argc, char* argv[]) {
                             else {
                                 trace("turned vsync %s\n", (vsync ? "on" : "off"));
                             }
-                        break;
+                            break;
 
                         case SDLK_d:
                             doublebuf = !doublebuf;
@@ -297,7 +361,7 @@ int main(int argc, char* argv[]) {
                             else {
                                 trace("turned doublebuf %s\n", (doublebuf ? "on" : "off"));
                             }
-                        break;
+                            break;
                     }
                     break;
 
@@ -323,6 +387,23 @@ int main(int argc, char* argv[]) {
         }
 
         /* rotation */
+        // column-major
+        float theta = 3.14f / 4.0f;
+
+        float cmbasicrotmat[16] = {
+            cosf(theta), 0, -sinf(theta), 0,
+            0, 1, 0, 0,
+            sinf(theta), 0, cosf(theta), 0,
+            0, 0, 0, 1
+        };
+
+        float rmbasicrotmat[16] = {
+            cosf(theta), 0, sinf(theta), 0,
+            0, 1, 0, 0,
+            -sinf(theta), 0, cosf(theta), 0,
+            0, 0, 0, 1
+        };
+
         float rotmat[16];
         {
             float xaxis[] = { 1.0f, 0.0f, 0.0f };
@@ -337,23 +418,38 @@ int main(int argc, char* argv[]) {
             gfxVecNormalize(xaxis);
             gfxVecNormalize(yaxis);
 
-            gfxQuaFromAngleAxis(360.0f * ms, xaxis, xqua);
-            gfxQuaFromAngleAxis(45.0f, yaxis, yqua);
+            gfxQuaFromAngleAxis(360.0f * (ms / 10.0f), xaxis, xqua);
+            // gfxQuaFromAngleAxis(45.0f, yaxis, yqua);
+            gfxQuaFromAngleAxis(360.0f * (ms / 10.0f), yaxis, yqua);
 
             gfxQuaSlerp(neutqua, yqua, sinf(ms / 10.0f) * 0.5f + 1.0f, yqua2);
 
             /* apparently this means, apply rotation x before rotation y, i.e. read right to left */
-            gfxMulQuaQua(yqua, xqua, finalqua);
-            // gfxMulQuaQua(xqua, yqua, finalqua);
-            // gfxMulQuaQua(yqua2, xqua, finalqua);
+            if (reversemult) {
+                gfxMulQuaQua(yqua, xqua, finalqua);
+                // gfxMulQuaQua(yqua2, xqua, finalqua);
+            }
+            else {
+                gfxMulQuaQua(xqua, yqua, finalqua);
+            }
 
-            gfxQuaToMatrix4(xqua, rotmat);
-            // gfxQuaToMatrix4(yqua, rotmat);
-            // gfxQuaToMatrix4(finalqua, rotmat);
+            if (rotate) {
+                if (combined == 0) gfxQuaToMatrix4(xqua, rotmat);
+                else if (combined == 1) gfxQuaToMatrix4(yqua, rotmat);
+                else gfxQuaToMatrix4(finalqua, rotmat);
+            }
+            else {
+                memcpy(rotmat, rmbasicrotmat, sizeof(float) * 16);
+                // gfxQuaToMatrix4(neutqua, rotmat);
+            }
+
+            // float mangle = (ms / 10.0f) - (long) (ms / 10.0f);
+            // trace("rotate by %f\n", mangle * 360.0f);
         }
 
         float tempmat[16];
-        gfxMulMatrix4Matrix4(transmat, rotmat, tempmat);
+        // gfxMulMatrix4Matrix4(transmat, rotmat, tempmat);
+        gfxMulMatrix4Matrix4(rotmat, transmat, tempmat);
 
         {
             transmat[14] = +2.0f;
@@ -361,8 +457,12 @@ int main(int argc, char* argv[]) {
 
         memcpy(world.modelviewMatrix, tempmat, sizeof(float[16]));
 
+        vec4 a = { 1, 2, 3, 4 }, b = { 5, 6, 7, 8 };
+
+        printv(a);
+        printv(b);
+
         // gfxMulMatrix4Matrix4(transmat, tempmat, world.modelviewMatrix);
-        // gfxMulMatrix4Matrix4(rotmat, transmat, world.modelviewMatrix);
 
         /* TODO: should factor out the changes and the re-uploading */
         world.timer = ms;
@@ -380,8 +480,9 @@ int main(int argc, char* argv[]) {
 
         /* start a batch and render */
         gfxBatch(&world);
-        gfxRender(&crystal, &world, &shader);
-        gfxRender(&cube, &world, &colorShader);
+        gfxRender(&axis, &world, &colorShader);
+        // gfxRender(&crystal, &world, &shader);
+        // gfxRender(&cube, &world, &colorShader);
 
         gui.matrices.projectionMatrix[3] = cosf((float)(SDL_GetTicks() % 1000) / 1000.0f);
         gui.timer = ms;
@@ -400,6 +501,7 @@ int main(int argc, char* argv[]) {
     gfxDestroyModel(&crystal);
     gfxDestroyModel(&quad);
     gfxDestroyModel(&cube);
+    gfxDestroyModel(&axis);
     gfxDestroyShader(&shader);
     gfxDestroyShader(&colorShader);
     gfxDestroyShader(&guiShader);
