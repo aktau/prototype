@@ -1,5 +1,6 @@
 /**
  * Copyright (c) 2013 Riku Salminen
+ * Copyright (c) 2013 Nicolas Hillegeer
  *
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -214,8 +215,22 @@ static inline vec4 quat_euler(vec4 angles)
     return result;
 }
 
-// static inline vec4 quat_axisangle(vec4 axisangle); __attribute__((always_inline));
-// static inline vec4 quat_axisangle(vec4 axisangle);
+/**
+ * convert an axis-angle vector to a quaternion:
+ *
+ * [axis.x, axis.y, axis.z, angle] => quaternion
+ */
+static inline vec4 quat_axisangle(vec4 axisangle) __attribute__((always_inline));
+static inline vec4 quat_axisangle(vec4 axisangle) {
+    const float halfAngle = axisangle[3] * 0.5f;
+
+    /* overwrite the last entry */
+    vec4 result = axisangle * vscalar(sinf(halfAngle));
+    result[3] = cosf(halfAngle);
+
+    return result;
+}
+
 // static inline vec4 quat_to_axisangle(vec4 quat); __attribute__((always_inline));
 // static inline vec4 quat_to_axisangle(vec4 quat);
 // static inline vec4 mat_to_quat(mat4 mat); __attribute__((always_inline));
