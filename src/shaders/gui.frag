@@ -16,7 +16,7 @@
 #version 150
 
 /* uniforms */
-// uniform sampler2D tex;
+uniform float timer;
 
 /* in */
 // in vec2 uv;
@@ -25,5 +25,6 @@
 out vec4 fragColor;
 
 void main() {
-    fragColor = vec4(1.0, 0.4, 0.1, 0.3);
+    float t = cos(timer);
+    fragColor = vec4(1.0, 0.4, 0.1, clamp(t*t, 0.0, 0.5));
 }

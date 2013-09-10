@@ -415,7 +415,7 @@ int main(int argc, char* argv[]) {
         /* translation */
         mat4 transmat = midentity();
         {
-            transmat.cols[3][2] = -2.0f;
+            transmat.cols[3][2] = 2.0f * cosf(ms * 10.0f) - 4.0f;
         }
 
         /* rotation */
@@ -458,35 +458,36 @@ int main(int argc, char* argv[]) {
         mstoreu(world.modelviewMatrix, modmat);
 
         /* TODO: should factor out the changes and the re-uploading */
-        world.timer = ms;
-
-        mat4 projmat = mat_perspective_fovy(GFX_PI / 2.0f, (float) width / (float) height, 0.5f, 3.0f);
-        mstoreu(world.matrices.projectionMatrix, projmat);
-
-        glBindBuffer(GL_UNIFORM_BUFFER, world.matrixUbo);
-
         /**
          * according to some, recreating the buffer is actually faster than changing the old buffer, maybe
          * true if you're having sync issues?
          * glBufferData(GL_UNIFORM_BUFFER, sizeof(struct gfxGlobalMatrices), &world.matrices, GL_STREAM_DRAW);
          */
-        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(struct gfxGlobalMatrices), &world.matrices);
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+        {
+            mat4 projmat = mat_perspective_fovy(GFX_PI / 2.0f, (float) width / (float) height, 0.5f, 10.0f);
+            mstoreu(world.matrices.projectionMatrix, projmat);
+            glBindBuffer(GL_UNIFORM_BUFFER, world.matrixUbo);
+            glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(struct gfxGlobalMatrices), &world.matrices);
+            glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-        /* start a batch and render */
-        gfxBatch(&world);
-        gfxRender(&axis, &world, &colorShader);
-        gfxRender(&crystal, &world, &shader);
-        gfxRender(&cube, &world, &colorShader);
+            world.timer = ms;
 
-        gui.matrices.projectionMatrix[3] = cosf((float)(SDL_GetTicks() % 1000) / 1000.0f);
-        gui.timer = ms;
-        glBindBuffer(GL_UNIFORM_BUFFER, gui.matrixUbo);
-        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(struct gfxGlobalMatrices), &gui.matrices);
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+            /* start a batch and render */
+            gfxBatch(&world);
+            gfxRender(&axis, &world, &colorShader);
+            gfxRender(&crystal, &world, &shader);
+            gfxRender(&cube, &world, &colorShader);
+        }
 
-        gfxBatch(&gui);
-        gfxRender(&quad, &gui, &guiShader);
+        {
+            glBindBuffer(GL_UNIFORM_BUFFER, gui.matrixUbo);
+            glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(struct gfxGlobalMatrices), &gui.matrices);
+            glBindBuffer(GL_UNIFORM_BUFFER, 0);
+            gui.timer = ms;
+
+            gfxBatch(&gui);
+            gfxRender(&quad, &gui, &guiShader);
+        }
 
         SDL_GL_SwapWindow(window);
 
