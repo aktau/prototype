@@ -98,7 +98,7 @@ static inline mat4 quat_to_mat_mmul(vec4 quat)
         {-q[2],  q[3],  q[0], -q[1] },
         { q[1], -q[0],  q[3], -q[2] },
         { q[0],  q[1],  q[2],  q[3] },
-     }};
+    }};
 
     return mmmul(m1, m2);
 }
@@ -131,9 +131,10 @@ static inline mat4 quat_to_mat3(vec4 quat)
     vec4 sqs = vnmadd(vshuffle(sq, sq, 1, 0, 0, 0) + vshuffle(sq, sq, 2, 2, 1, 0), vscalar(2.0), vscalar(1.0));
 
     mat4 result;
-    result.cols[0] = vshuffle(vshuffle(sqs, dif, 0, 0, 1, 1), sum, 0, 2, 2, 2);
-    result.cols[1] = vshuffle(vshuffle(sum, sqs, 0, 0, 1, 1), dif, 0, 2, 2, 2);
-    result.cols[2] = vshuffle(vshuffle(dif, sum, 0, 0, 1, 1), sqs, 0, 2, 2, 2);
+
+    result.cols[0] = vshuffle(vshuffle(sqs, sum, 0, 0, 0, 0), dif, 0, 2, 0, 0);
+    result.cols[1] = vshuffle(vshuffle(dif, sqs, 1, 1, 1, 1), sum, 0, 2, 1, 1);
+    result.cols[2] = vshuffle(vshuffle(sum, dif, 2, 2, 2, 2), sqs, 0, 2, 2, 2);
 
     return result;
 }
@@ -216,7 +217,8 @@ static inline vec4 quat_euler(vec4 angles)
 }
 
 /**
- * convert an axis-angle vector to a quaternion:
+ * convert an axis-angle vector to a quaternion
+ * angle in radians
  *
  * [axis.x, axis.y, axis.z, angle] => quaternion
  */

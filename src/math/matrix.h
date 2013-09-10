@@ -117,8 +117,8 @@ static inline mat4 mat3_to_mat4(mat4 mat) __attribute__((always_inline));
 static inline mat4 mat3_to_mat4(mat4 mat)
 {
     vec4 one = _mm_set_ss(1.0);
-    vec4 row3 = vshuffle(one, one, 1, 1, 1, 0);
-    mat4 result = {{ vxyz(mat.cols[0]), vxyz(mat.cols[1]), vxyz(mat.cols[2]), row3 }};
+    vec4 col3 = vshuffle(one, one, 1, 1, 1, 0);
+    mat4 result = {{ vxyz(mat.cols[0]), vxyz(mat.cols[1]), vxyz(mat.cols[2]), col3 }};
     return result;
 }
 
