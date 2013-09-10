@@ -122,9 +122,7 @@ SOURCE := src/main.c \
 	src/gfx/texture.c \
 	src/gfx/shader.c \
 	src/gfx/model.c \
-	src/gfx/math.c \
 	src/gfx/renderer.c \
-	src/gfx/transform.c \
 	src/scratch.c
 
 DEPENDENCY_TARGETS := sdl2

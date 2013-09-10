@@ -4,6 +4,7 @@ prototype
 # profile files
 perf/*.run
 perf/matmul
+perf/quat
 
 # debug files
 *.dSYM

@@ -39,7 +39,7 @@ Features to implement
 - Volumetric clouds
 - Volumetric lighting
 - Global illumination
-- Bumpmapping
+- Bumpmapping (http://www.crazybump.com/, http://quixel.se/ndo/)
 - Parallax mapping
 - Tesselation
 - GPU skinning

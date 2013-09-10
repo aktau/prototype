@@ -15,33 +15,66 @@
 #include <limits.h>
 
 #include "math/math.h"
-#include "math/sse_mathfun.h"
 
 #include "util.h"
 #include "vec.h"
 
 #include "SDL.h"
 
-void printv(vec4 vec) {
+const char *printv(vec4 vec) {
+    static char buffer[256];
+
     const float *x = (const float*)&vec;
+    snprintf(buffer, 256, "%2.3f\t%2.3f\t%2.3f\t%2.3f", x[0], x[1], x[2], x[3]);
 
-    trace("%2.3f\t%2.3f\t%2.3f\t%2.3f\n", x[0], x[1], x[2], x[3]);
+    return buffer;
 }
 
-void printvi(vec4 vec) {
+const char *printva(const float *x) {
+    static char buffer[256];
+
+    snprintf(buffer, 256, "%2.3f\t%2.3f\t%2.3f\t%2.3f", x[0], x[1], x[2], x[3]);
+
+    return buffer;
+}
+
+const char *printvi(vec4 vec) {
+    static char buffer[256];
+
     const uint32_t *x = (const uint32_t*)&vec;
+    snprintf(buffer, 256, "%8x\t%8x\t%8x\t%8x\n", x[0], x[1], x[2], x[3]);
 
-    trace("%8x\t%8x\t%8x\t%8x\n", x[0], x[1], x[2], x[3]);
+    return buffer;
 }
 
-void printm(mat4 mat) {
+const char *printm(mat4 mat) {
+    static char buffer[256];
+    int accum = 0;
+
     const float *m = (const float*)&mat;
 
-    trace("\n");
-    for(int i = 0; i < 4; ++i) {
-        printf("%2.3f\t%2.3f\t%2.3f\t%2.3f\n", m[i + 0], m[i + 4], m[i + 8], m[i + 12]);
+    accum += snprintf(buffer + accum, 256 - accum, "\n");
+    for (int i = 0; i < 4; ++i) {
+        accum += snprintf(buffer + accum, 256 - accum, "%2.3f\t%2.3f\t%2.3f\t%2.3f\n", m[i + 0], m[i + 4], m[i + 8], m[i + 12]);
     }
-    printf("\n");
+    accum += snprintf(buffer + accum, 256 - accum, "\n");
+
+    return buffer;
+}
+
+const char *printm3(mat4 mat) {
+    static char buffer[256];
+    int accum = 0;
+
+    const float *m = (const float*)&mat;
+
+    accum += snprintf(buffer + accum, 256 - accum, "\n");
+    for (int i = 0; i < 3; ++i) {
+        accum += snprintf(buffer + accum, 256 - accum, "%2.3f\t%2.3f\t%2.3f\n", m[i + 0], m[i + 4], m[i + 8]);
+    }
+    accum += snprintf(buffer + accum, 256 - accum, "\n");
+
+    return buffer;
 }
 
 static void init() {
@@ -380,122 +413,71 @@ int main(int argc, char* argv[]) {
         float alpha = (ticks % 5000) / 5000.0f;
 
         /* translation */
-        float transmat[16];
+        mat4 transmat = midentity();
         {
-            gfxMatrix4SetIdentity(transmat);
-            // transmat[14] = 2.0f * cosf(ms) - 4.0f;
-            transmat[14] = -2.0f;
+            transmat.cols[3][2] = -2.0f;
         }
 
         /* rotation */
-        // column-major
-        float theta = 3.14f / 4.0f;
-
-        float cmbasicrotmat[16] = {
-            cosf(theta), 0, -sinf(theta), 0,
-            0, 1, 0, 0,
-            sinf(theta), 0, cosf(theta), 0,
-            0, 0, 0, 1
-        };
-
-        float rmbasicrotmat[16] = {
-            cosf(theta), 0, sinf(theta), 0,
-            0, 1, 0, 0,
-            -sinf(theta), 0, cosf(theta), 0,
-            0, 0, 0, 1
-        };
-
+        mat4 rotmat;
         {
-            vec4 xqua;
+            vec4 xaxis = vunit3(vec(1.0f, 0.0f, 0.0f, 0.0f));
+            xaxis[3]   = GFX_PI * (ms);
+            vec4 xqua  = quat_axisangle(xaxis);
 
-            quat_to_mat(xqua);
-        }
+            vec4 yaxis = vunit3(vec(0.0f, 1.0f, 0.0f, 0.0f));
+            yaxis[3]   = GFX_PI * 0.25f;
+            vec4 yqua  = quat_axisangle(yaxis);
 
-        float rotmat[16];
-        {
-            float xaxis[] = { 1.0f, 0.0f, 0.0f };
-            float yaxis[] = { 0.0f, 1.0f, 0.0f };
+            vec4 neutqua = { 0.0f, 0.0f, 0.0f, 1.0f };
 
-            float neutqua[4] = { 0, 0, 0, 1 };
-            float xqua[4];
-            float yqua[4];
-            float yqua2[4];
-            float finalqua[4];
+            vec4 finalqua;
+            mat4 finalmat;
 
-            gfxVecNormalize(xaxis);
-            gfxVecNormalize(yaxis);
-
-            gfxQuaFromAngleAxis(360.0f * (ms / 10.0f), xaxis, xqua);
-            // gfxQuaFromAngleAxis(45.0f, yaxis, yqua);
-            gfxQuaFromAngleAxis(360.0f * (ms / 10.0f), yaxis, yqua);
-
-            gfxQuaSlerp(neutqua, yqua, sinf(ms / 10.0f) * 0.5f + 1.0f, yqua2);
-
-            /* apparently this means, apply rotation x before rotation y, i.e. read right to left */
             if (reversemult) {
-                gfxMulQuaQua(yqua, xqua, finalqua);
-                // gfxMulQuaQua(yqua2, xqua, finalqua);
+                finalqua = qprod(yqua, xqua);
             }
             else {
-                gfxMulQuaQua(xqua, yqua, finalqua);
+                finalqua = qprod(xqua, yqua);
             }
 
             if (rotate) {
-                if (combined == 0) gfxQuaToMatrix4(xqua, rotmat);
-                else if (combined == 1) gfxQuaToMatrix4(yqua, rotmat);
-                else gfxQuaToMatrix4(finalqua, rotmat);
+                if (combined == 0) finalmat = quat_to_mat(xqua);
+                else if (combined == 1) finalmat = quat_to_mat(yqua);
+                else finalmat = quat_to_mat(finalqua);
             }
             else {
-                memcpy(rotmat, rmbasicrotmat, sizeof(float) * 16);
-                // gfxQuaToMatrix4(neutqua, rotmat);
+                finalmat = quat_to_mat(neutqua);
             }
 
-            // float mangle = (ms / 10.0f) - (long) (ms / 10.0f);
-            // trace("rotate by %f\n", mangle * 360.0f);
+            /* better to store, stream or to assign? */
+            rotmat = finalmat;
         }
 
-        float tempmat[16];
-        // gfxMulMatrix4Matrix4(transmat, rotmat, tempmat);
-        gfxMulMatrix4Matrix4(rotmat, transmat, tempmat);
-
-        {
-            transmat[14] = +2.0f;
-        }
-
-        memcpy(world.modelviewMatrix, tempmat, sizeof(float[16]));
-
-        vec4 a = { 1, 2, 3, 4 }, b = { 5, 6, 7, 8 };
-
-        // printv(a);
-        // printv(b);
-
-        // v4sf in = { 0.1f, GFX_PI, GFX_PI * 0.5f, GFX_PI * 0.25f };
-        // v4sf out = sin_ps(in);
-
-        // printv(in);
-        // printv(out);
-
-        // gfxMulMatrix4Matrix4(transmat, tempmat, world.modelviewMatrix);
+        mat4 modmat = mmmul(transmat, rotmat);
+        mstoreu(world.modelviewMatrix, modmat);
 
         /* TODO: should factor out the changes and the re-uploading */
         world.timer = ms;
-        // world.modelviewMatrix[14] = 2.0f * cosf(ms) - 4.0f;
-        // trace("value: K * cosf(%f) = %f\n", GFX_PI * alpha, world.modelviewMatrix[14]);
 
-        // gfxPerspectiveMatrix(GFX_PI / 2.0f, (float) width / (float) height, 0.5, 3.0f, world.matrices.projectionMatrix);
-        gfxPerspectiveMatrix(90.0f, (float) width / (float) height, 0.1f, 10.0f, world.matrices.projectionMatrix);
-        // gfxAltPerspectiveMatrix(0.1f, 10.0f, world.matrices.projectionMatrix);
-        // world.matrices.projectionMatrix[3] = (float) (SDL_GetTicks() % 1000) / 1000.0f;
+        mat4 projmat = mat_perspective_fovy(GFX_PI / 2.0f, (float) width / (float) height, 0.5f, 3.0f);
+        mstoreu(world.matrices.projectionMatrix, projmat);
+
         glBindBuffer(GL_UNIFORM_BUFFER, world.matrixUbo);
-        // glBufferData(GL_UNIFORM_BUFFER, sizeof(struct gfxGlobalMatrices), &world.matrices, GL_STREAM_DRAW);
+
+        /**
+         * according to some, recreating the buffer is actually faster than changing the old buffer, maybe
+         * true if you're having sync issues?
+         * glBufferData(GL_UNIFORM_BUFFER, sizeof(struct gfxGlobalMatrices), &world.matrices, GL_STREAM_DRAW);
+         */
         glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(struct gfxGlobalMatrices), &world.matrices);
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
         /* start a batch and render */
         gfxBatch(&world);
         gfxRender(&axis, &world, &colorShader);
-        // gfxRender(&crystal, &world, &shader);
-        // gfxRender(&cube, &world, &colorShader);
+        gfxRender(&crystal, &world, &shader);
+        gfxRender(&cube, &world, &colorShader);
 
         gui.matrices.projectionMatrix[3] = cosf((float)(SDL_GetTicks() % 1000) / 1000.0f);
         gui.timer = ms;
@@ -503,8 +485,8 @@ int main(int argc, char* argv[]) {
         glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(struct gfxGlobalMatrices), &gui.matrices);
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-        // gfxBatch(&gui);
-        // gfxRender(&quad, &gui, &guiShader);
+        gfxBatch(&gui);
+        gfxRender(&quad, &gui, &guiShader);
 
         SDL_GL_SwapWindow(window);
 

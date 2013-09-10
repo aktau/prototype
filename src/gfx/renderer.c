@@ -8,6 +8,7 @@
  */
 
 #include "util.h"
+#include "math/math.h"
 
 /**
  * uniforms is done in two parts:
@@ -26,8 +27,8 @@ void gfxCreateRenderParams(struct gfxRenderParams *params) {
     params->cull  = GFX_NONE;
 
     /* initialize the matrices to identity first */
-    gfxMatrix4SetIdentity(params->modelviewMatrix);
-    gfxMatrix4SetIdentity(params->matrices.projectionMatrix);
+    mstoreu(params->modelviewMatrix, midentity());
+    mstoreu(params->matrices.projectionMatrix, midentity());
 
     /* create UBO for global matrices */
     GLuint matrixUbo;
