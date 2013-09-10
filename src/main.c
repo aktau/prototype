@@ -326,6 +326,18 @@ int main(int argc, char* argv[]) {
     int reversemult = 0;
     int combined = 0;
 
+    /* set the projection matrix for the world renderer */
+    mat4 projmat = mat_perspective_fovy(GFX_PI / 2.0f, (float) width / (float) height, 0.5f, 10.0f);
+    mstoreu(world.matrices.projectionMatrix, projmat);
+    glBindBuffer(GL_UNIFORM_BUFFER, world.matrixUbo);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(struct gfxGlobalMatrices), &world.matrices);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    /* set the projection matrix for the gui renderer */
+    glBindBuffer(GL_UNIFORM_BUFFER, gui.matrixUbo);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(struct gfxGlobalMatrices), &gui.matrices);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
     while (!done) {
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
@@ -464,12 +476,6 @@ int main(int argc, char* argv[]) {
          * glBufferData(GL_UNIFORM_BUFFER, sizeof(struct gfxGlobalMatrices), &world.matrices, GL_STREAM_DRAW);
          */
         {
-            mat4 projmat = mat_perspective_fovy(GFX_PI / 2.0f, (float) width / (float) height, 0.5f, 10.0f);
-            mstoreu(world.matrices.projectionMatrix, projmat);
-            glBindBuffer(GL_UNIFORM_BUFFER, world.matrixUbo);
-            glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(struct gfxGlobalMatrices), &world.matrices);
-            glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
             world.timer = ms;
 
             /* start a batch and render */
@@ -480,9 +486,6 @@ int main(int argc, char* argv[]) {
         }
 
         {
-            glBindBuffer(GL_UNIFORM_BUFFER, gui.matrixUbo);
-            glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(struct gfxGlobalMatrices), &gui.matrices);
-            glBindBuffer(GL_UNIFORM_BUFFER, 0);
             gui.timer = ms;
 
             gfxBatch(&gui);
