@@ -21,7 +21,12 @@ that is a `float[16]`, and that `(mat[0], mat[1], mat[2], mat[3])` is the first 
 dependencies
 ============
 
-SDL2 and LuaJIT, they are included in-tree.
+All dependencies are included in-tree and are as cross-platform (or
+more) as the engine itself.
+
+- [SDL2](http://www.libsdl.org/)
+- [LuaJIT](http://luajit.org/)
+- [threedee-simd](https://github.com/rikusalminen/threedee-simd) - I maintain a personal fork, where I'm adding some extra functions, fixes and compiler warning fixes until they are upstreamed.
 
 building
 ========
@@ -49,7 +54,7 @@ acknowledgements
 - Sam Lantinga, creator of SDL, cross-platform graphics for the masses
 - Julien Pommier, creator of sse_mathfun.h, fast transcendental functions!
 - Riku Salminen, creator of [threedee-simd](https://github.com/rikusalminen/threedee-simd), the fastest pure 3D math
- library I know off.
+ library I know of.
 
 Anyone I might have forgotten, I'm in your debt. If you find that you deserve
 to be in this list, please shoot me a mail and you'll be added asap!
@@ -94,3 +99,4 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
 ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
