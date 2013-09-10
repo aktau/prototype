@@ -11,8 +11,8 @@ WARN := -Wextra -Wcast-align -Wcast-qual \
 	-Wmissing-braces -Wstrict-aliasing=2 -Wstrict-overflow=5 \
 	-Wconversion -Wno-unused-parameter \
 	-Wno-missing-field-initializers -Wno-missing-braces
-DEBUG := -g3 -DDEBUG
-OPT := -O2 -march=native -mtune=native -ftree-vectorize -ffast-math
+DEBUG := -g -DDEBUG
+OPT := -O2 -march=native -mtune=native -ftree-vectorize -ffast-math -mfpmath=sse
 
 ifeq ($(OS),Windows_NT)
 	# nothing special
@@ -41,10 +41,13 @@ else
 	OPT += -flto
 endif
 
-CFLAGS ?= $(STD) $(OPT)
+CFLAGS ?= $(STD) $(OPT) $(DEBUG)
 
 matmul: matmul.c
 	$(CC) $^ -o $@ -I. $(CFLAGS)
+
+quat: quat.c
+	$(CC) $^ -o $@ -I. -I../src $(CFLAGS)
 
 clean:
 	-rm -f matmul
