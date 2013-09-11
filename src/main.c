@@ -295,12 +295,18 @@ int main(int argc, char* argv[]) {
     struct gfxShaderProgram colorShader;
     gfxLoadShaderFromFile(&colorShader, "./src/shaders/color.vert", "./src/shaders/color.frag");
 
+    struct gfxShaderProgram waveShader;
+    gfxLoadShaderFromFile(&waveShader, "./src/shaders/wave.vert", "./src/shaders/wave.frag");
+
     struct gfxShaderProgram guiShader;
     gfxLoadShaderFromFile(&guiShader, "./src/shaders/gui.vert", "./src/shaders/gui.frag");
 
     struct gfxRenderParams world = { 0 };
     gfxCreateRenderParams(&world);
     world.cull = GFX_CULL_BACK;
+
+    struct gfxRenderParams nocull = { 0 };
+    gfxCreateRenderParams(&nocull);
 
     struct gfxRenderParams gui = { 0 };
     gfxCreateRenderParams(&gui);
@@ -317,6 +323,9 @@ int main(int argc, char* argv[]) {
 
     struct gfxModel cube;
     gfxCube(&cube);
+
+    struct gfxModel sheet;
+    gfxSheet(&sheet, 1.0f, 1.0f, 12);
 
     glActiveTexture(GL_TEXTURE0 + 0);
     GLuint texture = gfxLoadTexture("./game/img/monolith.png");
@@ -469,17 +478,20 @@ int main(int argc, char* argv[]) {
         mat4 modmat = mmmul(transmat, rotmat);
         mstoreu(world.modelviewMatrix, modmat);
 
-        /* TODO: should factor out the changes and the re-uploading */
         /**
+         * TODO: should factor out the changes and the re-uploading
+         *
          * according to some, recreating the buffer is actually faster than changing the old buffer, maybe
          * true if you're having sync issues?
          * glBufferData(GL_UNIFORM_BUFFER, sizeof(struct gfxGlobalMatrices), &world.matrices, GL_STREAM_DRAW);
          */
         {
             world.timer = ms;
+            nocull.timer = ms;
 
             /* start a batch and render */
             gfxBatch(&world);
+            gfxRender(&sheet, &nocull, &waveShader);
             gfxRender(&axis, &world, &colorShader);
             gfxRender(&crystal, &world, &shader);
             gfxRender(&cube, &world, &colorShader);
@@ -501,9 +513,12 @@ int main(int argc, char* argv[]) {
     gfxDestroyModel(&quad);
     gfxDestroyModel(&cube);
     gfxDestroyModel(&axis);
+    gfxDestroyModel(&sheet);
+
     gfxDestroyShader(&shader);
     gfxDestroyShader(&colorShader);
     gfxDestroyShader(&guiShader);
+    gfxDestroyShader(&waveShader);
 
     /* TODO: destroy UBO's */
 

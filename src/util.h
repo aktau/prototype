@@ -167,5 +167,6 @@ void gfxQuad(struct gfxModel *model);
 void gfxCube(struct gfxModel *model);
 void gfxCrystal(struct gfxModel *model);
 void gfxAxis(struct gfxModel *model);
+void gfxSheet(struct gfxModel *model, float width, float height, unsigned int subdiv);
 
 #endif

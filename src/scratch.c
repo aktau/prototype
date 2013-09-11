@@ -342,3 +342,122 @@ void gfxAxis(struct gfxModel *model) {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
+
+/**
+ * generates a pre-tesselated sheet, do with it as you please in the shader
+ *
+ * TODO: technically we could make the input to the shader a vec2, which
+ * would cut our data by almost 50%, which is nice especially for huge
+ * sheets
+ */
+void gfxSheet(struct gfxModel *model, float width, float height, unsigned int subdiv) {
+    memset(model, 0x0, sizeof(struct gfxModel));
+
+    /* vertex * number of vertices */
+    const size_t nverts = (subdiv + 1) * (subdiv + 1);
+    const size_t vsize  = (sizeof(GLfloat) * 4) * nverts;
+    GLfloat *vertices   = zmalloc(vsize);
+    GLfloat *vertex     = vertices;
+
+    const GLubyte stride = (GLubyte)(subdiv + 1);
+
+    const float startx = 0.0f;
+    const float starty = 0.0f;
+    const float startz = -0.5f;
+
+    const float tileWidth  = width / (float) subdiv;
+    const float tileHeight = height / (float) subdiv;
+
+    int counter = 0;
+
+    for (int i = 0; i < (int) subdiv + 1; ++i) {
+        for (int j = 0; j < (int) subdiv + 1; ++j) {
+            vertex[0] = startx + i * tileWidth;
+            vertex[1] = starty; // + (i * tileWidth - j * tileHeight);
+            vertex[2] = startz - j * tileHeight; //startz;
+            vertex[3] = 1.0f;
+
+            trace("generated vertex %d: [%3.2f %3.2f %3.2f %3.2f]\n", counter, vertex[0], vertex[1], vertex[2], vertex[3]);
+            ++counter;
+
+            vertex += 4;
+
+        }
+    }
+
+    /* triangle * number of triangles  */
+    const size_t isize = (sizeof(GLubyte) * 3) * (subdiv * subdiv * 2);
+    GLubyte *indices   = zmalloc(isize);
+    GLubyte *index     = indices;
+
+    counter = 0;
+
+    for (int i = 0; i < (int) subdiv; ++i) {
+        for (int j = 0; j < (int) subdiv; ++j) {
+            /**
+             * tile (i,j) has 2 triangles, which means 6 indexes
+             *
+             * the indices of the vertices for a tile (i,j) are:
+             *
+             * offset = i * stride + j
+             *
+             * lower-left  = offset + 0
+             * lower-right = offset + stride
+             * upper-left  = offset + 1
+             * upper-right = offset + stride + 1
+             */
+            const GLubyte offset = (GLubyte)(i * stride + j);
+
+            /* first triangle */
+            index[0] = offset;
+            index[1] = offset + 1;
+            index[2] = offset + stride;
+
+            index += 3;
+
+            /* second triangle */
+            index[0] = offset + 1;
+            index[1] = offset + stride + 1;
+            index[2] = offset + stride;
+
+            index += 3;
+
+            trace("quad %d: [%u %u %u] [%u %u %u]\n", counter, index[-6], index[-5], index[-4], index[-3], index[-2], index[-1]);
+            ++counter;
+        }
+
+        /* insert degenerate triangle, only when generating triangle strips */
+    }
+
+    /* generate and bind VAO */
+    glGenVertexArrays(1, &(model->vao));
+    glBindVertexArray(model->vao);
+
+    GL_ERROR("create VAO");
+
+    /* generate all VBO's */
+    glGenBuffers(GFX_VBO_NUM, model->vbo);
+
+    /* send vertices to GPU */
+    glBindBuffer(GL_ARRAY_BUFFER, model->vbo[GFX_VBO_VERTEX]);
+    glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr) vsize, vertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(GFX_VERTEX, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(GFX_VERTEX);
+
+    GL_ERROR("load model VBO's");
+
+    /* send vertex indices to the GPU */
+    glGenBuffers(1, &model->ibo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model->ibo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr) isize, indices, GL_STATIC_DRAW);
+
+    trace("loaded %lu indices (%lu bytes) and %lu vertices (%lu bytes). (%lu bytes total)\n", isize, isize, nverts, vsize, isize + vsize);
+    model->numIndices = (int) isize;
+
+    /* unbind to prevent modification */
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    zfree(vertices);
+    zfree(indices);
+}
