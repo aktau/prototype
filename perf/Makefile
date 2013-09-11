@@ -1,5 +1,5 @@
-CC := /usr/local/bin/gcc-4.8
-# CC := /usr/local/bin/clang
+# CC := /usr/local/bin/gcc-4.8
+CC := /usr/local/bin/clang
 CC_VERSION := $(shell $(CC) --version | head -1 | cut -f1 -d' ')
 
 STD := -std=c11 -pedantic
@@ -12,7 +12,7 @@ WARN := -Wextra -Wcast-align -Wcast-qual \
 	-Wconversion -Wno-unused-parameter \
 	-Wno-missing-field-initializers -Wno-missing-braces
 DEBUG := -g -DDEBUG
-OPT := -O2 -march=native -mtune=native -ftree-vectorize -ffast-math -mfpmath=sse
+OPT := -O3 -march=native -mtune=native -ftree-vectorize -ffast-math -mfpmath=sse
 
 ifeq ($(OS),Windows_NT)
 	# nothing special
@@ -50,6 +50,6 @@ quat: quat.c
 	$(CC) $^ -o $@ -I. -I../src $(CFLAGS)
 
 clean:
-	-rm -f matmul
+	-rm -f matmul quat
 
 .PHONY: clean
