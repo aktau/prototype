@@ -216,8 +216,14 @@ int main(int argc, char* argv[]) {
     #ifdef __SSE3__
         printf("SSE3 ");
     #endif
+    #ifdef __SSSE3__
+        printf("SSSE3 ");
+    #endif
     #ifdef __SSE4__
         printf("SSE4 ");
+    #endif
+    #ifdef __SSE4A__
+        printf("SSE4a ");
     #endif
     #ifdef __SSE4_1__
         printf("SSE4.1 ");
@@ -227,6 +233,12 @@ int main(int argc, char* argv[]) {
     #endif
     #ifdef __AVX__
         printf("AVX ");
+    #endif
+    #ifdef __AVX2__
+        printf("AVX2 ");
+    #endif
+    #ifdef __FMA__
+        printf("FMA ");
     #endif
     #ifdef __FMA4__
         printf("FMA4 ");
