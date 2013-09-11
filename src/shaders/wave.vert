@@ -34,10 +34,10 @@ uniform float xs = 3.0, zs = 4.0;
 
 /* in */
 layout(location = 0) in vec3 in_position;
-// in int gl_VertexID;
 
-/* out */
-out vec4 vert_color;
+out VertexData {
+    vec4 color;
+} o;
 
 void main() {
     float s = 0.5 * sin(in_position.x * timer) * cos(in_position.z * timer);
@@ -50,13 +50,13 @@ void main() {
     trans_position.y = s; //* in_position.y;
 
     float color_base = (s + maxy) / (maxy - miny);
-    vert_color = vec4(
+
+    o.color = vec4(
         clamp(color_base * color_base, 0.0, 1.0),
         clamp(1.0 - (color_base - 0.5) * (color_base - 0.5), 0.0, 1.0),
         clamp(1.0 - color_base, 0.0, 1.0),
         1.0
     );
-
 
     gl_Position = projectionMatrix * vec4(trans_position, 1.0);
 }

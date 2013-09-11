@@ -349,6 +349,17 @@ void gfxAxis(struct gfxModel *model) {
  * TODO: technically we could make the input to the shader a vec2, which
  * would cut our data by almost 50%, which is nice especially for huge
  * sheets
+ *
+ * TODO: it might be faster to just make it a pure triangle strip with
+ * some degenerate triangles, this would allow the driver to cut out the
+ * index lookup and save some bytes at the same time. This is done here:
+ * http://www.learnopengles.com/android-lesson-eight-an-introduction-to-index-buffer-objects-ibos/
+ * http://www.chadvernon.com/blog/resources/directx9/terrain-generation-with-a-heightmap/
+ * http://www.catalinzima.com/tutorials/4-uses-of-vtf/terrain-rendering-using-heightmaps/
+ *
+ * primitive restarts can enhance the performance of both triangle strip and triangle fan
+ * heightmap rendering:
+ * http://www.opengl.org/registry/specs/NV/primitive_restart.txt
  */
 void gfxSheet(struct gfxModel *model, float width, float height, unsigned int subdiv) {
     memset(model, 0x0, sizeof(struct gfxModel));

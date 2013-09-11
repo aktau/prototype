@@ -19,11 +19,15 @@
 uniform float timer;
 
 /* in */
-in vec4 vert_color;
+in VertexData {
+    vec4 color;
+} i;
+
+// in vec4 vert_color;
 
 /* out */
 out vec4 fragColor;
 
 void main() {
-    fragColor = vert_color; //vec4(0.2, 0.4, 0.9, 1.0);
+    fragColor = i.color; //vec4(0.2, 0.4, 0.9, 1.0);
 }
