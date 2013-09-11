@@ -34,4 +34,8 @@ static inline void vsincos(vec4 x, vec4 * restrict s, vec4 * restrict c) {
     sincos_ps(x, s, c);
 }
 
+static inline vec4 vsin(vec4 x) {
+    return sin_ps(x);
+}
+
 #endif

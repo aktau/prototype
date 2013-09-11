@@ -27,6 +27,8 @@
 #include <math/matrix.h>
 #include <math/sincos.h>
 
+#define M_PI_F 3.14159265f
+
 static inline mat4 mat_euler_scalar(vec4 angles) __attribute__((always_inline));
 static inline mat4 mat_euler_scalar(vec4 angles)
 {
@@ -231,6 +233,53 @@ static inline vec4 quat_axisangle(vec4 axisangle) {
     result[3] = cosf(halfAngle);
 
     return result;
+}
+
+/**
+ * convert an axis-angle vector to a quaternion
+ * angle in radians
+ *
+ * [axis.x, axis.y, axis.z, angle] => quaternion
+ */
+static inline vec4 quat_axisangle_shuf(vec4 axisangle) __attribute__((always_inline));
+static inline vec4 quat_axisangle_shuf(vec4 axisangle) {
+    vec4 vsn, vcs;
+    vsincos(vsplat(axisangle * vscalar(0.5f), 3), &vsn, &vcs);
+
+    vec4 sincos = vshuffle(vsn, vcs, 0, 0, 0, 0);
+    return vxyz1(axisangle) * vshuffle(sincos, sincos, 0, 0, 0, 2);
+}
+
+static inline vec4 quat_axisangle_clever(vec4 axisangle) __attribute__((always_inline));
+static inline vec4 quat_axisangle_clever(vec4 axisangle) {
+    /**
+     * use the identity
+     * cos(t) = sin(PI/2 - t),
+     * sin(t) = cos(PI/2 - t)
+     *
+     * cos(t) = cos(-t)
+     *
+     * [sin(t - 0), sin(t - 0), sin(t - PI/2), sin(t - PI/2)]
+     * [sin(t), sin(t), cos(-t), cos(-t)]
+     * [sin(t), sin(t), cos(t), cos(t)]
+     */
+
+    /**
+     * expanded
+     *
+     * const vec4 angle        = vsplat(axisangle, 3);
+     * const vec4 half         = vscalar(0.5f);
+     * const vec4 factor       = vec(0, 0, 0, M_PI * 0.5f);
+     * const vec4 modHalfAngle = vmadd(angle, half, factor);
+     * const vec4 trig         = vsin(modHalfAngle);
+     *
+     * one-line: const vec4 trig = vsin(vmadd(vsplat(axisangle, 3), vscalar(0.5f), vec(0, 0, 0, M_PI * 0.5f)));
+     *
+     * result: trig = [sin(t), sin(t), sin(t), cos(t)]
+     *
+     * end-result = [x-axis, y-axis, z-axis, 1] * [sin(t), sin(t), sin(t), cos(t)]
+     */
+    return vxyz1(axisangle) * vsin(vmadd(vsplat(axisangle, 3), vscalar(0.5f), vec(0, 0, 0, M_PI_F * 0.5f)));
 }
 
 // static inline vec4 quat_to_axisangle(vec4 quat); __attribute__((always_inline));
