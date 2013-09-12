@@ -336,6 +336,7 @@ int main(int argc, char* argv[]) {
     struct gfxModel cube;
     gfxCube(&cube);
 
+    /* always picking the unit square is better, the shader kind off relies on it */
     struct gfxModel sheet;
     gfxSheet(&sheet, 1.0f, 1.0f, 12);
 
@@ -343,9 +344,10 @@ int main(int argc, char* argv[]) {
     GLuint texture = gfxLoadTexture("./game/img/monolith.png");
     crystal.texture[0] = texture;
 
-    int rotate = 0;
+    int rotate      = 0;
     int reversemult = 0;
-    int combined = 0;
+    int combined    = 0;
+    int wireframe   = 0;
 
     /* set the projection matrix for the world renderer */
     mat4 projmat = mat_perspective_fovy(GFX_PI / 2.0f, (float) width / (float) height, 0.5f, 10.0f);
@@ -417,6 +419,12 @@ int main(int argc, char* argv[]) {
                             else {
                                 trace("turned vsync %s\n", (vsync ? "on" : "off"));
                             }
+                            break;
+
+                        case SDLK_w:
+                            wireframe = !wireframe;
+
+                            glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
                             break;
 
                         case SDLK_d:

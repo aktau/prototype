@@ -40,7 +40,10 @@ out VertexData {
 } o;
 
 void main() {
-    float s = 0.5 * sin(in_position.x * timer) * cos(in_position.z * timer);
+    float PI             = 3.14159265358979323846264;
+    float width          = 5.0;
+    vec3 vtimer          = mod(width * in_position + timer, 2.0 * PI);
+    float s              = 1.0 * sin(vtimer.x) * cos(vtimer.z);
 
     /* assume input y is always 0 */
     float maxy = 0.5 * 1 * 1;
