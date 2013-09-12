@@ -22,20 +22,23 @@
 #ifndef THREEDEE_SINCOS_H
 #define THREEDEE_SINCOS_H
 
+#include <math.h>
+
 #include <math/vector.h>
 #include <math/sse_mathfun.h>
 
-/**
- * float *xs = (float*)&x;
- * s = vec(sin(xs[0]), sin(xs[1]), sin(xs[2]), sin(xs[3]));
- * c = vec(cos(xs[0]), cos(xs[1]), cos(xs[2]), cos(xs[3]));
- */
-static inline void vsincos(vec4 x, vec4 * restrict s, vec4 * restrict c) {
-    sincos_ps(x, s, c);
+static inline void vsincos_scalar(vec4 x, vec4 * restrict s, vec4 * restrict c) __attribute__((always_inline));
+static inline void vsincos_scalar(vec4 x, vec4 * restrict s, vec4 * restrict c)
+{
+    float *xs = (float*)&x;
+    *s = vec(sinf(xs[0]), sinf(xs[1]), sinf(xs[2]), sinf(xs[3]));
+    *c = vec(cosf(xs[0]), cosf(xs[1]), cosf(xs[2]), cosf(xs[3]));
 }
 
-static inline vec4 vsin(vec4 x) {
-    return sin_ps(x);
-}
+static inline void vsincos(vec4 x, vec4 * restrict s, vec4 * restrict c) __attribute__((always_inline));
+static inline void vsincos(vec4 x, vec4 * restrict s, vec4 * restrict c) { sincos_ps(x, s, c); }
+
+static inline vec4 vsin(vec4 x) __attribute__((always_inline));
+static inline vec4 vsin(vec4 x) { return sin_ps(x); }
 
 #endif
