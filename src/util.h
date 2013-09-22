@@ -32,6 +32,9 @@
 #include "types.h"
 #include "gfx.h"
 
+#define likely(x)       __builtin_expect(!!(x), 1)
+#define unlikely(x)     __builtin_expect(!!(x), 0)
+
 #ifdef DEBUG
 #define DEBUG_TEST 1
 #else
@@ -86,7 +89,7 @@
  */
 #define ERROR_RETURN(cond, err, val, ...) \
         do {\
-                if ((cond)) {\
+                if (unlikely(cond)) {\
                         fprintf(stderr, " (%d: '%s')\n", (errno), clean_errno());\
                         trace("[ERROR] " __VA_ARGS__);\
                         return (val);\
@@ -95,7 +98,7 @@
 
 #define ERROR_EXIT(cond, err, ...) \
         do {\
-                if ((cond)) {\
+                if (unlikely(cond)) {\
                         fprintf(stderr, " (%d: '%s')\n", (errno), clean_errno());\
                         trace("[ERROR] " __VA_ARGS__);\
                         exit(42);\
@@ -104,7 +107,7 @@
 
 #define ERROR_HANDLE(cond, err, ...) \
         do {\
-                if ((cond)) {\
+                if (unlikely(cond)) {\
                         fprintf(stderr, " (%d: '%s')\n", (errno), clean_errno());\
                         trace("[ERROR] " __VA_ARGS__);\
                         goto error;\
