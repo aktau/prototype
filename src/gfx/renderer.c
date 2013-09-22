@@ -38,9 +38,16 @@ void gfxCreateRenderParams(struct gfxRenderParams *params) {
     glBufferData(GL_UNIFORM_BUFFER, sizeof(struct gfxGlobalMatrices), &params->matrices, GL_DYNAMIC_DRAW); /* GL_STREAM_DRAW */
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
+    GL_ERROR("create ubo");
+
     params->matrixUbo = matrixUbo;
 }
 
+void gfxDestroyRenderParams(struct gfxRenderParams *params) {
+    glDeleteBuffers(1, &params->matrixUbo);
+
+    GL_ERROR("delete ubo");
+}
 
 void gfxBatch(const struct gfxRenderParams *params) {
     /* bind the static matrix stack to the correct binding point */

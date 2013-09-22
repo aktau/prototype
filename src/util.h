@@ -160,6 +160,7 @@ void gfxDestroyModel(struct gfxModel *model);
 
 /* gfx/renderer.c */
 void gfxCreateRenderParams(struct gfxRenderParams *params);
+void gfxDestroyRenderParams(struct gfxRenderParams *params);
 void gfxBatch(const struct gfxRenderParams *params);
 
 /* scratch.c */
