@@ -50,6 +50,9 @@ acknowledgements
  in a project).
 - Samuel Anjam, creator of the BlendELF engine, upon which much of my code
  and structure is based.
+- Tor Andersson, creator of the [Mio](https://github.com/ccxvii/mio) engine, I learned
+  quite a bit perusing the source when I found it. Its principles seem
+  remarkably similar to the ones I have for this project.
 - Mike Pall, creator of LuaJIT, amazing piece of engineering.
 - Sam Lantinga, creator of SDL, cross-platform graphics for the masses
 - Julien Pommier, creator of sse_mathfun.h, fast transcendental functions!
@@ -59,11 +62,11 @@ acknowledgements
 Anyone I might have forgotten, I'm in your debt. If you find that you deserve
 to be in this list, please shoot me a mail and you'll be added asap!
 
-License (MIT)
+License (BSD)
 =============
 
 All files that have not been explicitly marked with a license and are copyright
-by Nicolas Hillegeer, fall under the MIT license, detailed below.
+by Nicolas Hillegeer, fall under the BSD license, detailed below.
 
 The projects in the "deps" subfolder have their own respective licenses, please
 consult the directory tree for the relevant information. The files in "src/math"

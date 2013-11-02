@@ -1,5 +1,5 @@
 All files that have not been explicitly marked with a license and are copyright
-by Nicolas Hillegeer, fall under the MIT license, detailed below.
+by Nicolas Hillegeer, fall under the BSD license, detailed below.
 
 The projects in the "deps" subfolder have their own respective licenses, please
 consult the directory tree for the relevant information. The files in "src/math"

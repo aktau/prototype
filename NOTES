@@ -11,6 +11,9 @@ trick later and see if it helps.
 
 Alternatively or additionally, we could consider an arena allocator (i.e.: libarena): http://25thandclement.com/~william/projects/libarena.html
 
+Stack allocators, FIFO allocators. Custom GCC cleanup extension:
+https://techtalk.intersec.com/2013/10/memory-part-4-intersecs-custom-allocators/
+
 Tutorials
 =========
 The 5 best:
@@ -19,9 +22,14 @@ http://ogldev.atspace.co.uk/
 http://arcsynthesis.org/gltut/
 http://www.antongerdelan.net/opengl - Anton's OpenGL4 tutorials
 http://github.prideout.net/modern-opengl-prezo/ - Modern OpenGL Prezzo
+http://http.developer.nvidia.com/GPUGems3/gpugems3_ch25.html - GPU Gems 3 (free!)
 
 glsl:
 https://github.com/daw42/glslcookbook
+
+Tools
+=====
+- Blending function and equationer test - http://www.andersriggelsen.dk/glblendfunc.php
 
 Features implemented
 ====================
@@ -29,11 +37,25 @@ Features implemented
 
 Features to implement
 =====================
-- File notification (inotify/kqueue/... or a cross-platform lib, maybe based on https://code.google.com/p/simplefilewatcher/)
+- Clang static analyzer Makefile target: make analyze
+- Regular lighting - http://tomdalling.com/blog/modern-opengl/07-more-lighting-ambient-specular-attenuation-gamma/
+- sRGB framebuffers (https://github.com/g-truc/ogl-samples/blob/master/samples/gl-320-fbo-srgb.cpp)
+- sRGB textures
+- Premultiplied alpha (http://blogs.msdn.com/b/shawnhar/archive/2009/11/06/premultiplied-alpha.aspx?Redirected=true)
+- Premultiplied alpha that interacts correctly with sRGB everything - http://ssp.impulsetrain.com/2011-08-10_Gamma_Correction_vs__Premultiplied_Pixels.html
+- File notification (inotify/kqueue/... or a cross-platform lib, maybe based on https://code.google.com/p/simplefilewatcher/ - or even better: https://github.com/alandipert/fswatch)
 - Basic lighting (+ shadow mapping) (http://devmaster.net/posts/2974/the-basics-of-3d-lighting)
-- Font rendering w/ distance fields (Valve tech)
+- Shadow mapping (http://the-witness.net/news/2013/09/shadow-mapping-summary-part-1/ - very GOOD article)
+- Font rendering
+- Font rendering with distance fields (Valve tech)
+- Cartoon rendering (http://pymolwiki.org/index.php/GLSL_Shaders) - no geometry shaders
+- Silhouette rendering (http://prideout.net/blog/?p=54 - includes simple pure C source for geometry shaders as well)
+- Geometry shaders
 - Model loading (assimp)
+- Compressed textures (http://www.g-truc.net/project-0024.html) - (MUCH BETTER CODE: https://github.com/ccxvii/mio/blob/master/image.c)
+- Memory tracking, per-frame and linear allocators: http://www.swedishcoding.com/2008/08/31/are-we-out-of-memory/
 - Particles (https://github.com/daw42/glslcookbook/blob/master/chapter09/shader/particleinstanced.vs)
+- CSAA (Coverage Sample Anti Aliasing) - http://www.opengl.org/registry/specs/NV/multisample_coverage.txt and illustrated in GL3HelloWorld
 - SSAO
 - Quaternion nlerp instead of slerp (equally useful and cheaper to calculate: http://number-none.com/product/Understanding%20Slerp,%20Then%20Not%20Using%20It/)
 - Volumetric clouds
@@ -41,14 +63,26 @@ Features to implement
 - Global illumination
 - Bumpmapping (http://www.crazybump.com/, http://quixel.se/ndo/)
 - Parallax mapping
+- Tone mapping
+  (http://www.rockpapershotgun.com/2013/09/20/nowhere-might-be-the-most-ambitious-pitch/)
+  - Shadertoy implementation of many tone mapping operators: https://www.shadertoy.com/view/lslGzl
+- HDR lighting (RGBA16F, LogLuv, http://mynameismjp.wordpress.com/2008/12/12/logluv-encoding-for-hdr/)
 - Tesselation
 - GPU skinning
 - GPU animation
 - Instancing
+- Pare down renderstate changes - (http://home.comcast.net/~tom_forsyth/blog.wiki.html#%5B%5BRenderstate%20change%20costs%5D%5D)
 - Cache oblivious vertex indexing
+- Vertex cache optimization (Tom Forsyth) - http://home.comcast.net/~tom_forsyth/papers/fast_vert_cache_opt.html - https://github.com/dv1/vcache_optimizer - http://www.opengl.org/wiki/Post_Transform_Cache#Forsyth
 - Virtual texture terrain (http://devmaster.net/posts/3258/virtual-texture-terrain)
 - Terrain LOD
-- Water shader (http://www.youtube.com/watch?annotation_id=annotation_790483&feature=iv&src_vid=OiGADgezjC8&v=oUSdSjnDB_E - http://www.gamedev.net/blog/1302/entry-2250847-bow-shock-a-summary-of-work-done-so-far/)
+- Water shader (http://www.youtube.com/watch?annotation_id=annotation_790483&feature=iv&src_vid=OiGADgezjC8&v=oUSdSjnDB_E - http://www.gamedev.net/blog/1302/entry-2250847-bow-shock-a-summary-of-work-done-so-far/) - http://http.developer.nvidia.com/GPUGems/gpugems_ch01.html - http://www.jayconrod.com/posts/34/water-simulation-in-glsl
+- Vegetation (Jungle - OpenGL 3D engine/viewer project - UTBM - http://www.youtube.com/watch?v=4M-wfzuCgvs)
+- Clip plans ahead of sight - http://github.prideout.net/clip-planes/
+- Instancing
+- Deferred shading (and why deferred shading is better than deferred
+  lighting: http://gameangst.com/?p=141 - example: https://github.com/ccxvii/mio/blob/master/shader.c and http://www.youtube.com/watch?v=ELeGC-x1hO8&feature=youtu.be)
+- Gamma correct rendering
 
 Data oriented design
 ====================
@@ -85,6 +119,12 @@ https://github.com/Kazade/kazmath/tree/master/kazmath
 
 Apple, best practices for working with vertex data:
 http://developer.apple.com/library/ios/#documentation/3ddrawing/conceptual/opengles_programmingguide/TechniquesforWorkingwithVertexData/TechniquesforWorkingwithVertexData.html
+
+[GEOMETRY SHADERS]
+http://gamedev.stackexchange.com/questions/16454/glsl-rewriting-shaders-from-330-to-130
+http://gamedev.stackexchange.com/questions/33190/glsl-rewriting-geometry-shader-from-330-to-130-version?rq=1
+http://github.prideout.net/modern-opengl-prezo/
+Create a galaxy with geometry shaders - https://raw.github.com/progschj/OpenGL-Examples/master/07geometry_shader_blending.cpp
 
 [INSTANCING] Drawing instanced geometry with the help of glVertexAttribDivisor:
 http://programming4.us/multimedia/8306.aspx
@@ -130,6 +170,7 @@ Intel research, deferred rendering - http://visual-computing.intel-research.net/
 
 [GRAPHICS] Best tutorial on bump mapping I've seen yet:
 http://ogldev.atspace.co.uk/www/tutorial26/tutorial26.html
+http://stackoverflow.com/questions/15324357/normal-mapping-tbn-matrix-calculation?rq=1
 
 [LUA] How to export symbols from an executable:
 http://stackoverflow.com/questions/3954137/mac-how-to-export-symbols-from-an-executable
@@ -167,11 +208,12 @@ http://sourceforge.net/p/predef/wiki/Compilers/
 [BENCHMARK] Create code to benchmark pieces, some inspiration:
 http://preshing.com/20111203/a-c-profiling-module-for-multithreaded-apis
 
-[GRAPHICS] Creating a small path-tracer (ray-tracing) from scratch:
-http://geon.github.io/programming/2013/08/22/gloss-my-bidirectional-path-tracer/
+[GRAPHICS - RAYTRACING]
+Writing a small ray-tracer from scratch (series) - http://www.scratchapixel.com/lessons/3d-basic-lessons/lesson-1-writing-a-simple-raytracer/
+Creating a small path-tracer - http://geon.github.io/programming/2013/08/22/gloss-my-bidirectional-path-tracer/
+Brigade, advanced (realtime!) path tracer - http://raytracey.blogspot.co.nz/
+Sanfilippo Salvatore - tiny JS raytracer - https://github.com/antirez/jsrt/blob/master/rt.html
 
-[GRAPHICS] Brigade, advanced (realtime!) path tracer:
-http://raytracey.blogspot.co.nz/
 
 [LUA] Lulup, line-level profiler for Lua and LuaJIT (actually just LuaJIT for now, needs FFI):
 http://blog.jgc.org/2013/04/lulip-line-level-profiler-for-code.html
@@ -219,6 +261,9 @@ List of functions with small description, really handy - http://softpixel.com/~c
 Check CPU support at runtime - http://stackoverflow.com/questions/6121792/how-to-check-if-a-cpu-supports-the-sse3-instruction-set/7495023#7495023
 http://fastcpp.blogspot.be/2011/04/vector-cross-product-using-sse-code.html
 
+[OPENGL] How does the OpenGL coordinate system work:
+http://stackoverflow.com/questions/7769371/how-does-opengls-coordinate-system-work
+
 [PERFORMANCE] Best practices for working with vertex data (interleave, ...):
 https://developer.apple.com/library/ios/documentation/3ddrawing/conceptual/opengles_programmingguide/TechniquesforWorkingwithVertexData/TechniquesforWorkingwithVertexData.html
 
@@ -227,3 +272,161 @@ http://www.lighthouse3d.com/tutorials/glsl-core-tutorial/vertex-shader/
 
 [PERFORMANCE] use intels' ispc for higly-optimized SIMD code:
 https://github.com/ispc/ispc
+
+[PERFORMANCE] mat to quat + angular velocity based on quaternions (real awesome!):
+http://www.gamasutra.com/view/feature/131686/rotating_objects_using_quaternions.php?print=1
+
+[LIGHTING, MATH, VIDEO] John Carmack explains lighting in games:
+http://www.youtube.com/watch?v=jA2ZWYZSBYA
+
+[FONT] must-see projects and sites for font rendering
+https://github.com/erwincoumans/experiments/tree/master/rendering/OpenGLTrueTypeFont
+http://jonmacey.blogspot.be/2011/10/text-rendering-using-opengl-32.html
+http://digestingduck.blogspot.be/2009/08/font-stash.html and https://github.com/apetrone/font-stash
+http://stackoverflow.com/questions/2071621/opengl-live-text-rendering
+Using stb_truetype with SDL - http://eatenbyagrue.org/using_stb_truetype_with_sdl.html
+freetype-gl, 2013, modern high-quality font rendering with single vertex buffer! (includes distance map code) - https://code.google.com/p/freetype-gl/ (examples for console input and distance fields)
+Gist, minimal font rasterizer and blitter example, modern OpenGL + freetype - https://github.com/ccxvii/snippets/blob/master/glfont.c
+
+==>
+
+    glGenTextures(1, &g_cache_tex);
+    glBindTexture(GL_TEXTURE_2D, g_cache_tex);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, g_cache_w, g_cache_h, 0, GL_ALPHA, GL_UNSIGNED_BYTE, NULL);
+
+[GEOMETRY] implicit surfaces:
+http://paulbourke.net/geometry/implicitsurf/
+http://www.iquilezles.org/
+
+[GPU GEMS] Efficient distance field generation"
+http://http.developer.nvidia.com/GPUGems3/gpugems3_ch34.html
+
+[PERFORMANCE] Intel intrinsics guide, great reference app:
+http://software.intel.com/en-us/articles/intel-intrinsics-guide
+
+[MEMORY PERFORMANCE] naive vs. store vs. stream (for data that is known to be larger than L2 cache, mm_stream is clear winner, otherwise mm_store wins):
+http://www.gamedev.net/topic/532112-fast-memset/
+
+[PERFORMANCE, GEOMETRY] Inigo Quilez - avoiding trigonometry:
+http://www.iquilezles.org/www/articles/noacos/noacos.htm
+
+[PERFORMANCE, THREEDEE] Picking orthogonal vectors:
+http://lolengine.net/blog/2013/09/21/picking-orthogonal-vector-combing-coconuts
+
+/* Always works if the input is non-zero.
+ * Doesn’t require the input to be normalised.
+ * Doesn’t normalise the output. */
+vec3 orthogonal(vec3 v) {
+    return abs(v.x) > abs(v.z) ? vec3(-v.y, v.x, 0.0)
+                               : vec3(0.0, -v.z, v.y);
+}
+
+/* or... branchless but probably performs worse */
+
+/* Requires the input to be normalised.
+ * Doesn’t normalise the output. */
+vec3 orthogonal(vec3 v) {
+    float k = fract(abs(v.x) + 0.5);
+    return vec3(-v.y, v.x - k * v.z, k * v.y);
+}
+
+[OPENGL] gamma correct rendering:
+http://www.g-truc.net/post-0263.html
+http://hacksoflife.blogspot.de/2010/11/gamma-and-lighting-part-3-errata.html
+http://stackoverflow.com/questions/9049687/using-srgb-colour-in-qglframebufferobject-with-multisampling
+http://filmicgames.com/archives/299
+http://filmicgames.com/archives/327
+http://filmicgames.com/archives/14
+http://home.comcast.net/~tom_forsyth/blog.wiki.html#%5B%5BPremultiplied%20alpha%5D%5D
+Use a FP16 framebuffer for even more accuracy and better HDR: http://www.horde3d.org/forums/viewtopic.php?f=8&t=1097
+
+sRGB texture:
+    [INPUT]  = sRGB data (most pictures, for example, usually have sRGB data, because they were made to look good on the artists monitor)
+    [OUTPUT] = RGB data (when sampled, sRGB textures output RGB data)
+
+sRGB framebuffer:
+    [INPUT]  = RGB data (you need to input linear colors into the framebuffer)
+    [OUTPUT] = sRGB data
+
+An alternative to using an sRGB framebuffer is to correct the gamma yourself in the output shader, though
+this is less efficient (if if you can cheat and use 2.0 for gamma, making the operation cheaper). pow(color, 1.0 / 2.2).
+
+Usually, we don't notice something is off in the beginning (simple pipeline with no gamma correction). That's because the
+textures are pre-gamma corrected. They were made to look good with gamma 2.2 (sRGB). And when you blit that, it looks good.
+
+But it messes with light calculations, because the sRGB space is nonlinear. So just use both sRGB textures and a sRGB framebuffer
+and you should be fine. An illustration:
+
+// RGB texture pass-through
+// No correction needed, the texture is in inverse gamma by definition!
+// That's the reason most simple sprite engines look fine.
+out = texture(tex, coord);
+
+// sRGB texture pass-through
+// The GPU has converted the sample from inverse gamma to linear for us, we need to correct.
+out = pow(texture(tex, coord), 1.0 / 2.2);
+
+// RGB + lighting
+// We're adding something, need to go linear, then gamma correct.
+out = pow(pow(texture(tex, coord), 2.2) * diffuse + specular, 1.0 / 2.2);
+
+// sRGB + lighting
+// The sample is already linear (and even has correct linear/mipmap filtering).
+out = pow(texture(tex, coord) * diffuse + specular, 1.0 / 2.2);
+
+The final observation that should also be interesting to you is that I said "no matter what". This means that even if you use floating point textures exclusively and you perform linear HDR rendering all the way, you STILL have to do gamma-correction during tone-mapping. Your tone-mapping operator needs to be gamma-aware or you simply go from linear to gamma-space as the last step in the tone-mapping shader.
+
+The reason why we don't pre-process images to be linearized is that we would lose precision. Going from sRGB to RGB
+loses precision. It's 8-bit to 8-bit and the human eye has less resolution for color changes than for lightness
+changes. But we can linearize in the shader, no? or an sRGB texture does it for us, no? True, but both the shader
+and the sRGB texture output FLOATS, which have far more precision than the 8-bit RGB you were going to preprocess
+to. So the conversion is lossless when you go from 8-bit sRGB to 32-bit floats, but not from 8-bit sRGB to 8-bit RGB.
+
+Should you want to switch to true HDR lighting later on the road, you might need to use a high-precision floating point framebuffer,
+which I haven't read up enough on. I assume that means we don't get sRGB for free anymore and we'll have to correct in the
+output shader...
+
+[SHADERTOY]
+Wolfenstein #Dhttps://www.shadertoy.com/view/4sfGWX
+Venice: https://www.shadertoy.com/view/MdXGW2
+
+[OPTIMIZATION] Tom Forsyth - Vertex Cache Optimization
+Well, it never rains but it pours. OK, not a true reinvention this time, but a sort of co-invention. Sony just announced their EDGE libraries recently and in them was a snazzy new vertex-cache optimiser, and some people at GDC asked me whether it was my algorithm. I had no idea - haven't written anything for the ~PS3 for ages, but I knew Dave Etherton of Rockstar ported [[my algorithm|Vertex Cache Optimisation]] to the ~PS3 with some really good results (he says 20% faster, but I think that's compared to whatever random ordering you get out of Max/Maya).
+
+Anyway, the EDGE one is actually a version of the [[K-Cache algorithm|http://www.ecse.rpi.edu/~lin/K-Cache-Reorder/]] tweaked and refined by [[Jason Hughes|http://www.dirtybitsoftware.com/]] for the particular quirky features of the post-transform cache of the RSX (the ~PS3's graphics chip). Turns out we do very similar broad-scale algorithms, but with slightly different focus - they tune for a particular cache, I try for generality across a range of hardware. It would be academically interesting to compare and contrast the two. However, they both probably achieve close enough to the ideal ACMR to ensure that vertex transformation is not going to be the bottleneck, which is all you really need.
+
+Remember - after ordering your triangles with vertex-cache optimisation, you then want to reorder your vertex buffer so that you're using vertices in a roughly linear order. This is extremely simple - it's exactly the algorithm you'd expect (scan through the tris, first time you use a vert, add it to the VB) but it's as much of a win in some cases as doing the triangle reordering.
+
+[OPTIMIZATION]
+Fast multiplication of normalized 16 bit numbers with SSE2 - http://ssp.impulsetrain.com/2011-07-03_Fast_Multiplication_of_Normalized_16_bit_Numbers_with_SSE2.html
+Fast quaternion-vector - http://molecularmusings.wordpress.com/2013/05/24/a-faster-quaternion-vector-multiplication/
+Write combining is not your friend - http://fgiesen.wordpress.com/2013/01/29/write-combining-is-not-your-friend/
+Optimizing a skinning pipeline - http://molecularmusings.wordpress.com/2013/08/22/adventures-in-data-oriented-design-part-4-skinning-it-to-11/#more-458
+Optimizing software occlusion culling (series), features much more - http://fgiesen.wordpress.com/2013/02/17/optimizing-sw-occlusion-culling-index/
+Storing normals efficinetly - http://aras-p.info/texts/CompactNormalStorage.html
+
+[ENGINE DESIGN] How to reference objects owned by other systems in the
+engine (pretty clever):
+http://molecularmusings.wordpress.com/2013/07/24/adventures-in-data-oriented-design-part-3c-external-references/
+
+[SCRIPTING] Racket on the playstation 3 (Naughty Dog):
+http://www.youtube.com/watch?v=Gomcqdi6kKE&t=70m
+
+[OPENGL OPTIMIZATION]
+Efficient draw calls - glMultiDrawElements vs primitive restart - http://programming4.us/multimedia/8302.aspx
+  Conclusion: primitive restart wins hard. Also, plain GL_TRIANGLES is
+  mostly preferred, except for regular grids: http://www.opengl.org/discussion_boards/showthread.php/174329-glMultiDrawElements-or-glPrimitiveRestartindex
+  also see http://www.ludicon.com/castano/blog/2009/02/optimal-grid-rendering/
+
+One million draws per frame, notes from an AMD driver developer:
+http://www.openglsuperbible.com/2013/10/16/the-road-to-one-million-draws/#return-note-403-1
+
+[CPU OPTIMIZATION]
+Create different function versions for different ISAs with gcc 4.8: http://gcc.gnu.org/wiki/FunctionMultiVersioning
+
+[OPENGL CONCEPT DEVELOPMENT]
+The GLSL hacker, prototype in Lua - http://www.geeks3d.com/glslhacker/
