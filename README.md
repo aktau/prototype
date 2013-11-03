@@ -1,16 +1,15 @@
 prototype
 =========
 
-A prototype game engine that will hopefully one day become the Warfare engine, just a hobby project. It tries
-to make use of the latest and greatest technology, and it should compile out of the box (all dependencies in-tree).
+A prototype game engine that will hopefully one day become the Warfare engine, just a hobby project.
+It should compile out of the box (all dependencies in-tree).
 
 The engine is written in C (the C11 standard, although I believe it's also valid C99, as of current writing). It aims to
 be small and clean, with extensibility provided by Lua (through LuaJIT). It is also written with being cross-platform in mind.
 Although development happens on OS X, no platform-specific functionality has been used, so it should be rather easy
-to port as long as the platform in question has either Clang (LLVM) or GCC avaiable to compile. (MSVC doesn't understand
-C11 unfortunately).
+to port as long as the platform in question has either Clang (LLVM) or GCC available. (MSVC doesn't understand C11 unfortunately).
 
-This is alpha software, it is not usable yet, I will post an announcement on my website (www.aktau.be) when I'm ready
+This is alpha software, it is not usable yet, I will post an announcement on my [website](www.aktau.be) when I'm ready
 to have the wider world play around with it.
 
 For those of you following at home and reading the source code. All matrices, everywhere are stored in such a way
