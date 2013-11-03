@@ -10,6 +10,8 @@
 #ifndef __gfx_h__
 #define __gfx_h__
 
+#include "math/types.h"
+
 #define GFX_FALSE               0x0000
 #define GFX_TRUE                0x0001
 
@@ -102,11 +104,11 @@ struct gfxShaderProgram {
 
 /* the C representation of a Uniform Buffer Object */
 struct gfxGlobalMatrices {
-    float projectionMatrix[16];
+    mat4 projectionMatrix;
 };
 
 struct gfxRenderParams {
-    float modelviewMatrix[16];
+    mat4 modelviewMatrix;
 
     /* the uniform buffer object that stores matrices common to all (or most) shader programs */
     struct gfxGlobalMatrices matrices; /* the C side */

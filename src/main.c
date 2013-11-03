@@ -70,14 +70,11 @@ static void resize(int width, int height, struct gfxRenderParams **paramlist) {
 
     struct gfxRenderParams *params = NULL;
     for (params = *paramlist; params; params = *(++paramlist)) {
-        /* set the projection matrix for the world renderer */
-        const mat4 projmat = (params->orthogonal) ?
+        /* set the projection matrix for the renderer */
+        params->matrices.projectionMatrix = (params->orthogonal) ?
             mat_ortho(0.0f, (float) width, 0.0f, (float) height, 0.0f, 1.0f) :
             mat_perspective_fovy(GFX_PI / 2.0f, (float) width / (float) height, 0.5f, 10.0f);
 
-        /* TODO: a better idiom could be: stream to params and load from projmat..., less cache clobbering, or assign directly to params */
-        /* don't stream, idiot, just store aligned */
-        mstoreu(params->matrices.projectionMatrix, projmat);
         glBindBuffer(GL_UNIFORM_BUFFER, params->matrixUbo);
         glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(struct gfxGlobalMatrices), &params->matrices);
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
@@ -493,7 +490,7 @@ int main(int argc, char* argv[]) {
         }
 
         mat4 modmat = mmmul(transmat, rotmat);
-        mstoreu(world.modelviewMatrix, modmat);
+        world.modelviewMatrix = modmat;
 
         /**
          * TODO: should factor out the changes and the re-uploading

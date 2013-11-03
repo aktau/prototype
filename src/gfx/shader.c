@@ -73,8 +73,7 @@ void gfxSetShaderParams(const struct gfxShaderProgram *shader, const struct gfxR
         }
     }
 
-    // if (shader->loc.projectionMatrix != -1) glUniformMatrix4fv(shader->loc.projectionMatrix, 1, GL_FALSE, params->projectionMatrix);
-    if (shader->loc.modelviewMatrix != -1) glUniformMatrix4fv(shader->loc.modelviewMatrix, 1, GL_FALSE, params->modelviewMatrix);
+    if (shader->loc.modelviewMatrix != -1) glUniformMatrix4fv(shader->loc.modelviewMatrix, 1, GL_FALSE, (const GLfloat *) &params->modelviewMatrix);
 
     if (shader->loc.texture0 != -1) glUniform1i(shader->loc.texture0, 0);
     if (shader->loc.texture1 != -1) glUniform1i(shader->loc.texture1, 1);

@@ -27,8 +27,8 @@ void gfxCreateRenderParams(struct gfxRenderParams *params) {
     params->cull  = GFX_NONE;
 
     /* initialize the matrices to identity first */
-    mstoreu(params->modelviewMatrix, midentity());
-    mstoreu(params->matrices.projectionMatrix, midentity());
+    params->modelviewMatrix           = midentity();
+    params->matrices.projectionMatrix = midentity();
 
     /* create UBO for global matrices */
     GLuint matrixUbo;
