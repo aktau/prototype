@@ -38,43 +38,50 @@ const char *printva(const float *x) {
     return buffer;
 }
 
-const char *printvi(vec4 vec) {
+const char *printm(const mat4 mat) {
     static char buffer[256];
+    size_t accum = 0;
 
-    const uint32_t *x = (const uint32_t*)&vec;
-    snprintf(buffer, 256, "%8x\t%8x\t%8x\t%8x\n", x[0], x[1], x[2], x[3]);
-
-    return buffer;
-}
-
-const char *printm(mat4 mat) {
-    static char buffer[256];
-    int accum = 0;
-
-    const float *m = (const float*)&mat;
-
-    accum += snprintf(buffer + accum, 256 - accum, "\n");
+    accum += (size_t) snprintf(buffer + accum, 256 - accum, "\n");
     for (int i = 0; i < 4; ++i) {
-        accum += snprintf(buffer + accum, 256 - accum, "%2.3f\t%2.3f\t%2.3f\t%2.3f\n", m[i + 0], m[i + 4], m[i + 8], m[i + 12]);
+        accum += (size_t) snprintf(buffer + accum, 256 - accum, "%2.3f\t%2.3f\t%2.3f\t%2.3f\n", mat.cols[0][i], mat.cols[1][i], mat.cols[2][i], mat.cols[3][i]);
     }
-    accum += snprintf(buffer + accum, 256 - accum, "\n");
+    accum += (size_t) snprintf(buffer + accum, 256 - accum, "\n");
 
     return buffer;
 }
 
 const char *printm3(mat4 mat) {
     static char buffer[256];
-    int accum = 0;
+    size_t accum = 0;
 
-    const float *m = (const float*)&mat;
-
-    accum += snprintf(buffer + accum, 256 - accum, "\n");
+    accum += (size_t) snprintf(buffer + accum, 256 - accum, "\n");
     for (int i = 0; i < 3; ++i) {
-        accum += snprintf(buffer + accum, 256 - accum, "%2.3f\t%2.3f\t%2.3f\n", m[i + 0], m[i + 4], m[i + 8]);
+        accum += (size_t) snprintf(buffer + accum, 256 - accum, "%2.3f\t%2.3f\t%2.3f\n", mat.cols[0][i], mat.cols[1][i], mat.cols[2][i]);
     }
-    accum += snprintf(buffer + accum, 256 - accum, "\n");
+    accum += (size_t) snprintf(buffer + accum, 256 - accum, "\n");
 
     return buffer;
+}
+
+/* call this function after initializing all relevant uniform buffer objects */
+static void resize(int width, int height, struct gfxRenderParams **paramlist) {
+    glViewport(0, 0, (GLsizei) width, (GLsizei) height);
+
+    struct gfxRenderParams *params = NULL;
+    for (params = *paramlist; params; params = *(++paramlist)) {
+        /* set the projection matrix for the world renderer */
+        const mat4 projmat = (params->orthogonal) ?
+            mat_ortho(0.0f, (float) width, 0.0f, (float) height, 0.0f, 1.0f) :
+            mat_perspective_fovy(GFX_PI / 2.0f, (float) width / (float) height, 0.5f, 10.0f);
+
+        /* TODO: a better idiom could be: stream to params and load from projmat..., less cache clobbering, or assign directly to params */
+        /* don't stream, idiot, just store aligned */
+        mstoreu(params->matrices.projectionMatrix, projmat);
+        glBindBuffer(GL_UNIFORM_BUFFER, params->matrixUbo);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(struct gfxGlobalMatrices), &params->matrices);
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    }
 }
 
 static void init() {
@@ -299,8 +306,7 @@ int main(int argc, char* argv[]) {
 
     trace("starting to render, vsync is %d\n", SDL_GL_GetSwapInterval());
 
-    glViewport(0, 0, (GLsizei) width, (GLsizei) height);
-
+    /* shaders */
     struct gfxShaderProgram shader;
     gfxLoadShaderFromFile(&shader, "./src/shaders/texture.vert", "./src/shaders/texture.frag");
 
@@ -313,6 +319,7 @@ int main(int argc, char* argv[]) {
     struct gfxShaderProgram guiShader;
     gfxLoadShaderFromFile(&guiShader, "./src/shaders/gui.vert", "./src/shaders/gui.frag");
 
+    /* render modes */
     struct gfxRenderParams world = { 0 };
     gfxCreateRenderParams(&world);
     world.cull = GFX_CULL_BACK;
@@ -322,8 +329,10 @@ int main(int argc, char* argv[]) {
 
     struct gfxRenderParams gui = { 0 };
     gfxCreateRenderParams(&gui);
-    gui.blend = GFX_BLEND_ALPHA;
+    gui.blend      = GFX_BLEND_ALPHA;
+    gui.orthogonal = GFX_TRUE;
 
+    /* models */
     struct gfxModel quad;
     gfxQuad(&quad);
 
@@ -349,17 +358,8 @@ int main(int argc, char* argv[]) {
     int combined    = 0;
     int wireframe   = 0;
 
-    /* set the projection matrix for the world renderer */
-    mat4 projmat = mat_perspective_fovy(GFX_PI / 2.0f, (float) width / (float) height, 0.5f, 10.0f);
-    mstoreu(world.matrices.projectionMatrix, projmat);
-    glBindBuffer(GL_UNIFORM_BUFFER, world.matrixUbo);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(struct gfxGlobalMatrices), &world.matrices);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-    /* set the projection matrix for the gui renderer */
-    glBindBuffer(GL_UNIFORM_BUFFER, gui.matrixUbo);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(struct gfxGlobalMatrices), &gui.matrices);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    struct gfxRenderParams *paramlist[] = { &world, &gui, &nocull, NULL };
+    resize(width, height, paramlist);
 
     while (!done) {
         while (SDL_PollEvent(&event)) {
@@ -368,19 +368,16 @@ int main(int argc, char* argv[]) {
                     switch (event.window.event) {
                         case SDL_WINDOWEVENT_RESIZED:
                         {
-                            int newWidth  = event.window.data1;
-                            int newHeight = event.window.data2;
+                            width  = event.window.data1;
+                            height = event.window.data2;
 
                             trace(
                                 "Window %d resized to %dx%d\n",
                                 event.window.windowID,
-                                newWidth, newHeight
+                                width, height
                             );
 
-                            glViewport(0, 0, (GLsizei) newWidth, (GLsizei) newHeight);
-
-                            width  = newWidth;
-                            height = newHeight;
+                            resize(width, height, paramlist);
                         }
                         break;
                     }
@@ -451,7 +448,7 @@ int main(int argc, char* argv[]) {
 
         uint32_t ticks = SDL_GetTicks();
         float ms = (float) ticks * 0.001f;
-        float alpha = (ticks % 5000) / 5000.0f;
+        // float alpha = (float) (ticks % 5000) / 5000.0f;
 
         /* translation */
         mat4 transmat = midentity();
@@ -540,7 +537,11 @@ int main(int argc, char* argv[]) {
     gfxDestroyShader(&guiShader);
     gfxDestroyShader(&waveShader);
 
-    /* TODO: destroy UBO's */
+    gfxDestroyRenderParams(&world);
+    gfxDestroyRenderParams(&gui);
+    gfxDestroyRenderParams(&nocull);
+
+    gfxDestroyTexture(texture);
 
 #ifdef HAVE_LUA
     wfScriptDestroy();

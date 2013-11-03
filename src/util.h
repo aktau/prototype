@@ -150,6 +150,7 @@ const char *wfCompiler(void);
 
 /* texture.c */
 GLuint gfxLoadTexture(const char *image);
+void gfxDestroyTexture(GLuint texture);
 
 /* gfx/shader.c */
 void gfxLoadShaderFromFile(struct gfxShaderProgram *shader, const char *vertfile, const char *fragfile);

@@ -383,9 +383,9 @@ void gfxSheet(struct gfxModel *model, float width, float height, unsigned int su
 
     for (int i = 0; i < (int) subdiv + 1; ++i) {
         for (int j = 0; j < (int) subdiv + 1; ++j) {
-            vertex[0] = startx + i * tileWidth;
+            vertex[0] = startx + (float)i * tileWidth;
             vertex[1] = starty; // + (i * tileWidth - j * tileHeight);
-            vertex[2] = startz - j * tileHeight; //startz;
+            vertex[2] = startz - (float)j * tileHeight; //startz;
             vertex[3] = 1.0f;
 
             trace("generated vertex %d: [%3.2f %3.2f %3.2f %3.2f]\n", counter, vertex[0], vertex[1], vertex[2], vertex[3]);
@@ -420,16 +420,16 @@ void gfxSheet(struct gfxModel *model, float width, float height, unsigned int su
             const GLubyte offset = (GLubyte)(i * stride + j);
 
             /* first triangle */
-            index[0] = offset;
-            index[1] = offset + 1;
-            index[2] = offset + stride;
+            index[0] = (GLubyte) (offset);
+            index[1] = (GLubyte) (offset + 1);
+            index[2] = (GLubyte) (offset + stride);
 
             index += 3;
 
             /* second triangle */
-            index[0] = offset + 1;
-            index[1] = offset + stride + 1;
-            index[2] = offset + stride;
+            index[0] = (GLubyte) (offset + 1);
+            index[1] = (GLubyte) (offset + stride + 1);
+            index[2] = (GLubyte) (offset + stride);
 
             index += 3;
 

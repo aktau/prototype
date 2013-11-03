@@ -108,14 +108,17 @@ struct gfxGlobalMatrices {
 struct gfxRenderParams {
     float modelviewMatrix[16];
 
-    /* the uniform buffer object that stores matrices common to all (or most) programs */
+    /* the uniform buffer object that stores matrices common to all (or most) shader programs */
     struct gfxGlobalMatrices matrices; /* the C side */
     unsigned int matrixUbo; /* the OpenGL side */
+
+    /* persective or orthogonal? */
+    unsigned char orthogonal;
 
     unsigned char blend;
     unsigned char cull;
 
-    /* relative timer inmilliseconds */
+    /* relative timer in milliseconds, for use as a shader uniform */
     float timer;
 };
 
