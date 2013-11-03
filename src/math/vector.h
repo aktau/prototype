@@ -79,9 +79,9 @@ static inline vec4 srsqrt(vec4 x) __attribute__((always_inline));
 static inline vec4 srsqrt(vec4 x) { return _mm_rsqrt_ss(x); }
 
 static inline vec4 vload(const vec4 *ptr) __attribute__((always_inline));
-static inline vec4 vload(const vec4 *ptr) { return _mm_load_ps((float*)ptr); }
+static inline vec4 vload(const vec4 *ptr) { return _mm_load_ps((const float *)ptr); }
 static inline vec4 vloadu(const float *ptr) __attribute__((always_inline));
-static inline vec4 vloadu(const float *ptr) { return _mm_loadu_ps((float*)ptr); }
+static inline vec4 vloadu(const float *ptr) { return _mm_loadu_ps((const float *)ptr); }
 
 static inline void vstore(vec4 *ptr, vec4 v) __attribute__((always_inline));
 static inline void vstore(vec4 *ptr, vec4 v) { _mm_store_ps((float*)ptr, v); }

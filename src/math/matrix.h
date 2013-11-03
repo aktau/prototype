@@ -35,14 +35,14 @@ static inline mat4 mtranspose(mat4 m)
 static inline mat4 mload(const mat4 *ptr) __attribute__((always_inline));
 static inline mat4 mload(const mat4 *ptr)
 {
-    mat4 m = {{ vload((vec4*)ptr+0), vload((vec4*)ptr+1), vload((vec4*)ptr+2), vload((vec4*)ptr+3) }};
+    mat4 m = {{ vload((const vec4 *)ptr+0), vload((const vec4 *)ptr+1), vload((const vec4 *)ptr+2), vload((const vec4 *)ptr+3) }};
     return m;
 }
 
 static inline mat4 mloadu(const float *ptr) __attribute__((always_inline));
 static inline mat4 mloadu(const float *ptr)
 {
-    mat4 m = {{ vloadu((float*)ptr+0), vloadu((float*)ptr+4), vloadu((float*)ptr+8), vloadu((float*)ptr+12) }};
+    mat4 m = {{ vloadu(ptr+0), vloadu(ptr+4), vloadu(ptr+8), vloadu(ptr+12) }};
     return m;
 }
 
