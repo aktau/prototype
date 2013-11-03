@@ -388,7 +388,7 @@ void gfxSheet(struct gfxModel *model, float width, float height, unsigned int su
             vertex[2] = startz - (float)j * tileHeight; //startz;
             vertex[3] = 1.0f;
 
-            trace("generated vertex %d: [%3.2f %3.2f %3.2f %3.2f]\n", counter, vertex[0], vertex[1], vertex[2], vertex[3]);
+            // trace("generated vertex %d: [%3.2f %3.2f %3.2f %3.2f]\n", counter, vertex[0], vertex[1], vertex[2], vertex[3]);
             ++counter;
 
             vertex += 4;
@@ -433,7 +433,7 @@ void gfxSheet(struct gfxModel *model, float width, float height, unsigned int su
 
             index += 3;
 
-            trace("quad %d: [%u %u %u] [%u %u %u]\n", counter, index[-6], index[-5], index[-4], index[-3], index[-2], index[-1]);
+            // trace("quad %d: [%u %u %u] [%u %u %u]\n", counter, index[-6], index[-5], index[-4], index[-3], index[-2], index[-1]);
             ++counter;
         }
 
