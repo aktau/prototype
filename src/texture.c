@@ -11,7 +11,7 @@
 
 #include "stb_image.h"
 
-static int gfxUploadTexture(const char *image);
+static int gfxUploadTexture(const char *image, int srgb);
 
 /**
  * will return a texture id with a nice, trilinearly filtered texture (with anisotropy)
@@ -58,7 +58,7 @@ GLuint gfxLoadTexture(const char *image) {
     GL_ERROR("set texture parameters");
 
     /* load and upload the image, then free */
-    int success = gfxUploadTexture(image);
+    int success = gfxUploadTexture(image, 0);
     ERROR_HANDLE(success == 0, errno, "error while uploading texture");
 
     /* generate the mipmaps */
@@ -76,21 +76,56 @@ error:
     return 0;
 }
 
+void gfxDestroyTexture(GLuint texture) {
+    glDeleteTextures(1, &texture);
+}
+
 /**
  * Uploads an image to the currently bound texture,
  * returns 0 for failure, 1 for success
+ *
+ * in general, the preferred form of upload to the GPU
+ * is with UNPACK_ALIGNMENT = 4, and format GL_BGRA8, though
+ * GL_RGBA8 is usually also fine: http://www.opengl.org/wiki/Common_Mistakes
  */
-static int gfxUploadTexture(const char *image) {
+static int gfxUploadTexture(const char *image, int srgb) {
     int width, height, components;
     unsigned char *data = NULL;
+    GLint intfmt;
+    GLenum fmt;
 
     data = stbi_load(image, &width, &height, &components, 0);
     ERROR_HANDLE(data == NULL, errno, "couldn't load image (perhaps it doesn't exist, or it is corrupt");
 
-    GLenum format = (components == 3) ? GL_RGB : GL_RGBA;
-    ERROR_HANDLE((components != 3 && components != 4), errno, "don't know how to handle %d components in image data\n", components);
+    /* be specific about the format we upload */
+    if (components == 1) {
+        intfmt = GL_R8;
+        fmt    = GL_RED;
+    }
+    else if (components == 2) {
+        intfmt = GL_RG8;
+        fmt    = GL_RG;
+    }
+    else if (components == 3) {
+        intfmt = (srgb) ? GL_SRGB8 : GL_RGB8;
+        fmt    = GL_RGB;
+    }
+    else {
+        intfmt = (srgb) ? GL_SRGB8_ALPHA8 : GL_RGBA8;
+        fmt    = GL_RGBA;
+    }
 
-    glTexImage2D(GL_TEXTURE_2D, 0, (GLint) format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+    /**
+     * if we only wanted to upload a sub-image, we could set the stride
+     * glPixelStorei(GL_UNPACK_ROW_LENGTH, stride);
+     * though we shouldn't forget to set it back to 0 later
+     *
+     * ref: http://stackoverflow.com/questions/205522/opengl-subtexturing
+     */
+
+    /* the default value is 4, but it doesn't hurt to set it to make sure */
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+    glTexImage2D(GL_TEXTURE_2D, 0, intfmt, width, height, 0, fmt, GL_UNSIGNED_BYTE, data);
     GL_ERROR("upload image data");
 
     stbi_image_free(data);

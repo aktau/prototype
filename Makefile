@@ -119,7 +119,7 @@ SOURCE := src/main.c \
 	src/zmalloc.c \
 	src/version.c \
 	src/stb_image.c \
-	src/gfx/texture.c \
+	src/texture.c \
 	src/gfx/shader.c \
 	src/gfx/model.c \
 	src/gfx/renderer.c \
