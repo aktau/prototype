@@ -54,7 +54,10 @@ ifneq ($(shell sh -c '[ -f .make-ldflags ] && cat .make-ldflags || echo none'), 
 .make-prerequisites: .make-ldflags
 endif
 
-distclean:
+sdl2/Makefile:
+	cd sdl2 && CC=$(SDL_CC) ./configure
+
+distclean: sdl2/Makefile
 	-(cd sdl2 && $(MAKE) clean && CC=$(SDL_CC) ./configure) || true
 	-(cd lua && $(MAKE) clean) || true
 	-(grep "" .make-*)
@@ -62,7 +65,7 @@ distclean:
 #-(rm -f .make-*)
 #gsed -i 's|-fpascal-strings||' Makefile
 
-.PHONY: distclean
+.PHONY: distclean sdl2-configure
 
 sdl2: .make-prerequisites
 	@printf '%b %b\n' $(MAKECOLOR)MAKE$(ENDCOLOR) $(BINCOLOR)$@$(ENDCOLOR)
