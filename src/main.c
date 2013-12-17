@@ -17,7 +17,6 @@
 #include "math/math.h"
 
 #include "util.h"
-#include "vec.h"
 
 #include "SDL.h"
 
@@ -64,7 +63,8 @@ const char *printm3(mat4 mat) {
     return buffer;
 }
 
-/* call this function after initializing all relevant uniform buffer objects */
+/* call this function after initializing all relevant uniform buffer objects
+ * and after every resize. */
 static void resize(int width, int height, struct gfxRenderParams **paramlist) {
     glViewport(0, 0, (GLsizei) width, (GLsizei) height);
 
