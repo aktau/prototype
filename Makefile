@@ -145,10 +145,20 @@ debug: $(EXECUTABLE)
 release: CFLAGS += $(DEBUG) $(OPT)
 release: $(EXECUTABLE)
 
+# main executable(s)
+
 $(EXECUTABLE): $(OBJECTS)
 		-$(MAKE) -C $(DEPS_PATH) -j4 $(DEPENDENCY_TARGETS) CC=$(CC)
 		install -d build
 		$(CC) -o $@ $^ $(LIBS) $(CFLAGS) -pagezero_size 10000 -image_base 100000000
+
+# tests
+
+timer_query: CFLAGS += -O $(DEBUG)
+timer_query: test/timer_query.c build/util.o build/zmalloc.o
+	$(CC) -o $@ $^ $(LIBS) $(CFLAGS) $(INCS) -pagezero_size 10000 -image_base 100000000
+
+# object files
 
 # stb_image doesn't conform to C11, so it provokes a lot of warnings, turn off
 # warnings for this one file
@@ -160,8 +170,8 @@ build/zmalloc.o: src/zmalloc.c
 		$(CC) -c $< -o $@ $(CFLAGS) -fno-strict-aliasing $(INCS)
 
 build/%.o: src/%.c
-		@mkdir -p $(dir $@)
-		$(CC) -c $< -o $@ $(CFLAGS) $(INCS)
+	@mkdir -p $(dir $@)
+	$(CC) -c $< -o $@ $(CFLAGS) $(INCS)
 
 clean:
 	rm -rf build/* || true

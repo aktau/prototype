@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include <stdint.h>
+#include <inttypes.h>
 #include <limits.h>
 
 #include "math/math.h"
@@ -99,6 +99,51 @@ static void init() {
 
     /* MSAA */
     glEnable(GL_MULTISAMPLE);
+}
+
+/* how many queries do we use per frame? */
+typedef enum {
+    TIMER_RENDER = 0,
+    TIMER_SWAP,
+    TIMER_MAX
+} GLTimer;
+
+GLuint gQueries[2][TIMER_MAX];
+GLuint gQueryBackBuffer  = 0;
+GLuint gQueryFrontBuffer = 1;
+
+/* generates two sets (double-buffered) of query objects, so we never have to stall */
+static void genQueries() {
+    trace("generating GL queries...\n");
+
+    glGenQueries(TIMER_MAX, gQueries[gQueryBackBuffer]);
+    glGenQueries(TIMER_MAX, gQueries[gQueryFrontBuffer]);
+    GL_ERROR("generate timer queries");
+
+    /* perform one fake frame to prevent GL errors */
+    for (int i = 0; i < TIMER_MAX; ++i) {
+        glBeginQuery(GL_TIME_ELAPSED, gQueries[gQueryFrontBuffer][i]);
+        GL_ERROR("dummy init: %d", i);
+
+        glEndQuery(GL_TIME_ELAPSED);
+        GL_ERROR("dummy read: %d", i);
+    }
+}
+
+static void destroyQueries() {
+    glDeleteQueries(TIMER_MAX, gQueries[gQueryBackBuffer]);
+    glDeleteQueries(TIMER_MAX, gQueries[gQueryBackBuffer]);
+}
+
+static void swapQueryBuffers() {
+    if (gQueryBackBuffer) {
+        gQueryBackBuffer  = 0;
+        gQueryFrontBuffer = 1;
+    }
+    else {
+        gQueryBackBuffer  = 1;
+        gQueryFrontBuffer = 0;
+    }
 }
 
 static void gfxRender(const struct gfxModel *model, const struct gfxRenderParams *params, const struct gfxShaderProgram *program) {
@@ -293,6 +338,7 @@ int main(int argc, char* argv[]) {
     printGlInfo();
 
     init();
+    genQueries();
 
     SDL_Event event;
     Uint8 done = 0;
@@ -492,6 +538,8 @@ int main(int argc, char* argv[]) {
         mat4 modmat = mmmul(transmat, rotmat);
         world.modelviewMatrix = modmat;
 
+        glBeginQuery(GL_TIME_ELAPSED, gQueries[gQueryBackBuffer][TIMER_RENDER]);
+
         /**
          * TODO: should factor out the changes and the re-uploading
          *
@@ -518,7 +566,22 @@ int main(int argc, char* argv[]) {
             gfxRender(&quad, &gui, &guiShader);
         }
 
+        glEndQuery(GL_TIME_ELAPSED);
+
+        uint32_t beforeSwap = SDL_GetTicks();
         SDL_GL_SwapWindow(window);
+        uint32_t elapsedSwap = SDL_GetTicks() - beforeSwap;
+
+        /* collect the timers of the frontbuffer before swapping the query set
+         * TODO: use more queries, as the GL impl can be up to 5 frames behind,
+         * i.e.: don't force unnecesary sync points */
+        GLuint64 timerRend;
+        glGetQueryObjectui64v(gQueries[gQueryFrontBuffer][TIMER_RENDER], GL_QUERY_RESULT, &timerRend);
+
+        printf("render objects: %f ms, swap buffers: %f\n", timerRend / 1000000.0, (double) elapsedSwap);
+
+        /* swap the query set */
+        swapQueryBuffers();
 
         diagFrameDone(window);
     }
@@ -539,6 +602,8 @@ int main(int argc, char* argv[]) {
     gfxDestroyRenderParams(&nocull);
 
     gfxDestroyTexture(texture);
+
+    destroyQueries();
 
 #ifdef HAVE_LUA
     wfScriptDestroy();

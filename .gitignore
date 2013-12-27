@@ -1,5 +1,6 @@
-# the executable
+# the executables
 prototype
+timer_query
 
 # profile files
 perf/*.run
