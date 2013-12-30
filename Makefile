@@ -16,6 +16,7 @@
 ENABLE_LUA ?= 1
 
 # CC := /usr/local/bin/gcc-4.8
+# CC := /usr/local/bin/gcc-4.9
 CC := /usr/local/bin/clang
 
 STD := -std=c11 -pedantic -fstrict-aliasing
@@ -25,12 +26,13 @@ WARN := -Wextra -Wcast-align -Wcast-qual \
 	-Wfloat-equal -Wformat=2 -Wredundant-decls \
 	-Wundef -Wdisabled-optimization -Wshadow \
 	-Wmissing-braces -Wstrict-aliasing=2 -Wstrict-overflow=5 \
-	-Wconversion -Wno-unused-parameter \
-	-Wno-missing-field-initializers -Wno-missing-braces
+	-Wconversion
+UNWARN := -Wno-unused-parameter -Wno-missing-field-initializers -Wno-missing-braces \
+	-Wno-strict-aliasing
 DEBUG := -g3 -DDEBUG
 OPT := -O2 -march=native -mtune=native -ftree-vectorize
 
-CFLAGS ?= $(STD) $(SECURITY) $(WARN)
+CFLAGS ?= $(STD) $(SECURITY) $(WARN) $(UNWARN)
 
 # END OF CONFIGURABLE PART
 
