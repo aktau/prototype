@@ -32,6 +32,8 @@
 #include "types.h"
 #include "gfx.h"
 
+#define PACKED __attribute__((packed))
+
 #define likely(x)       __builtin_expect(!!(x), 1)
 #define unlikely(x)     __builtin_expect(!!(x), 0)
 
@@ -166,6 +168,9 @@ void gfxDestroyModel(struct gfxModel *model);
 void gfxCreateRenderParams(struct gfxRenderParams *params);
 void gfxDestroyRenderParams(struct gfxRenderParams *params);
 void gfxBatch(const struct gfxRenderParams *params);
+
+/* gfx/drawlist.c */
+void gfxDrawlistDebug();
 
 /* scratch.c */
 void gfxQuad(struct gfxModel *model);

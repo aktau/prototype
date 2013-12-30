@@ -336,6 +336,7 @@ int main(int argc, char* argv[]) {
     trace("took %u ms to setup the OpenGL context\n", SDL_GetTicks() - t);
 
     printGlInfo();
+    gfxDrawlistDebug();
 
     init();
     genQueries();
@@ -578,7 +579,8 @@ int main(int argc, char* argv[]) {
         GLuint64 timerRend;
         glGetQueryObjectui64v(gQueries[gQueryFrontBuffer][TIMER_RENDER], GL_QUERY_RESULT, &timerRend);
 
-        printf("render objects: %f ms, swap buffers: %f\n", (double) timerRend / 1000000.0, (double) elapsedSwap);
+        /* TODO: print out when we have text rendering */
+        /* printf("render objects: %f ms, swap buffers: %f\n", (double) timerRend / 1000000.0, (double) elapsedSwap); */
 
         /* swap the query set */
         swapQueryBuffers();

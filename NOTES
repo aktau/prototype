@@ -430,3 +430,6 @@ Create different function versions for different ISAs with gcc 4.8: http://gcc.g
 
 [OPENGL CONCEPT DEVELOPMENT]
 The GLSL hacker, prototype in Lua - http://www.geeks3d.com/glslhacker/
+
+[ENGINE DESIGN]
+Parallel rendering and sorting your drawlists (see comments) - http://bitsquid.blogspot.be/2009/10/parallel-rendering.html

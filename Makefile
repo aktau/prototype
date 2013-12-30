@@ -125,6 +125,7 @@ SOURCE := src/main.c \
 	src/gfx/shader.c \
 	src/gfx/model.c \
 	src/gfx/renderer.c \
+	src/gfx/drawlist.c \
 	src/scratch.c
 
 DEPENDENCY_TARGETS := sdl2
