@@ -114,14 +114,15 @@ struct gfxRenderParams {
     struct gfxGlobalMatrices matrices; /* the C side */
     unsigned int matrixUbo; /* the OpenGL side */
 
+    /* relative timer in milliseconds, for use as a shader uniform */
+    float timer;
+
     /* persective or orthogonal? */
     unsigned char orthogonal;
 
     unsigned char blend;
     unsigned char cull;
 
-    /* relative timer in milliseconds, for use as a shader uniform */
-    float timer;
 };
 
 #endif
