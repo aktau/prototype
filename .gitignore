@@ -1,5 +1,6 @@
 # the executables
 prototype
+prototype.dwarf
 timer_query
 
 # profile files
