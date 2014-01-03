@@ -93,12 +93,34 @@ static void printKey(union gfxDrawlistKey *k) {
     trace("the integer representation is %llu (0x%016llX)\n", k->intrep, k->intrep);
 }
 
+static void printDrawlist(const struct gfxDrawlist *dl, size_t count) {
+    for (size_t i = 0; i < count; ++i) {
+        const struct entry e = dl->entries[i];
+        trace("%llu (0x%016llX) -> %p\n", e.key.intrep, e.key.intrep, e.op);
+    }
+}
+
+static int compare(const void* p1, const void* p2) {
+    /* TODO: branch on translucency... (sort back to front only when translucent) */
+    uint64_t a = ((struct entry *)p1)->key.intrep;
+    uint64_t b = ((struct entry *)p2)->key.intrep;
+
+    return (a < b) ? -1 : (a > b) ? 1 : 0;
+}
+
 /**
  * TODO: take care of translucency, sort translucent materials back-to-front
  */
 static void sortDrawlist() {
     if (gDrawlist.dirty) {
+        trace("before sort:\n");
+        printDrawlist(&gDrawlist, 8);
+
         /* sort */
+        qsort(gDrawlist.entries, MAX_DRAWLIST_ENTRIES, sizeof(gDrawlist.entries[0]), compare);
+
+        trace("after sort:\n");
+        printDrawlist(&gDrawlist, 8);
 
         /* find out where the last active member is
          * optimization: to start searching upwards/downwards
@@ -236,7 +258,7 @@ void gfxDrawlistRender() {
 
     /* scan the sorted drawlist and create ad-hoc batches */
     unsigned int max = gDrawlist.nextId;
-    trace("drawing %u entities\n", max);
+    // trace("drawing %u entities\n", max);
 
     for (unsigned int i = 0; i < max; ++i) {
         const struct entry e              = gDrawlist.entries[i];
@@ -261,7 +283,7 @@ void gfxDrawlistRender() {
 
         if (k.gen.type == KEY_TYPE_MODEL) {
             if (k.mod.shader != lShader) {
-                trace("switching shader %u to shader %u\n", lShader, k.mod.shader);
+                // trace("switching shader %u to shader %u\n", lShader, k.mod.shader);
 
                 lShader = k.mod.shader;
                 glUseProgram(op->program->id);
@@ -273,7 +295,7 @@ void gfxDrawlistRender() {
             glBindVertexArray(op->model->vao);
 
             if (k.mod.texture && k.mod.texture != lTexture) {
-                trace("switching texture %u to texture %u\n", lTexture, k.mod.texture);
+                // trace("switching texture %u to texture %u\n", lTexture, k.mod.texture);
 
                 lTexture = k.mod.texture;
 
