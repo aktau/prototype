@@ -377,21 +377,28 @@ int main(int argc, char* argv[]) {
     gui.orthogonal = GFX_TRUE;
 
     /* models */
+    unsigned int modelId = 1;
+
     struct gfxModel quad;
     gfxQuad(&quad);
+    quad.id = modelId++;
 
     struct gfxModel axis;
     gfxAxis(&axis);
+    axis.id = modelId++;
 
     struct gfxModel crystal;
     gfxCrystal(&crystal);
+    crystal.id = modelId++;
 
     struct gfxModel cube;
     gfxCube(&cube);
+    cube.id = modelId++;
 
-    /* always picking the unit square is better, the shader kind off relies on it */
+    /* always picking the unit square is better, the shader kind of relies on it */
     struct gfxModel sheet;
     gfxSheet(&sheet, 1.0f, 1.0f, 12);
+    sheet.id = modelId++;
 
     glActiveTexture(GL_TEXTURE0 + 0);
     GLuint texture = gfxLoadTexture("./game/img/monolith.png");
@@ -434,7 +441,7 @@ int main(int argc, char* argv[]) {
         .params  = &world,
         .program = &colorShader,
     };
-    gfxGenRenderKey(&crystald);
+    gfxGenRenderKey(&cubed);
 
     struct gfxDrawOperation guid = {
         .model   = &quad,
@@ -442,6 +449,7 @@ int main(int argc, char* argv[]) {
         .program = &guiShader,
     };
     gfxGenRenderKey(&guid);
+    guid.key.gen.layer = LAYER_2;
 
     gfxDrawlistAdd(&axisd);
     gfxDrawlistAdd(&sheetd);

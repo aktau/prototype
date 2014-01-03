@@ -142,6 +142,7 @@ struct gfxModel {
     int numIndices;
 
     unsigned int texture[1];
+    unsigned int id;
 };
 
 struct gfxDrawOperation {

@@ -64,10 +64,13 @@ typedef enum {
  unsigned int id : 32; \
  unsigned int sequence : 8;
 
-/* 24 + 24 = 48 bits */
+/* 16 + 16 + 8 + 8 = 48 bits */
 #define MODEL_FIELDS \
- unsigned int material : 24; \
- unsigned int depth : 24;
+ unsigned int material : 8; \
+ unsigned int depth : 16; \
+ unsigned int shader : 8; \
+ unsigned int texture : 8; \
+ unsigned int model : 8;
 
 /* 48 bits, padding */
 #define EMPTY_FIELDS \

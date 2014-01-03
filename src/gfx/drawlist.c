@@ -76,7 +76,10 @@ static void printKey(union gfxDrawlistKey *k) {
 
     switch (k->gen.type) {
         case KEY_TYPE_MODEL:
-            trace("the specific fields are:\n\tdepth = %u\n\tmaterial = %u\n",
+            trace("the specific fields are:\n\tmodel = %u\n\ttexture = %u\n\tshader = %u\n\tdepth = %u\n\tmaterial = %u\n",
+                k->mod.model,
+                k->mod.texture,
+                k->mod.shader,
                 k->mod.depth,
                 k->mod.material);
         break;
@@ -135,7 +138,14 @@ static void sortDrawlist() {
 
 void gfxGenRenderKey(struct gfxDrawOperation *op) {
     union gfxDrawlistKey key = {0};
+
+    key.mod.texture = op->model->texture[0];
+    key.mod.model   = op->model->id;
+    key.mod.shader  = op->program->id;
+
     op->key = key;
+
+    printKey(&key);
 }
 
 void gfxDrawlistAdd(struct gfxDrawOperation *op) {
@@ -220,9 +230,13 @@ void gfxDrawlistRender() {
     unsigned int lViewportLayer = 0;
     unsigned int lTranslucency  = 0;
 
+    /* model local state */
+    unsigned int lShader  = 0;
+    unsigned int lTexture = 0;
+
     /* scan the sorted drawlist and create ad-hoc batches */
     unsigned int max = gDrawlist.nextId;
-    // trace("drawing %u entities\n", max);
+    trace("drawing %u entities\n", max);
 
     for (unsigned int i = 0; i < max; ++i) {
         const struct entry e              = gDrawlist.entries[i];
@@ -245,21 +259,33 @@ void gfxDrawlistRender() {
             lTranslucency = k.gen.translucency;
         }
 
-        /* TODO: don't do this unnecesarily */
-        gfxBatch(op->params);
+        if (k.gen.type == KEY_TYPE_MODEL) {
+            if (k.mod.shader != lShader) {
+                trace("switching shader %u to shader %u\n", lShader, k.mod.shader);
 
-        glUseProgram(op->program->id);
-        glBindVertexArray(op->model->vao);
+                lShader = k.mod.shader;
+                glUseProgram(op->program->id);
+            }
 
-        if (op->model->texture[0]) {
-            glActiveTexture(GL_TEXTURE0 + 0);
-            glBindTexture(GL_TEXTURE_2D, op->model->texture[0]);
+            /* TODO: don't do this unnecesarily */
+            gfxBatch(op->params);
+
+            glBindVertexArray(op->model->vao);
+
+            if (k.mod.texture && k.mod.texture != lTexture) {
+                trace("switching texture %u to texture %u\n", lTexture, k.mod.texture);
+
+                lTexture = k.mod.texture;
+
+                glActiveTexture(GL_TEXTURE0 + 0);
+                glBindTexture(GL_TEXTURE_2D, op->model->texture[0]);
+            }
+
+            gfxSetShaderParams(op->program, op->params);
+
+            /* fire draw batch */
+            glDrawElements(GL_TRIANGLES, op->model->numIndices, GL_UNSIGNED_BYTE, (GLvoid*)0);
         }
-
-        gfxSetShaderParams(op->program, op->params);
-
-        /* fire draw batch */
-        glDrawElements(GL_TRIANGLES, op->model->numIndices, GL_UNSIGNED_BYTE, (GLvoid*)0);
     }
 
     glBindVertexArray(0);
