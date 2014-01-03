@@ -156,7 +156,7 @@ void gfxLoadShaderFromFile(struct gfxShaderProgram *shader, const char *vertfile
 void gfxLoadShader(struct gfxShaderProgram *shader, const char *vertsrc, const char *fragsrc);
 void gfxDestroyShader(struct gfxShaderProgram *shader);
 
-void gfxSetShaderParams(const struct gfxShaderProgram *shader, const struct gfxRenderParams *params);
+void gfxSetShaderParams(const struct gfxShaderProgram *shader, const struct gfxRenderParams *params, const struct gfxRenderParams *prev);
 
 /* gfx/model.c */
 void gfxDestroyModel(struct gfxModel *model);

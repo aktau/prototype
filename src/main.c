@@ -155,7 +155,7 @@ static void gfxRender(const struct gfxModel *model, const struct gfxRenderParams
         glBindTexture(GL_TEXTURE_2D, model->texture[0]);
     }
 
-    gfxSetShaderParams(program, params);
+    gfxSetShaderParams(program, params, NULL);
 
     glDrawElements(GL_TRIANGLES, model->numIndices, GL_UNSIGNED_BYTE, (GLvoid*)0);
 
@@ -584,7 +584,6 @@ int main(int argc, char* argv[]) {
                 finalmat = quat_to_mat(neutqua);
             }
 
-            /* better to store, stream or to assign? */
             rotmat = finalmat;
         }
 
@@ -600,25 +599,6 @@ int main(int argc, char* argv[]) {
          * true if you're having sync issues?
          * glBufferData(GL_UNIFORM_BUFFER, sizeof(struct gfxGlobalMatrices), &world.matrices, GL_STREAM_DRAW);
          */
-        // {
-        //     world.timer = ms;
-        //     nocull.timer = ms;
-
-        //     /* start a batch and render */
-        //     gfxBatch(&world);
-        //     gfxRender(&sheet, &nocull, &waveShader);
-        //     gfxRender(&axis, &world, &colorShader);
-        //     gfxRender(&crystal, &world, &shader);
-        //     gfxRender(&cube, &world, &colorShader);
-        // }
-
-        // {
-        //     gui.timer = ms;
-
-        //     gfxBatch(&gui);
-        //     gfxRender(&quad, &gui, &guiShader);
-        // }
-
         {
             world.timer  = ms;
             nocull.timer = ms;

@@ -261,6 +261,7 @@ void gfxDrawlistRender() {
     unsigned int max = gDrawlist.nextId;
     // trace("drawing %u entities\n", max);
 
+    const struct gfxDrawOperation *prevOp = NULL;
     for (unsigned int i = 0; i < max; ++i) {
         const struct entry e              = gDrawlist.entries[i];
         const union gfxDrawlistKey k      = e.key;
@@ -284,7 +285,7 @@ void gfxDrawlistRender() {
 
         if (k.gen.type == KEY_TYPE_MODEL) {
             if (k.mod.shader != lShader) {
-                // trace("switching shader %u to shader %u\n", lShader, k.mod.shader);
+                // trace("%u: switching shader %u to shader %u\n", i, lShader, k.mod.shader);
 
                 lShader = k.mod.shader;
                 glUseProgram(op->program->id);
@@ -296,7 +297,7 @@ void gfxDrawlistRender() {
             glBindVertexArray(op->model->vao);
 
             if (k.mod.texture && k.mod.texture != lTexture) {
-                // trace("switching texture %u to texture %u\n", lTexture, k.mod.texture);
+                // trace("%u: switching texture %u to texture %u\n", i, lTexture, k.mod.texture);
 
                 lTexture = k.mod.texture;
 
@@ -304,10 +305,12 @@ void gfxDrawlistRender() {
                 glBindTexture(GL_TEXTURE_2D, op->model->texture[0]);
             }
 
-            gfxSetShaderParams(op->program, op->params);
+            gfxSetShaderParams(op->program, op->params, prevOp ? prevOp->params : NULL);
 
             /* fire draw batch */
             glDrawElements(GL_TRIANGLES, op->model->numIndices, GL_UNSIGNED_BYTE, (GLvoid*)0);
+
+            prevOp = op;
         }
     }
 
