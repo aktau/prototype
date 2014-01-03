@@ -10,6 +10,8 @@
 #include "util.h"
 #include "math/math.h"
 
+static unsigned int gRenderParamsId;
+
 /**
  * uniforms is done in two parts:
  *
@@ -41,6 +43,8 @@ void gfxCreateRenderParams(struct gfxRenderParams *params) {
     GL_ERROR("create ubo");
 
     params->matrixUbo = matrixUbo;
+
+    params->id = ++gRenderParamsId;
 }
 
 void gfxDestroyRenderParams(struct gfxRenderParams *params) {

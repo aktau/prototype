@@ -48,34 +48,34 @@ typedef enum {
     KEY_TYPE_COMMAND = 1
 } keytype_t;
 
-/* 2 + 2 + 2 + 2 + 1 + 6 + 1 = 16 bits */
+/* 2 + 2 + 2 + 2 + 1 + 1 = 10 bits */
 #define GENERIC_FIELDS \
  unsigned int type : 1; \
  unsigned int translucency : 2; \
  unsigned int viewportLayer : 2; \
  unsigned int viewport : 2; \
  unsigned int layer : 2; \
- unsigned int : 6; \
  unsigned int deleted: 1;
 
-/* 8 + 32 + 8 = 48 bits */
+/* 8 + 32 + 14 = 54 bits */
 #define COMMAND_FIELDS \
- unsigned int : 8; \
+ unsigned int : 14; \
  unsigned int id : 32; \
  unsigned int sequence : 8;
 
-/* 16 + 16 + 8 + 8 = 48 bits */
+/* 16 + 16 + 8 + 6 + 8 = 54 bits */
 #define MODEL_FIELDS \
  unsigned int material : 8; \
  unsigned int depth : 16; \
+ unsigned int params: 6; \
  unsigned int shader : 8; \
  unsigned int texture : 8; \
  unsigned int model : 8;
 
-/* 48 bits, padding */
+/* 54 bits, padding */
 #define EMPTY_FIELDS \
  unsigned int : 32; \
- unsigned int : 16;
+ unsigned int : 22;
 
 struct gfxDrawOpGeneric {
     EMPTY_FIELDS

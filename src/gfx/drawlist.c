@@ -76,10 +76,11 @@ static void printKey(union gfxDrawlistKey *k) {
 
     switch (k->gen.type) {
         case KEY_TYPE_MODEL:
-            trace("the specific fields are:\n\tmodel = %u\n\ttexture = %u\n\tshader = %u\n\tdepth = %u\n\tmaterial = %u\n",
+            trace("the specific fields are:\n\tmodel = %u\n\ttexture = %u\n\tshader = %u\n\tparams = %u\n\tdepth = %u\n\tmaterial = %u\n",
                 k->mod.model,
                 k->mod.texture,
                 k->mod.shader,
+                k->mod.params,
                 k->mod.depth,
                 k->mod.material);
         break;

@@ -620,9 +620,9 @@ int main(int argc, char* argv[]) {
         // }
 
         {
-            world.timer = ms;
+            world.timer  = ms;
             nocull.timer = ms;
-            gui.timer = ms;
+            gui.timer    = ms;
             gfxDrawlistRender();
         }
 

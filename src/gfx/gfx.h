@@ -123,6 +123,9 @@ struct gfxRenderParams {
     struct gfxGlobalMatrices matrices; /* the C side */
     unsigned int matrixUbo; /* the OpenGL side */
 
+    /* the id of this struct */
+    unsigned int id;
+
     /* relative timer in milliseconds, for use as a shader uniform */
     float timer;
 
