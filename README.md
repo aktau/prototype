@@ -26,6 +26,7 @@ more) as the engine itself.
 - [SDL2](http://www.libsdl.org/)
 - [LuaJIT](http://luajit.org/)
 - [threedee-simd](https://github.com/rikusalminen/threedee-simd) - I maintain a personal fork, where I'm adding some extra functions, fixes and compiler warning fixes until they are upstreamed.
+- [stb_image and stb_truetype](http://nothings.org/stb/)
 
 building
 ========
