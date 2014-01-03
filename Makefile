@@ -107,7 +107,8 @@ INCS := -I$(SDL_PATH)/include \
 	-I/usr/include/malloc \
 	-I/usr/X11R6/include \
 	-I./src \
-	-I./src/gfx
+	-I./src/gfx \
+	-I./src/util
 
 LIBS := $(SDL_PATH)/build/.libs/libSDL2.a $(SDL_PATH)/build/libSDL2main.a \
 	-lm -liconv \

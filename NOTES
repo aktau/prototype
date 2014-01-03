@@ -83,6 +83,8 @@ Features to implement
 - Deferred shading (and why deferred shading is better than deferred
   lighting: http://gameangst.com/?p=141 - example: https://github.com/ccxvii/mio/blob/master/shader.c and http://www.youtube.com/watch?v=ELeGC-x1hO8&feature=youtu.be)
 - Gamma correct rendering
+- Get a real asser in there: http://cnicholson.net/2009/02/stupid-c-tricks-adventures-in-assert/
+- verify your binary searches are generating CMOVs where it counts... (drawlist sorting)
 
 Data oriented design
 ====================

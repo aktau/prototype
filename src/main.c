@@ -405,6 +405,50 @@ int main(int argc, char* argv[]) {
     struct gfxRenderParams *paramlist[] = { &world, &gui, &nocull, NULL };
     resize(width, height, paramlist);
 
+    /* initial drawlist generation */
+    gfxDrawlistClear();
+
+    struct gfxDrawOperation axisd = {
+        .model   = &axis,
+        .params  = &world,
+        .program = &colorShader,
+    };
+    gfxGenRenderKey(&axisd);
+
+    struct gfxDrawOperation sheetd = {
+        .model   = &sheet,
+        .params  = &nocull,
+        .program = &waveShader,
+    };
+    gfxGenRenderKey(&sheetd);
+
+    struct gfxDrawOperation crystald = {
+        .model   = &crystal,
+        .params  = &world,
+        .program = &shader,
+    };
+    gfxGenRenderKey(&crystald);
+
+    struct gfxDrawOperation cubed = {
+        .model   = &cube,
+        .params  = &world,
+        .program = &colorShader,
+    };
+    gfxGenRenderKey(&crystald);
+
+    struct gfxDrawOperation guid = {
+        .model   = &quad,
+        .params  = &gui,
+        .program = &guiShader,
+    };
+    gfxGenRenderKey(&guid);
+
+    gfxDrawlistAdd(&axisd);
+    gfxDrawlistAdd(&sheetd);
+    gfxDrawlistAdd(&crystald);
+    gfxDrawlistAdd(&cubed);
+    gfxDrawlistAdd(&guid);
+
     while (!done) {
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
@@ -548,23 +592,30 @@ int main(int argc, char* argv[]) {
          * true if you're having sync issues?
          * glBufferData(GL_UNIFORM_BUFFER, sizeof(struct gfxGlobalMatrices), &world.matrices, GL_STREAM_DRAW);
          */
+        // {
+        //     world.timer = ms;
+        //     nocull.timer = ms;
+
+        //     /* start a batch and render */
+        //     gfxBatch(&world);
+        //     gfxRender(&sheet, &nocull, &waveShader);
+        //     gfxRender(&axis, &world, &colorShader);
+        //     gfxRender(&crystal, &world, &shader);
+        //     gfxRender(&cube, &world, &colorShader);
+        // }
+
+        // {
+        //     gui.timer = ms;
+
+        //     gfxBatch(&gui);
+        //     gfxRender(&quad, &gui, &guiShader);
+        // }
+
         {
             world.timer = ms;
             nocull.timer = ms;
-
-            /* start a batch and render */
-            gfxBatch(&world);
-            gfxRender(&sheet, &nocull, &waveShader);
-            gfxRender(&axis, &world, &colorShader);
-            gfxRender(&crystal, &world, &shader);
-            gfxRender(&cube, &world, &colorShader);
-        }
-
-        {
             gui.timer = ms;
-
-            gfxBatch(&gui);
-            gfxRender(&quad, &gui, &guiShader);
+            gfxDrawlistRender();
         }
 
         glEndQuery(GL_TIME_ELAPSED);

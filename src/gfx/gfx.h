@@ -38,6 +38,15 @@
 
 #define GFX_UBO_MATRICES        0x0001
 
+typedef enum {
+    GFX_VBO_VERTEX = 0,
+    GFX_VBO_NORMAL,
+    GFX_VBO_TEXCOORD,
+    GFX_VBO_COLOR,
+    GFX_VBO_TANGENT,
+    GFX_VBO_NUM
+} vbo_type_t;
+
 struct gfxTransform {
     float position[3];
     float rotation[3];
@@ -122,7 +131,26 @@ struct gfxRenderParams {
 
     unsigned char blend;
     unsigned char cull;
+};
 
+/* best to allocate sub-arrays in one fell swoop or use a really good allocator */
+struct gfxModel {
+    unsigned int vao;
+    unsigned int vbo[GFX_VBO_NUM];
+
+    unsigned int ibo;
+    int numIndices;
+
+    unsigned int texture[1];
+};
+
+struct gfxDrawOperation {
+    /* regenerate this key whenever necessary (param change...) */
+    union gfxDrawlistKey key;
+
+    struct gfxModel *model;
+    struct gfxRenderParams *params;
+    struct gfxShaderProgram *program;
 };
 
 #endif

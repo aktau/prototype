@@ -26,17 +26,13 @@
     #include <GL3/gl3.h>
 #endif
 
+#include "macros.h"
+
 #include "SDL.h"
 #include "zmalloc.h"
 
-#include "types.h"
+#include "drawlist.h"
 #include "gfx.h"
-
-#define PACKED __attribute__((packed))
-#define STATIC_ASSERT _Static_assert
-
-#define likely(x)       __builtin_expect(!!(x), 1)
-#define unlikely(x)     __builtin_expect(!!(x), 0)
 
 #ifdef DEBUG
 #define DEBUG_TEST 1
@@ -169,9 +165,6 @@ void gfxDestroyModel(struct gfxModel *model);
 void gfxCreateRenderParams(struct gfxRenderParams *params);
 void gfxDestroyRenderParams(struct gfxRenderParams *params);
 void gfxBatch(const struct gfxRenderParams *params);
-
-/* gfx/drawlist.c */
-void gfxDrawlistDebug();
 
 /* scratch.c */
 void gfxQuad(struct gfxModel *model);
