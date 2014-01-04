@@ -63,14 +63,25 @@ typedef enum {
  unsigned int id : 32; \
  unsigned int sequence : 8;
 
-/* 16 + 16 + 8 + 6 + 8 = 54 bits */
+/* 16 + 16 + 8 + 6 + 8 = 54 bits
+ *
+ * we put model after texture, shader
+ * and params because if something uses
+ * the same model, it probably uses the
+ * same parameters
+ * TODO: test if splitting up depth is feasible,
+ * or possibly a coarse depth only for the
+ * non-translucent case. i.e.: only 6-8 bits
+ * for depth, so we can render "more or less"
+ * in depth buckets, and save shader state
+ * inside of the buckets */
 #define MODEL_FIELDS \
  unsigned int material : 8; \
  unsigned int depth : 16; \
+ unsigned int model : 8; \
  unsigned int params: 6; \
- unsigned int shader : 8; \
  unsigned int texture : 8; \
- unsigned int model : 8;
+ unsigned int shader : 8;
 
 /* 54 bits, padding */
 #define EMPTY_FIELDS \
