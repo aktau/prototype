@@ -69,7 +69,7 @@ void gfxSetShaderParams(const struct gfxShaderProgram *shader, const struct gfxR
             glFrontFace(GL_CCW);
 
             switch (params->cull) {
-                case GFX_CULL_FRONT: glCullFace(GL_BACK); break;
+                case GFX_CULL_FRONT: glCullFace(GL_FRONT); break;
                 case GFX_CULL_BACK: glCullFace(GL_BACK); break;
             }
         }
