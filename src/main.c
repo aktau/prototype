@@ -65,20 +65,26 @@ const char *printm3(mat4 mat) {
 
 /* call this function after initializing all relevant uniform buffer objects
  * and after every resize. */
-static void resize(int width, int height, struct gfxRenderParams **paramlist) {
+static void resize(struct gfxRenderer *renderer, int width, int height) {
     glViewport(0, 0, (GLsizei) width, (GLsizei) height);
 
-    struct gfxRenderParams *params = NULL;
-    for (params = *paramlist; params; params = *(++paramlist)) {
-        /* set the projection matrix for the renderer */
-        params->matrices.projectionMatrix = (params->orthogonal) ?
-            mat_ortho(0.0f, (float) width, 0.0f, (float) height, 0.0f, 1.0f) :
-            mat_perspective_fovy(GFX_PI / 2.0f, (float) width / (float) height, 0.5f, 10.0f);
+    struct gfxLayer **layers = renderer->layers;
+    struct gfxLayer *layer = NULL;
+    for (layer = *layers; layer; layer = *(++layers)) {
+        /* set the projection matrix for the layer */
+        switch (layer->projection) {
+            case GFX_PERSPECTIVE:
+                layer->uniforms.projectionMatrix = mat_perspective_fovy(GFX_PI / 2.0f, (float) width / (float) height, 0.5f, 10.0f);
+                break;
+            case GFX_ORTHO:
+                layer->uniforms.projectionMatrix = mat_ortho(0.0f, (float) width, 0.0f, (float) height, 0.0f, 1.0f);
+                break;
+        }
 
-        glBindBuffer(GL_UNIFORM_BUFFER, params->matrixUbo);
-        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(struct gfxGlobalMatrices), &params->matrices);
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+        /* after changing the uniforms we have to re-upload */
+        gfxUploadLayer(layer);
     }
+
 }
 
 static void init() {
@@ -144,23 +150,6 @@ static void swapQueryBuffers() {
         gQueryBackBuffer  = 1;
         gQueryFrontBuffer = 0;
     }
-}
-
-static void gfxRender(const struct gfxModel *model, const struct gfxRenderParams *params, const struct gfxShaderProgram *program) {
-    glUseProgram(program->id);
-    glBindVertexArray(model->vao);
-
-    if (model->texture[0]) {
-        glActiveTexture(GL_TEXTURE0 + 0);
-        glBindTexture(GL_TEXTURE_2D, model->texture[0]);
-    }
-
-    gfxSetShaderParams(program, params, NULL);
-
-    glDrawElements(GL_TRIANGLES, model->numIndices, GL_UNSIGNED_BYTE, (GLvoid*)0);
-
-    glBindVertexArray(0);
-    glUseProgram(0);
 }
 
 static void printGlInfo() {
@@ -373,8 +362,15 @@ int main(int argc, char* argv[]) {
 
     struct gfxRenderParams gui = { 0 };
     gfxCreateRenderParams(&gui);
-    gui.blend      = GFX_BLEND_ALPHA;
-    gui.orthogonal = GFX_TRUE;
+    gui.blend = GFX_BLEND_ALPHA;
+
+    /* layers */
+    struct gfxLayer sceneLayer = {0};
+    gfxCreateLayer(&sceneLayer);
+
+    struct gfxLayer guiLayer = {0};
+    gfxCreateLayer(&guiLayer);
+    guiLayer.projection = GFX_ORTHO;
 
     /* models */
     unsigned int modelId = 1;
@@ -409,8 +405,11 @@ int main(int argc, char* argv[]) {
     int combined    = 0;
     int wireframe   = 0;
 
-    struct gfxRenderParams *paramlist[] = { &world, &gui, &nocull, NULL };
-    resize(width, height, paramlist);
+    struct gfxLayer *layers[] = { &sceneLayer, &guiLayer, NULL };
+    struct gfxRenderer renderer = {
+        .layers = layers,
+    };
+    resize(&renderer, width, height);
 
     /* initial drawlist generation */
     gfxDrawlistClear();
@@ -419,6 +418,7 @@ int main(int argc, char* argv[]) {
         .model   = &axis,
         .params  = &world,
         .program = &colorShader,
+        .layer   = &sceneLayer,
     };
     gfxGenRenderKey(&axisd);
 
@@ -426,6 +426,7 @@ int main(int argc, char* argv[]) {
         .model   = &sheet,
         .params  = &nocull,
         .program = &waveShader,
+        .layer   = &sceneLayer,
     };
     gfxGenRenderKey(&sheetd);
 
@@ -433,6 +434,7 @@ int main(int argc, char* argv[]) {
         .model   = &crystal,
         .params  = &world,
         .program = &shader,
+        .layer   = &sceneLayer,
     };
     gfxGenRenderKey(&crystald);
 
@@ -440,6 +442,7 @@ int main(int argc, char* argv[]) {
         .model   = &cube,
         .params  = &world,
         .program = &colorShader,
+        .layer   = &sceneLayer,
     };
     gfxGenRenderKey(&cubed);
 
@@ -447,6 +450,7 @@ int main(int argc, char* argv[]) {
         .model   = &quad,
         .params  = &gui,
         .program = &guiShader,
+        .layer   = &guiLayer,
     };
     gfxGenRenderKey(&guid);
     guid.key.gen.layer = LAYER_2;
@@ -473,7 +477,7 @@ int main(int argc, char* argv[]) {
                                 width, height
                             );
 
-                            resize(width, height, paramlist);
+                            resize(&renderer, width, height);
                         }
                         break;
                     }
@@ -599,12 +603,12 @@ int main(int argc, char* argv[]) {
          * true if you're having sync issues?
          * glBufferData(GL_UNIFORM_BUFFER, sizeof(struct gfxGlobalMatrices), &world.matrices, GL_STREAM_DRAW);
          */
-        {
-            world.timer  = ms;
-            nocull.timer = ms;
-            gui.timer    = ms;
-            gfxDrawlistRender();
-        }
+        sceneLayer.uniforms.timer = ms;
+        guiLayer.uniforms.timer   = ms;
+        gfxUploadLayer(&sceneLayer);
+        gfxUploadLayer(&guiLayer);
+
+        gfxDrawlistRender();
 
         glEndQuery(GL_TIME_ELAPSED);
 
@@ -641,6 +645,9 @@ int main(int argc, char* argv[]) {
     gfxDestroyRenderParams(&world);
     gfxDestroyRenderParams(&gui);
     gfxDestroyRenderParams(&nocull);
+
+    gfxDestroyLayer(&sceneLayer);
+    gfxDestroyLayer(&guiLayer);
 
     gfxDestroyTexture(texture);
 

@@ -25,11 +25,11 @@ layout(std140) uniform StaticMatrices {
     // vec4 specular;
     // vec4 position;
     // vec4 direction;
+    float timer;
 };
 
 /* uniforms */
 uniform mat4 modelviewMatrix;
-uniform float timer;
 
 /* in */
 layout(location = 0) in vec3 in_position;

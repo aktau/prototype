@@ -156,15 +156,23 @@ void gfxLoadShaderFromFile(struct gfxShaderProgram *shader, const char *vertfile
 void gfxLoadShader(struct gfxShaderProgram *shader, const char *vertsrc, const char *fragsrc);
 void gfxDestroyShader(struct gfxShaderProgram *shader);
 
-void gfxSetShaderParams(const struct gfxShaderProgram *shader, const struct gfxRenderParams *params, const struct gfxRenderParams *prev);
+void gfxSetShaderParams(
+    const struct gfxShaderProgram *shader,
+    const struct gfxLayer *layer,
+    const struct gfxRenderParams *params,
+    const struct gfxRenderParams *prev
+);
 
 /* gfx/model.c */
 void gfxDestroyModel(struct gfxModel *model);
 
 /* gfx/renderer.c */
+void gfxCreateLayer(struct gfxLayer *layer);
+void gfxUploadLayer(const struct gfxLayer *layer);
+void gfxDestroyLayer(struct gfxLayer *layer);
 void gfxCreateRenderParams(struct gfxRenderParams *params);
 void gfxDestroyRenderParams(struct gfxRenderParams *params);
-void gfxBatch(const struct gfxRenderParams *params);
+void gfxBatch(const struct gfxLayer *layer);
 
 /* scratch.c */
 void gfxQuad(struct gfxModel *model);

@@ -22,7 +22,12 @@
 static int gfxCheckShader(GLuint shader);
 static int gfxCheckShaderProgram(GLuint program);
 
-void gfxSetShaderParams(const struct gfxShaderProgram *shader, const struct gfxRenderParams *params, const struct gfxRenderParams *prev) {
+void gfxSetShaderParams(
+    const struct gfxShaderProgram *shader,
+    const struct gfxLayer *layer,
+    const struct gfxRenderParams *params,
+    const struct gfxRenderParams *prev
+) {
     /**
      * TODO:
      * glEnable(GL_DEPTH_TEST);
@@ -83,7 +88,7 @@ void gfxSetShaderParams(const struct gfxShaderProgram *shader, const struct gfxR
     if (shader->loc.texture2 != -1) glUniform1i(shader->loc.texture2, 2);
     if (shader->loc.texture3 != -1) glUniform1i(shader->loc.texture3, 3);
 
-    if (shader->loc.timer != -1) glUniform1f(shader->loc.timer, params->timer);
+    if (shader->loc.timer != -1) glUniform1f(shader->loc.timer, layer->uniforms.timer);
 }
 
 void gfxLoadShaderFromFile(struct gfxShaderProgram *shader, const char *vertfile, const char *fragfile) {
@@ -176,7 +181,7 @@ void gfxLoadShader(struct gfxShaderProgram *shader, const char *vertsrc, const c
 
     if (shader->loc.matricesBlockIndex != GL_INVALID_INDEX) {
         trace("shader requires static matrices, binding UBO\n");
-        glUniformBlockBinding(program, shader->loc.matricesBlockIndex, GFX_UBO_MATRICES);
+        glUniformBlockBinding(program, shader->loc.matricesBlockIndex, GFX_UBO_LAYER);
     }
 
     shader->id = program;

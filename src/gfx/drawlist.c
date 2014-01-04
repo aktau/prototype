@@ -162,6 +162,7 @@ static void sortDrawlist() {
 void gfxGenRenderKey(struct gfxDrawOperation *op) {
     union gfxDrawlistKey key = {0};
 
+    key.gen.layer   = op->layer->id;
     key.mod.texture = op->model->texture[0];
     key.mod.model   = op->model->id;
     key.mod.shader  = op->program->id;
@@ -268,7 +269,10 @@ void gfxDrawlistRender() {
         const struct gfxDrawOperation *op = e.op;
 
         if (k.gen.layer != lLayer) {
+            // trace("%u: switching layer %u to layer %u\n", i, lLayer, k.gen.layer);
+
             lLayer = k.gen.layer;
+            gfxBatch(op->layer);
         }
 
         if (k.gen.viewport != lViewport) {
@@ -291,9 +295,6 @@ void gfxDrawlistRender() {
                 glUseProgram(op->program->id);
             }
 
-            /* TODO: don't do this unnecesarily */
-            gfxBatch(op->params);
-
             glBindVertexArray(op->model->vao);
 
             if (k.mod.texture && k.mod.texture != lTexture) {
@@ -305,7 +306,7 @@ void gfxDrawlistRender() {
                 glBindTexture(GL_TEXTURE_2D, op->model->texture[0]);
             }
 
-            gfxSetShaderParams(op->program, op->params, prevOp ? prevOp->params : NULL);
+            gfxSetShaderParams(op->program, op->layer, op->params, prevOp ? prevOp->params : NULL);
 
             /* fire draw batch */
             glDrawElements(GL_TRIANGLES, op->model->numIndices, GL_UNSIGNED_BYTE, (GLvoid*)0);

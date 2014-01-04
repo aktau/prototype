@@ -31,12 +31,16 @@
 #define GFX_BLEND_ALPHA         0x0001
 #define GFX_BLEND_PREMUL_ALPHA  0x0002
 
+/* projection modes */
+#define GFX_PERSPECTIVE         0x0000
+#define GFX_ORTHO               0x0001
+
 /* cull face modes */
 /* #define GFX_NONE                0x0000 */
 #define GFX_CULL_FRONT          0x0001
 #define GFX_CULL_BACK           0x0002
 
-#define GFX_UBO_MATRICES        0x0001
+#define GFX_UBO_LAYER           0x0001
 
 typedef enum {
     GFX_VBO_VERTEX = 0,
@@ -116,21 +120,30 @@ struct gfxGlobalMatrices {
     mat4 projectionMatrix;
 };
 
+/* each layer */
+struct gfxLayerUbo {
+    mat4 projectionMatrix;
+
+    float timer;
+};
+
+/* per-layer attributes, such as projection matrix */
+struct gfxLayer {
+    struct gfxLayerUbo uniforms;
+    unsigned int ubo;
+
+    unsigned int id;
+
+    /* what's the projection of this layer like?
+     * GFX_PERSPECTIVE, GFX_ORTHO */
+    unsigned char projection;
+};
+
 struct gfxRenderParams {
     mat4 modelviewMatrix;
 
-    /* the uniform buffer object that stores matrices common to all (or most) shader programs */
-    struct gfxGlobalMatrices matrices; /* the C side */
-    unsigned int matrixUbo; /* the OpenGL side */
-
     /* the id of this struct */
     unsigned int id;
-
-    /* relative timer in milliseconds, for use as a shader uniform */
-    float timer;
-
-    /* persective or orthogonal? */
-    unsigned char orthogonal;
 
     unsigned char blend;
     unsigned char cull;
@@ -155,6 +168,12 @@ struct gfxDrawOperation {
     struct gfxModel *model;
     struct gfxRenderParams *params;
     struct gfxShaderProgram *program;
+    struct gfxLayer *layer;
+};
+
+/* not in use yet, still deciding on the right format */
+struct gfxRenderer {
+    struct gfxLayer **layers;
 };
 
 #endif
