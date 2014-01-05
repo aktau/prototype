@@ -107,6 +107,14 @@ static void init() {
     glEnable(GL_MULTISAMPLE);
 }
 
+static void fillRendererInfo(struct gfxRenderer *renderer) {
+    glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &renderer->maxUniformBlockSize);
+    GL_ERROR("request max uniform block size");
+
+    glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &renderer->maxUniformBufferBindings);
+    GL_ERROR("request max uniform buffer bindings");
+}
+
 /* how many queries do we use per frame? */
 typedef enum {
     TIMER_RENDER = 0,
@@ -409,6 +417,9 @@ int main(int argc, char* argv[]) {
     struct gfxRenderer renderer = {
         .layers = layers,
     };
+    fillRendererInfo(&renderer);
+    trace("render context info: max UBO size = %d, max UBO binding points = %d\n", renderer.maxUniformBlockSize, renderer.maxUniformBufferBindings);
+
     resize(&renderer, width, height);
 
     /* initial drawlist generation */

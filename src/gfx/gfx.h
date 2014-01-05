@@ -174,6 +174,12 @@ struct gfxDrawOperation {
 /* not in use yet, still deciding on the right format */
 struct gfxRenderer {
     struct gfxLayer **layers;
+
+    /* the maximum size in basic machine units of a uniform block, which must be at least 16384 */
+    int maxUniformBlockSize;
+
+    /* the maximum number of uniform buffer binding points on the context, which must be at least 36 */
+    int maxUniformBufferBindings;
 };
 
 #endif
