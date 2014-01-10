@@ -37,6 +37,8 @@ static inline vec4 vscalaru(uint32_t x) __attribute__((always_inline));
 static inline vec4 vscalaru(uint32_t x) { union { float f; uint32_t ui; } u = { .ui = x }; return _mm_set1_ps(u.f); }
 static inline vec4 vzero(void) __attribute__((always_inline));
 static inline vec4 vzero(void) { return _mm_setzero_ps(); }
+static inline scalar vfirst(vec4 x) __attribute__((always_inline));
+static inline scalar vfirst(vec4 x) { return _mm_cvtss_f32(x); }
 
 static inline vec4 vadd(vec4 x, vec4 y) __attribute__((always_inline));
 static inline vec4 vadd(vec4 x, vec4 y) { return _mm_add_ps(x, y); }
@@ -50,6 +52,23 @@ static inline vec4 vmin(vec4 x, vec4 y) __attribute__((always_inline));
 static inline vec4 vmin(vec4 x, vec4 y) { return _mm_min_ps(x, y); }
 static inline vec4 vmax(vec4 x, vec4 y) __attribute__((always_inline));
 static inline vec4 vmax(vec4 x, vec4 y) { return _mm_max_ps(x, y); }
+
+static vec4 vor(vec4 x, vec4 y) __attribute__((always_inline));
+static vec4 vor(vec4 x, vec4 y) { return _mm_or_ps(x, y); }
+static vec4 vand(vec4 x, vec4 y) __attribute__((always_inline));
+static vec4 vand(vec4 x, vec4 y) { return _mm_and_ps(x, y); }
+
+static vec4 vcmpgt(vec4 x, vec4 y) __attribute__((always_inline));
+static vec4 vcmpgt(vec4 x, vec4 y) { return _mm_cmpgt_ps(x, y); }
+static vec4 vcmplt(vec4 x, vec4 y) __attribute__((always_inline));
+static vec4 vcmplt(vec4 x, vec4 y) { return _mm_cmplt_ps(x, y); }
+static vec4 vcmpge(vec4 x, vec4 y) __attribute__((always_inline));
+static vec4 vcmpge(vec4 x, vec4 y) { return _mm_cmpge_ps(x, y); }
+static vec4 vcmple(vec4 x, vec4 y) __attribute__((always_inline));
+static vec4 vcmple(vec4 x, vec4 y) { return _mm_cmple_ps(x, y); }
+
+static int vmovmask(vec4 x) __attribute__((always_inline));
+static int vmovmask(vec4 x) { return _mm_movemask_ps(x); }
 
 static inline vec4 vsqrt(vec4 x) __attribute__((always_inline));
 static inline vec4 vsqrt(vec4 x) { return _mm_sqrt_ps(x); }
@@ -93,9 +112,14 @@ static inline void vstream(vec4 *ptr, vec4 v) { _mm_stream_ps((float*)ptr, v); }
 
 #ifdef __clang__
 #define vshuffle(x, y, a, b, c, d) (__builtin_shufflevector((x), (y), (a), (b), (4+c), (4+d)))
+#define vadvshuffle(x, y, a, b, c, d) (__builtin_shufflevector((x), (y), (a), (b), (c), (d)))
+/* clang supports "don't care", a value that allows the compiler to optimize if you don't care about that position */
+#define V_DONTCARE -1
 #else
 #define vshuffle_mask(a, b, c, d) (((a) << 0) | ((b) << 2) | ((c) << 4) | ((d) << 6))
 #define vshuffle(x, y, a, b, c, d) (__builtin_ia32_shufps((x), (y), vshuffle_mask((a),(b),(c),(d))))
+#define vadvshuffle(x, y, a, b, c, d) (__builtin_shuffle((x), (y), {(a), (b), (c), (d)}))
+#define V_DONTCARE 0
 #endif
 
 #define vsplat(v, x) vshuffle((v), (v), (x), (x),  (x),  (x))

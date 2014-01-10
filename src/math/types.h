@@ -25,11 +25,24 @@
 typedef float vec4 __attribute__((vector_size(16)));
 typedef float scalar;
 
-struct mat4_t
-{
+struct mat4_t {
     vec4 cols[4];
 } __attribute__((aligned(16)));
 
 typedef struct mat4_t mat4;
+
+struct frustum_t {
+    vec4 planes[6];
+    vec4 points[8];
+} __attribute__((aligned(16)));
+
+typedef struct frustum_t frustum;
+
+struct aabb_t {
+    vec4 min;
+    vec4 max;
+} __attribute__((aligned(16)));
+
+typedef struct aabb_t aabb;
 
 #endif

@@ -25,6 +25,13 @@
 #include <math/types.h>
 #include <math/vector.h>
 
+static inline mat4 mat(vec4 col0, vec4 col1, vec4 col2, vec4 col3) __attribute__((always_inline));
+static inline mat4 mat(vec4 col0, vec4 col1, vec4 col2, vec4 col3)
+{
+    mat4 m = {{ col0, col1, col2, col3 }};
+    return m;
+}
+
 static inline mat4 mtranspose(mat4 m) __attribute__((always_inline));
 static inline mat4 mtranspose(mat4 m)
 {
@@ -128,12 +135,19 @@ static inline vec4 mvmul_add_cols(vec4 col0, vec4 col1, vec4 col2, vec4 col3, ve
     return col0 * vsplat(v, 0) + col1 * vsplat(v, 1) + col2 * vsplat(v, 2) + col3 * vsplat(v, 3);
 }
 
+static inline vec4 mvmul_madd_cols(vec4 col0, vec4 col1, vec4 col2, vec4 col3, vec4 v) __attribute__((always_inline));
 static inline vec4 mvmul_madd_cols(vec4 col0, vec4 col1, vec4 col2, vec4 col3, vec4 v)
 {
     return vmadd(col0, vsplat(v, 0),
             vmadd(col1, vsplat(v, 1),
             vmadd(col2, vsplat(v, 2),
             vmul(col3, vsplat(v, 3)))));
+}
+
+static inline vec4 mvmul_cols(vec4 col0, vec4 col1, vec4 col2, vec4 col3, vec4 v) __attribute__((always_inline));
+static inline vec4 mvmul_cols(vec4 col0, vec4 col1, vec4 col2, vec4 col3, vec4 v)
+{
+    return mvmul_madd_cols(col0, col1, col2, col3, v);
 }
 
 static inline vec4 mvmul_dot_rows(vec4 x, vec4 y, vec4 z, vec4 w, vec4 v) __attribute__((always_inline));

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013 Riku Salminen
+ * Copyright (c) 2014 Nicolas Hillegeer
  *
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -19,15 +19,4 @@
  *       distribution.
  */
 
-#ifndef MATH_MATH_H
-#define MATH_MATH_H
-
-#include <math/types.h>
-#include <math/vector.h>
-#include <math/matrix.h>
-#include <math/rotation.h>
-#include <math/projection.h>
-#include <math/transformation.h>
-#include <math/geometry.h>
-
-#endif
+#define ALWAYS_INLINE __attribute__((always_inline))
