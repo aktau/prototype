@@ -23,6 +23,7 @@ http://arcsynthesis.org/gltut/
 http://www.antongerdelan.net/opengl - Anton's OpenGL4 tutorials
 http://github.prideout.net/modern-opengl-prezo/ - Modern OpenGL Prezzo
 http://http.developer.nvidia.com/GPUGems3/gpugems3_ch25.html - GPU Gems 3 (free!)
+http://svenandersson.se/2014/realtime-rendering-blogs.html - Collects all the blogs, basically, for when you've caught up...
 
 glsl:
 https://github.com/daw42/glslcookbook
@@ -85,6 +86,7 @@ Features to implement
 - Gamma correct rendering
 - Get a real asser in there: http://cnicholson.net/2009/02/stupid-c-tricks-adventures-in-assert/
 - verify your binary searches are generating CMOVs where it counts... (drawlist sorting)
+- use some open-source textures to make the demo's look better and test bump/normal-mapping: http://opengameart.org/content/new-england-textures-i
 
 Data oriented design
 ====================

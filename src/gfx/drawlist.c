@@ -32,7 +32,7 @@ struct gfxDrawlist {
 
 static struct gfxDrawlist gDrawlist;
 
-static ALWAYS_INLINE ssize_t searchEntry(uint64_t key, struct entry array[], size_t size) {
+ALWAYS_INLINE static ssize_t searchEntry(uint64_t key, struct entry array[], size_t size) {
     struct entry *low = array;
 
     /* this should unroll... check this manually */
