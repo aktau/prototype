@@ -159,6 +159,16 @@ static void sortDrawlist() {
     }
 }
 
+/* as per http://aras-p.info/blog/2014/01/16/rough-sorting-by-depth/ */
+static unsigned int quantizeDepth(float depth, unsigned char bits) {
+    /* interpret float representation as int */
+    union { float f; unsigned i; } f2i;
+    f2i.f = depth;
+
+    /* take the upper X bits */
+    return f2i.i >> bits;
+}
+
 void gfxGenRenderKey(struct gfxDrawOperation *op) {
     union gfxDrawlistKey key = {0};
 
@@ -166,6 +176,12 @@ void gfxGenRenderKey(struct gfxDrawOperation *op) {
     key.mod.texture = op->model->texture[0];
     key.mod.model   = op->model->id;
     key.mod.shader  = op->program->id;
+
+    /* TODO: how to efficiently calculate the depth...
+     * (in which pass?), obviously this just needs an
+     * approximation so we could go for the center of the
+     * AABB or OBB. and transform that...
+     * key.mod.depth = quantizeDepth(34.4f, 10); */
 
     op->key = key;
 
