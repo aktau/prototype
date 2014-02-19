@@ -19,7 +19,7 @@ void gfxCreateLayer(struct gfxLayer *layer) {
     GLuint ubo;
     glGenBuffers(1, &ubo);
     glBindBuffer(GL_UNIFORM_BUFFER, ubo);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(struct gfxLayerUbo), &layer->uniforms, GL_DYNAMIC_DRAW); /* GL_STREAM_DRAW */
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(struct gfxLayerUbo), &layer->uniforms, GL_STREAM_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     GL_ERROR("create ubo");
 
