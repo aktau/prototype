@@ -175,11 +175,15 @@ struct gfxDrawOperation {
 struct gfxRenderer {
     struct gfxLayer **layers;
 
-    /* the maximum size in basic machine units of a uniform block, which must be at least 16384 */
-    int maxUniformBlockSize;
+    /* the maximum size in basic machine units (bytes) of a uniform block, which must be at least 16384 */
+    int uboMaxBlockSize;
 
     /* the maximum number of uniform buffer binding points on the context, which must be at least 36 */
-    int maxUniformBufferBindings;
+    int uboMaxBindings;
+
+    /* ff you bind a uniform buffer with glBindBufferRange, the offset field of that parameter must be
+     * a multiple of GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT. */
+    int uboOffsetAlign;
 };
 
 #endif

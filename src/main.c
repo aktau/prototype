@@ -108,11 +108,14 @@ static void init() {
 }
 
 static void fillRendererInfo(struct gfxRenderer *renderer) {
-    glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &renderer->maxUniformBlockSize);
+    glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &renderer->uboMaxBlockSize);
     GL_ERROR("request max uniform block size");
 
-    glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &renderer->maxUniformBufferBindings);
+    glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &renderer->uboMaxBindings);
     GL_ERROR("request max uniform buffer bindings");
+
+    glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &renderer->uboOffsetAlign);
+    GL_ERROR("request uniform buffer offset alignment");
 }
 
 /* how many queries do we use per frame? */
@@ -418,7 +421,8 @@ int main(int argc, char* argv[]) {
         .layers = layers,
     };
     fillRendererInfo(&renderer);
-    trace("render context info: max UBO size = %d, max UBO binding points = %d\n", renderer.maxUniformBlockSize, renderer.maxUniformBufferBindings);
+    trace("render context info: max UBO size = %d, max UBO binding points = %d, UBO offset alignment = %d\n",
+        renderer.uboMaxBlockSize, renderer.uboMaxBindings, renderer.uboOffsetAlign);
 
     resize(&renderer, width, height);
 
