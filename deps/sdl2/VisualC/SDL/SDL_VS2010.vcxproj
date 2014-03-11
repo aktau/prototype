@@ -479,6 +479,9 @@
     <ClInclude Include="..\..\include\SDL_version.h" />
     <ClInclude Include="..\..\include\SDL_video.h" />
     <ClInclude Include="..\..\src\core\windows\SDL_windows.h" />
+    <ClInclude Include="..\..\src\dynapi\SDL_dynapi.h" />
+    <ClInclude Include="..\..\src\dynapi\SDL_dynapi_overrides.h" />
+    <ClInclude Include="..\..\src\dynapi\SDL_dynapi_procs.h" />
     <ClInclude Include="..\..\src\events\blank_cursor.h" />
     <ClInclude Include="..\..\src\events\default_cursor.h" />
     <ClInclude Include="..\..\src\audio\directsound\directx.h" />
@@ -553,9 +556,13 @@
     <ClInclude Include="..\..\src\events\SDL_windowevents_c.h" />
     <ClInclude Include="..\..\src\video\windows\wmmsg.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="..\..\include\SDL_egl.h" />
+    <ClInclude Include="..\..\src\video\sdl_egl_c.h" />
+    <ClInclude Include="..\..\src\video\windows\SDL_windowsopengles.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\core\windows\SDL_windows.c" />
+    <ClCompile Include="..\..\src\dynapi\SDL_dynapi.c" />
     <ClCompile Include="..\..\src\events\SDL_clipboardevents.c" />
     <ClCompile Include="..\..\src\events\SDL_gesture.c" />
     <ClCompile Include="..\..\src\events\SDL_touch.c" />
@@ -669,6 +676,10 @@
     <ClCompile Include="..\..\src\video\windows\SDL_windowsvideo.c" />
     <ClCompile Include="..\..\src\video\windows\SDL_windowswindow.c" />
     <ClCompile Include="..\..\src\events\SDL_windowevents.c" />
+    <ClCompile Include="..\..\src\render\opengles2\SDL_render_gles2.c" />
+    <ClCompile Include="..\..\src\render\opengles2\SDL_shaders_gles2.c" />
+    <ClCompile Include="..\..\src\video\SDL_egl.c" />
+    <ClCompile Include="..\..\src\video\windows\SDL_windowsopengles.c" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\src\main\windows\version.rc" />

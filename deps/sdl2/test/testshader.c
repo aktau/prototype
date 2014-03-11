@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 1997-2013 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2014 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -187,7 +187,7 @@ static SDL_bool CompileShaderProgram(ShaderData *data)
     }
     glUseProgramObjectARB(0);
 
-    return (glGetError() == GL_NO_ERROR);
+    return (glGetError() == GL_NO_ERROR) ? SDL_TRUE : SDL_FALSE;
 }
 
 static void DestroyShaderProgram(ShaderData *data)

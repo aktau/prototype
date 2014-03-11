@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 1997-2013 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2014 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -247,8 +247,6 @@ main(int argc, char *argv[])
     if (!state) {
         return 1;
     }
-
-    state->window_flags |= SDL_WINDOW_RESIZABLE;
 
     for (i = 1; i < argc;) {
         int consumed;
