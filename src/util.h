@@ -140,6 +140,7 @@ const char *wfScriptVersion(void);
 /* error handling */
 const char *wfGlErrorString(GLenum error);
 const char *wfGlFbErrorString();
+void wfGlCheckLeaks(void);
 
 /* caller frees string when done */
 char *loadfile(const char *filename);

@@ -672,6 +672,8 @@ int main(int argc, char* argv[]) {
     wfScriptDestroy();
 #endif
 
+    wfGlCheckLeaks();
+
     SDL_GL_DeleteContext(glcontext);
 
     SDL_DestroyWindow(window);

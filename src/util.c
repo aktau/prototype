@@ -41,6 +41,29 @@ const char *wfGlFbErrorString() {
     }
 }
 
+/* idea and implementation by @rygorous */
+void wfGlCheckLeaks(void) {
+    /* better idea would be to keep track of assigned names. */
+    GLuint max_id = 10000;
+    GLuint id;
+
+    /* if brute force doesn't work, you're not applying it hard enough */
+    for (id = 1; id <= max_id; ++id) {
+#define CHECK( type ) if ( glIs##type( id ) ) trace("GLX: leaked " #type " handle 0x%x\n", (unsigned int) id )
+        CHECK( Texture );
+        CHECK( Buffer );
+        CHECK( Framebuffer );
+        CHECK( Renderbuffer );
+        CHECK( VertexArray );
+        CHECK( Shader );
+        CHECK( Program );
+        CHECK( ProgramPipeline );
+#undef CHECK
+    }
+
+    trace("leak check done\n");
+}
+
 /* caller is responsible for freeing the buffer if not NULL */
 char *loadfile(const char *filename) {
     struct stat stats;
