@@ -44,6 +44,7 @@ deps/sdl2/Makefile
 deps/sdl2/sdl-config
 deps/sdl2/SDL2.spec
 deps/sdl2/build
+deps/sdl2/include/SDL_config.h
 
 # for Xcode
 *.orig
