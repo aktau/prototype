@@ -353,6 +353,7 @@ int main(int argc, char* argv[]) {
     /* shaders */
     struct gfxShaderProgram shader;
     gfxLoadShaderFromFile(&shader, "./src/shaders/texture.vert", "./src/shaders/texture.frag");
+    gfxShaderPrintUboLayout(&shader, "StaticMatrices");
 
     struct gfxShaderProgram colorShader;
     gfxLoadShaderFromFile(&colorShader, "./src/shaders/color.vert", "./src/shaders/color.frag");

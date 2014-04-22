@@ -157,6 +157,10 @@ void gfxLoadShaderFromFile(struct gfxShaderProgram *shader, const char *vertfile
 void gfxLoadShader(struct gfxShaderProgram *shader, const char *vertsrc, const char *fragsrc);
 void gfxDestroyShader(struct gfxShaderProgram *shader);
 
+int gfxShaderUboLayout(const struct gfxShaderProgram *shader, struct gfxUboLayout *layout, const char *blockname);
+void gfxShaderFreeUboLayout(struct gfxUboLayout *layout);
+void gfxShaderPrintUboLayout(const struct gfxShaderProgram *shader, const char *blockname);
+
 void gfxSetShaderParams(
     const struct gfxShaderProgram *shader,
     const struct gfxLayer *layer,

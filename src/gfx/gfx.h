@@ -12,6 +12,11 @@
 
 #include "math/types.h"
 
+/* the maximum lenght of a glsl identifier. As far as I could find glsl
+ * doesn't define a maximum. WebGL specifies 256 bytes, so we'll stick to
+ * that. */
+#define GFX_SHD_IDENT_SIZE_MAX  256
+
 #define GFX_FALSE               0x0000
 #define GFX_TRUE                0x0001
 
@@ -113,6 +118,29 @@ struct gfxShaderProgram {
 
     struct gfxUniformLocations loc;
     // struct gfxShaderProgram *next;
+};
+
+/* holds info about a uniform, like the size/stride/..., for now just used
+ * for uniforms inside of a Uniform Buffer Objects, but that could change in
+ * the future. */
+struct gfxUniformInfo {
+    char name[GFX_SHD_IDENT_SIZE_MAX];
+
+    GLint type;
+    GLint offset;
+    GLint size;
+    GLint arrayStride;
+    GLint matrixStride;
+};
+
+/* describes the layout of a UBO buffer, will come in handy for debugging
+ * and very necessary when we start uploading "shared" and "packed" UBOs. */
+struct gfxUboLayout {
+    size_t size;                       /* the block size, in bytes */
+    char name[GFX_SHD_IDENT_SIZE_MAX]; /* the name of the block */
+
+    size_t nelem;                    /* the number of uniforms in the buffer */
+    struct gfxUniformInfo *uniforms; /* the info for every uniform in the buffer */
 };
 
 /* the C representation of a Uniform Buffer Object */
