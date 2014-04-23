@@ -23,6 +23,7 @@ static int gfxCheckShader(GLuint shader);
 static int gfxCheckShaderProgram(GLuint program);
 static size_t gfxGlslTypeSize(GLint type);
 static const char *gfxGlslTypeString(GLint type);
+static int gfxUboInfoCompare(const void *p1, const void *p2);
 
 void gfxSetShaderParams(
     const struct gfxShaderProgram *shader,
@@ -215,8 +216,16 @@ void gfxShaderPrintUboLayout(const struct gfxShaderProgram *shader, const char *
     gfxShaderFreeUboLayout(&layout);
 }
 
+static int gfxUboInfoCompare(const void *p1, const void *p2) {
+    GLint a = ((struct gfxUniformInfo *)p1)->offset;
+    GLint b = ((struct gfxUniformInfo *)p2)->offset;
+
+    return (a < b) ? -1 : (a > b) ? 1 : 0;
+}
+
 /* fills the layout struct with information about the UBO, return -1 on
- * error, 0 on success. */
+ * error, 0 on success. You can reuse gfxUboLayout structs after you've
+ * called gfxShaderFreeUboLayout on them. */
 int gfxShaderUboLayout(const struct gfxShaderProgram *shader,
         struct gfxUboLayout *layout, const char *blockname) {
     memset(layout, 0x0, sizeof(*layout));
@@ -300,6 +309,11 @@ int gfxShaderUboLayout(const struct gfxShaderProgram *shader,
         glGetActiveUniformName(shader->id, uids[i], GFX_SHD_IDENT_SIZE_MAX,
                 NULL, layout->uniforms[i].name);
     }
+
+    /* sort the uniforms based on offset, some drivers return them in random
+     * order */
+    qsort(layout->uniforms, layout->nelem,
+            sizeof(layout->uniforms[0]), gfxUboInfoCompare);
 
     zfree(uids);
 
