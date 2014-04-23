@@ -418,14 +418,17 @@ int main(int argc, char* argv[]) {
     int wireframe   = 0;
 
     struct gfxLayer *layers[] = { &sceneLayer, &guiLayer, NULL };
-    struct gfxRenderer renderer = {
+
+    struct gfxRenderer rend = {
         .layers = layers,
     };
-    fillRendererInfo(&renderer);
-    trace("render context info: max UBO size = %d, max UBO binding points = %d, UBO offset alignment = %d\n",
-        renderer.uboMaxBlockSize, renderer.uboMaxBindings, renderer.uboOffsetAlign);
+    fillRendererInfo(&rend);
+    trace("render context info:\n");
+    trace("    - max uniform block size = %d bytes\n", rend.uboMaxBlockSize);
+    trace("    - max UBO binding points = %d\n", rend.uboMaxBindings);
+    trace("    - UBO offset align       = %d\n", rend.uboOffsetAlign);
 
-    resize(&renderer, width, height);
+    resize(&rend, width, height);
 
     /* initial drawlist generation */
     gfxDrawlistClear();
@@ -493,7 +496,7 @@ int main(int argc, char* argv[]) {
                                 width, height
                             );
 
-                            resize(&renderer, width, height);
+                            resize(&rend, width, height);
                         }
                         break;
                     }
