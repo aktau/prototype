@@ -217,5 +217,35 @@ struct gfxRenderer {
     int uboOffsetAlign;
 };
 
+/**
+ * perf.c
+ */
+
+/* I read somewhere that some recent cards can have up to 5 frames of
+ * latency (i.e.: the card runs 5 frames behind the CPU), let's put this to
+ * the test. */
+#define GFX_QUERY_FRAMES 3
+
+/* enable this if you want the number of frames latency be made available
+ * after calling gfxPerfFinishFrame(). */
+/* #define GFX_PERF_NFRAMES_LATENCY */
+
+/* how many queries do we use per frame? */
+typedef enum {
+    GFX_TIMER_RENDER = 0,
+    GFX_TIMER_SWAP,
+    GFX_TIMER_NUM
+} gfx_query_t;
+
+/* a set of queries */
+struct gfxQuerySet {
+    GLuint queries[GFX_QUERY_FRAMES][GFX_TIMER_NUM];
+    unsigned int curr;
+
+#ifdef GFX_PERF_NFRAMES_LATENCY
+    int numFramesLatency;
+#endif
+};
+
 #endif
 

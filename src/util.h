@@ -179,6 +179,14 @@ void gfxCreateRenderParams(struct gfxRenderParams *params);
 void gfxDestroyRenderParams(struct gfxRenderParams *params);
 void gfxBatch(const struct gfxLayer *layer);
 
+/* gfx/perf.c */
+void gfxGenQueries(struct gfxQuerySet *set);
+void gfxDestroyQueries(struct gfxQuerySet *set);
+void gfxBeginQuery(struct gfxQuerySet *set, GLenum target, gfx_query_t type);
+void gfxEndQuery(struct gfxQuerySet *set, GLenum target);
+void gfxPerfFinishFrame(struct gfxQuerySet *set);
+uint64_t gfxGetElapsedTime(struct gfxQuerySet *set, gfx_query_t type);
+
 /* scratch.c */
 void gfxQuad(struct gfxModel *model);
 void gfxCube(struct gfxModel *model);
