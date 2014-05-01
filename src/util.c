@@ -58,6 +58,7 @@ void wfGlCheckLeaks(void) {
         CHECK( Shader );
         CHECK( Program );
         CHECK( ProgramPipeline );
+        CHECK( Query );
 #undef CHECK
     }
 
