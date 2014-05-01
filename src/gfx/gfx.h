@@ -234,6 +234,7 @@ struct gfxRenderer {
 typedef enum {
     GFX_TIMER_RENDER = 0,
     GFX_TIMER_SWAP,
+    GFX_PRIMITIVES_GENERATED,
     GFX_TIMER_NUM
 } gfx_query_t;
 

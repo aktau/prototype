@@ -185,7 +185,8 @@ void gfxDestroyQueries(struct gfxQuerySet *set);
 void gfxBeginQuery(struct gfxQuerySet *set, GLenum target, gfx_query_t type);
 void gfxEndQuery(struct gfxQuerySet *set, GLenum target);
 void gfxPerfFinishFrame(struct gfxQuerySet *set);
-uint64_t gfxGetElapsedTime(struct gfxQuerySet *set, gfx_query_t type);
+uint32_t gfxPerfGetu32(struct gfxQuerySet *set, gfx_query_t type);
+uint64_t gfxPerfGetu64(struct gfxQuerySet *set, gfx_query_t type);
 
 /* scratch.c */
 void gfxQuad(struct gfxModel *model);

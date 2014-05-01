@@ -35,10 +35,24 @@ void gfxGenQueries(struct gfxQuerySet *set) {
 
     /* perform one fake frame to prevent GL errors */
     for (int i = 0; i < GFX_TIMER_NUM; ++i) {
-        glBeginQuery(GL_TIME_ELAPSED, set->queries[0][i]);
+        /* TODO: I really need to find a better solution for this than hardcoding
+         * the type of the query... */
+        GLenum type;
+        switch (i) {
+            case GFX_TIMER_RENDER:
+            case GFX_TIMER_SWAP:
+                type = GL_TIME_ELAPSED;
+                break;
+
+            case GFX_PRIMITIVES_GENERATED:
+                type = GL_PRIMITIVES_GENERATED;
+                break;
+        }
+
+        glBeginQuery(type, set->queries[0][i]);
         GL_ERROR("dummy init: %d", i);
 
-        glEndQuery(GL_TIME_ELAPSED);
+        glEndQuery(type);
         GL_ERROR("dummy read: %d", i);
     }
 
@@ -88,19 +102,29 @@ void gfxPerfFinishFrame(struct gfxQuerySet *set) {
 #endif
 }
 
+#define VALUE_OR_BAIL(value, set, func) \
+    do { \
+        unsigned int curr = __atomic_load_n(&set->curr, PERF_MEMORY_MODEL); \
+        int nframes = gfxFramesLatency(set, type, curr); \
+        if (nframes == -1) return 0; \
+        unsigned int firstframe = gfxPerfIndex(curr - (unsigned int) nframes); \
+        func(set->queries[firstframe][type], GL_QUERY_RESULT, &(value)); \
+    } while (0);
+
+uint32_t gfxPerfGetu32(struct gfxQuerySet *set, gfx_query_t type) {
+    STATIC_ASSERT(sizeof(uint32_t) == sizeof(GLuint), "sizeof(uint32_t) != sizeof(GLuint)");
+
+    uint32_t val;
+    VALUE_OR_BAIL(val, set, glGetQueryObjectuiv);
+    return val;
+}
+
 /* get the first available value of this kind */
-uint64_t gfxGetElapsedTime(struct gfxQuerySet *set, gfx_query_t type) {
-    unsigned int curr = __atomic_load_n(&set->curr, PERF_MEMORY_MODEL);
-
-    int nframes = gfxFramesLatency(set, type, curr);
-    if (nframes == -1) {
-        return 0;
-    }
-
-    unsigned int firstframe = gfxPerfIndex(curr - (unsigned int) nframes);
+uint64_t gfxPerfGetu64(struct gfxQuerySet *set, gfx_query_t type) {
+    STATIC_ASSERT(sizeof(uint64_t) == sizeof(GLuint64), "sizeof(uint64_t) != sizeof(GLuint64)");
 
     uint64_t val;
-    glGetQueryObjectui64v(set->queries[firstframe][type], GL_QUERY_RESULT, &val);
+    VALUE_OR_BAIL(val, set, glGetQueryObjectui64v);
     return val;
 }
 

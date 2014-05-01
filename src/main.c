@@ -584,7 +584,9 @@ int main(int argc, char* argv[]) {
         gfxUploadLayer(&sceneLayer);
         gfxUploadLayer(&guiLayer);
 
+        gfxBeginQuery(&queries, GL_PRIMITIVES_GENERATED, GFX_PRIMITIVES_GENERATED);
         gfxDrawlistRender();
+        gfxEndQuery(&queries, GL_PRIMITIVES_GENERATED);
 
         gfxEndQuery(&queries, GL_TIME_ELAPSED);
 
@@ -592,10 +594,12 @@ int main(int argc, char* argv[]) {
         SDL_GL_SwapWindow(window);
         uint32_t elapsedSwap = SDL_GetTicks() - beforeSwap;
 
-        uint64_t rendertime = gfxGetElapsedTime(&queries, GFX_TIMER_RENDER);
+        uint32_t rendertime = gfxPerfGetu32(&queries, GFX_TIMER_RENDER);
+        uint32_t nprims = gfxPerfGetu32(&queries, GFX_PRIMITIVES_GENERATED);
 
         /* TODO: print out when we have text rendering */
-        /* printf("render objects: %f ms, swap buffers: %f\n", (double) rendertime / 1000000.0, (double) elapsedSwap); */
+        /* printf("render objects: %u prims, %f ms, swap buffers: %f\n", */
+        /*         nprims, (double) rendertime / 1000000.0, (double) elapsedSwap); */
 
         /* swap the query set */
         gfxPerfFinishFrame(&queries);
