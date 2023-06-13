@@ -41,6 +41,9 @@ DEPS_PATH := ./deps
 SDL_PATH := $(DEPS_PATH)/sdl2
 LUA_PATH := $(DEPS_PATH)/lua
 
+LIBS := $(SDL_PATH)/build/.libs/libSDL2.a $(SDL_PATH)/build/.libs/libSDL2main.a \
+	-lm
+
 CC_VERSION := $(shell $(CC) --version | head -1 | cut -f1 -d' ')
 
 ifeq ($(OS),Windows_NT)
@@ -56,9 +59,17 @@ else
 
 	ifeq ($(UNAME_S),Linux)
 		CFLAGS += -DLINUX
+		LIBS += \
+			-ldl \
+			-lGL
 	endif
 	ifeq ($(UNAME_S),Darwin)
 		CFLAGS += -DOSX
+		LIBS += \
+			-liconv \
+			-framework Cocoa -framework Carbon -framework OpenGL \
+			-framework CoreAudio -framework AudioToolbox -framework AudioUnit \
+			-framework ForceFeedback -framework IOKit
 	endif
 
 	ifneq (,$(findstring clang,$(CC_VERSION)))
@@ -110,12 +121,6 @@ INCS := -I$(SDL_PATH)/include \
 	-I./src \
 	-I./src/gfx \
 	-I./src/util
-
-LIBS := $(SDL_PATH)/build/.libs/libSDL2.a $(SDL_PATH)/build/libSDL2main.a \
-	-lm -liconv \
-	-framework Cocoa -framework Carbon -framework OpenGL \
-	-framework CoreAudio -framework AudioToolbox -framework AudioUnit \
-	-framework ForceFeedback -framework IOKit
 
 EXECUTABLE := prototype
 SOURCE := src/main.c \

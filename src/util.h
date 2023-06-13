@@ -24,7 +24,7 @@
     #include <OpenGL/gl3.h>
     #include <OpenGL/gl3ext.h>
 #else
-    #include <GL3/gl3.h>
+    #include <GL/gl.h>
 #endif
 
 #include "macros.h"
