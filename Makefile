@@ -164,9 +164,11 @@ release: $(EXECUTABLE)
 # main executable(s)
 
 $(EXECUTABLE): $(OBJECTS)
-		-$(MAKE) -C $(DEPS_PATH) -j4 $(DEPENDENCY_TARGETS) CC=$(CC)
 		install -d build
 		$(CC) -o $@ $^ $(LIBS) $(CFLAGS) -pagezero_size 10000 -image_base 100000000
+
+deps:
+		-$(MAKE) -C $(DEPS_PATH) -j4 $(DEPENDENCY_TARGETS) CC=$(CC)
 
 # tests
 
@@ -185,7 +187,7 @@ build/stb_image.o: src/stb_image.c
 build/zmalloc.o: src/zmalloc.c
 		$(CC) -c $< -o $@ $(CFLAGS) -fno-strict-aliasing $(INCS)
 
-build/%.o: src/%.c
+build/%.o: src/%.c deps
 	@mkdir -p $(dir $@)
 	$(CC) -c $< -o $@ $(CFLAGS) $(INCS)
 
@@ -193,4 +195,4 @@ clean:
 	rm -rf build/* || true
 	rm -f $(EXECUTABLE) || true
 
-.PHONY: all debug release
+.PHONY: all debug release deps
