@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <stdbool.h>
 #include <inttypes.h>
 #include <limits.h>
 
@@ -19,6 +20,8 @@
 #include "util.h"
 
 #include "SDL.h"
+
+bool g_update_title = false;
 
 const char *printv(vec4 vec) {
     static char buffer[256];
@@ -195,11 +198,20 @@ static void diagFrameDone(SDL_Window *window) {
         int avgfps = (int) (1000 / (float) avg);
         int fps = (int) (1000 * (float) counter / (float) totalElapsed);
 
-        sprintf(
-            title,
-            "avg fps: %d, actual fps: %d, ms/f (min: %d, avg: %d, max: %d), frames: %d, mem: %zu b, lua mem: %d kb\n",
-            avgfps, fps, min, avg, max, counter, zmalloc_used_memory(), wfScriptMemUsed()
-        );
+        if (g_update_title) {
+          sprintf(title,
+                  "avg fps: %d, actual fps: %d, ms/f (min: %d, avg: %d, max: %d), "
+                  "frames: %d, mem: %zu b, lua mem: %d kb\n",
+                  avgfps, fps, min, avg, max, counter, zmalloc_used_memory(),
+                  wfScriptMemUsed());
+
+          SDL_SetWindowTitle(window, title);
+        } else {
+          printf("avg fps: %d, actual fps: %d, ms/f (min: %d, avg: %d, max: %d), "
+                 "frames: %d, mem: %zu b, lua mem: %d kb\n",
+                 avgfps, fps, min, avg, max, counter, zmalloc_used_memory(),
+                 wfScriptMemUsed());
+        }
 
         SDL_SetWindowTitle(window, title);
 
