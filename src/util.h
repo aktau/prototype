@@ -150,6 +150,7 @@ char *loadfile(const char *filename);
 const char *wfCompiler(void);
 
 /* texture.c */
+void gfxInitTexture(void);
 GLuint gfxLoadTexture(const char *image);
 void gfxDestroyTexture(GLuint texture);
 

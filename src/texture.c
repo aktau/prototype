@@ -13,6 +13,18 @@
 
 static int gfxUploadTexture(const char *image, int srgb);
 
+float g_max_anisotropy = 0.0f;
+
+void gfxInitTexture(void) {
+#if defined(GL_EXT_texture_filter_anisotropic) || defined(GL_ARB_texture_filter_anisotropic)
+    glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &g_max_anisotropy);
+    if (glGetError() != GL_NO_ERROR) {
+      g_max_anisotropy = 0.0f;
+      trace("anisotropy not supported, disabling");
+    }
+#endif
+}
+
 /**
  * will return a texture id with a nice, trilinearly filtered texture (with anisotropy)
  *
@@ -32,11 +44,7 @@ static int gfxUploadTexture(const char *image, int srgb);
  * http://www.opengl.org/wiki/GLSL_Sampler#Binding_textures_to_samplers
  */
 GLuint gfxLoadTexture(const char *image) {
-    GLfloat anisotropy = 0.0f;
     GLuint texture;
-
-    /* get maximum possible anisotropric filtering value */
-    glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &anisotropy);
 
     /* generate and bind */
     glGenTextures(1, &texture);
@@ -53,7 +61,11 @@ GLuint gfxLoadTexture(const char *image) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
     /* anisotropic filtering */
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
+#if defined(GL_EXT_texture_filter_anisotropic) || defined(GL_ARB_texture_filter_anisotropic)
+    if (g_max_anisotropy > 0.0f) {
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, g_max_anisotropy);
+    }
+#endif
 
     GL_ERROR("set texture parameters");
 
@@ -66,7 +78,7 @@ GLuint gfxLoadTexture(const char *image) {
 
     GL_ERROR("generate mipmaps");
 
-    trace("successfully loaded %s, anisotropy: %f\n", image, anisotropy);
+    trace("successfully loaded %s, anisotropy: %f\n", image, g_max_anisotropy);
 
     return texture;
 

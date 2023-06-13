@@ -118,6 +118,8 @@ static void init() {
 
     /* MSAA */
     glEnable(GL_MULTISAMPLE);
+
+    gfxInitTexture();
 }
 
 static void fillRendererInfo(struct gfxRenderer *renderer) {
