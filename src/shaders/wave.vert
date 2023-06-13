@@ -25,10 +25,10 @@ layout(std140) uniform StaticMatrices {
     // vec4 specular;
     // vec4 position;
     // vec4 direction;
-    float timer;
 };
 
 /* uniforms */
+uniform float timer;
 uniform float xs = 3.0, zs = 4.0;
 // uniform mat4 projection;
 
