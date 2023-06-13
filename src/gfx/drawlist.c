@@ -7,6 +7,8 @@
  * file that was distributed with the source code.
  */
 
+#include <unistd.h>
+
 #include "drawlist.h"
 #include "util.h"
 #include "binary_search.h"
