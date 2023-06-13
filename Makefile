@@ -59,6 +59,11 @@ else
 
 	ifeq ($(UNAME_S),Linux)
 		CFLAGS += -DLINUX
+		# On Linux, this allows GL/glext.h OpenGL to declare functions like
+		# glDebugMessageCallback(), eliminating undeclared function warnings. On
+		# other platforms, we should use use function pointers (e.g. GLEW), but it
+		# is simpler on Linux. See https://stackoverflow.com/a/17555881.
+		CFLAGS += -DGL_GLEXT_PROTOTYPES
 		LIBS += \
 			-ldl \
 			-lGL

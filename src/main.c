@@ -87,7 +87,20 @@ static void resize(struct gfxRenderer *renderer, int width, int height) {
 
 }
 
+#ifdef GL_VERSION_4_3
+static void GLAPIENTRY debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
+  trace("%s type = 0x%x, severity = 0x%x, message = %s\n", ( type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "" ), type, severity, message);
+}
+#endif
+
 static void init() {
+#ifdef GL_VERSION_4_3
+    /* This is an OpenGL 4.3+ feature, very handy when available.
+     * TODO: make this check dynamic instead of at compile-time. */
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(debugCallback, 0);
+#endif
+
     /* set the background black */
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
