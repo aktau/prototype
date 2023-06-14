@@ -105,8 +105,8 @@ static void printDrawlist(const struct gfxDrawlist *dl, size_t count) {
 
 static int compare(const void* p1, const void* p2) {
     /* TODO: branch on translucency... (sort back to front only when translucent) */
-    uint64_t a = ((struct entry *)p1)->key.intrep;
-    uint64_t b = ((struct entry *)p2)->key.intrep;
+    uint64_t a = ((const struct entry *)p1)->key.intrep;
+    uint64_t b = ((const struct entry *)p2)->key.intrep;
 
     return (a < b) ? -1 : (a > b) ? 1 : 0;
 }

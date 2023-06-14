@@ -217,8 +217,8 @@ void gfxShaderPrintUboLayout(const struct gfxShaderProgram *shader, const char *
 }
 
 static int gfxUboInfoCompare(const void *p1, const void *p2) {
-    GLint a = ((struct gfxUniformInfo *)p1)->offset;
-    GLint b = ((struct gfxUniformInfo *)p2)->offset;
+    GLint a = ((const struct gfxUniformInfo *)p1)->offset;
+    GLint b = ((const struct gfxUniformInfo *)p2)->offset;
 
     return (a < b) ? -1 : (a > b) ? 1 : 0;
 }
