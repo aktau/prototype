@@ -33,6 +33,10 @@ perf/quat
 .make-*
 .prerequisites
 
+# clangd
+compile_commands.json
+.cache/
+
 # everything below is for SDL2
 syntax:glob
 deps/sdl2/aclocal.m4

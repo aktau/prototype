@@ -42,6 +42,14 @@ If you want a release build, do
 $ make -j8 release
 ```
 
+If you want to make clangd play nice, generate a local compile_commands.json
+using [bear](https://github.com/rizsotto/Bear):
+
+```bash
+$ sudo apt install bear
+$ bear -- make CC=path/to/your/clang all
+```
+
 acknowledgements
 ================
 
