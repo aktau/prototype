@@ -7,9 +7,9 @@
  * file that was distributed with the source code.
  */
 
-#define PACKED __attribute__((packed))
+#define PACKED        __attribute__((packed))
 #define STATIC_ASSERT _Static_assert
 #define ALWAYS_INLINE __attribute__((always_inline))
 
-#define likely(x)       __builtin_expect(!!(x), 1)
-#define unlikely(x)     __builtin_expect(!!(x), 0)
+#define likely(x)   __builtin_expect(!!(x), 1)
+#define unlikely(x) __builtin_expect(!!(x), 0)

@@ -10,28 +10,28 @@
 #include "util.h"
 
 void gfxDestroyModel(struct gfxModel *model) {
-    glBindVertexArray(model->vao);
+  glBindVertexArray(model->vao);
 
-    GL_ERROR("bind VAO");
+  GL_ERROR("bind VAO");
 
-    /* unbind buffers so we can safely delete them */
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  /* unbind buffers so we can safely delete them */
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    /* disable all vertex attrib arrays */
-    for (GLuint i = 0; i < GFX_MAX_ATTRIB_ARRAY; ++i) {
-        glDisableVertexAttribArray(i);
+  /* disable all vertex attrib arrays */
+  for (GLuint i = 0; i < GFX_MAX_ATTRIB_ARRAY; ++i) {
+    glDisableVertexAttribArray(i);
 
-        GL_ERROR("disable VAA");
-    }
+    GL_ERROR("disable VAA");
+  }
 
-    glDeleteBuffers(GFX_VBO_NUM, model->vbo);
-    glDeleteBuffers(1, &model->ibo);
+  glDeleteBuffers(GFX_VBO_NUM, model->vbo);
+  glDeleteBuffers(1, &model->ibo);
 
-    GL_ERROR("delete buffers");
+  GL_ERROR("delete buffers");
 
-    glBindVertexArray(0);
-    glDeleteVertexArrays(1, &model->vao);
+  glBindVertexArray(0);
+  glDeleteVertexArrays(1, &model->vao);
 
-    GL_ERROR("delete buffer objects");
+  GL_ERROR("delete buffer objects");
 }
