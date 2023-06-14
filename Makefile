@@ -187,7 +187,15 @@ build/stb_image.o: src/stb_image.c
 build/zmalloc.o: src/zmalloc.c
 		$(CC) -c $< -o $@ $(CFLAGS) -fno-strict-aliasing $(INCS)
 
-build/%.o: src/%.c deps
+# deps is an order-only dependency, because if we made it a phony target a
+# normal dependency we'd always rebuild (https://stackoverflow.com/q/13852535).
+# Ideally we'd only rebuild if either the *.c file changes or anything in deps
+# changes. But deps is based on invoking another makefile. I thought about
+# replacing this with a check on child-of-directory modification times, but this
+# appears fraught (https://stackoverflow.com/a/16350249). If always-rebuilding
+# ever happens again, run `make -d $TARGET` to debug. For now, we'll stay with
+# this hack, and just manually make the deps when updating the deps.
+build/%.o: src/%.c | deps
 	@mkdir -p $(dir $@)
 	$(CC) -c $< -o $@ $(CFLAGS) $(INCS)
 
